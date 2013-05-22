@@ -139,7 +139,7 @@ angular.module('yaMap', []).
 				scope.yaProperties = scope.yaProperties || {};
 				scope.yaSelect = scope.yaSelect || {};
 				scope.yaGeoObjects = scope.yaGeoObjects || [];
-				var map, i, ii, syncRun = false,
+				var map, i, ii, runAngularContext = false,
 					editingTypes=['LineString', 'Polygon'],
 					mode,
 					modes=['view','select','edit'],
@@ -164,6 +164,18 @@ angular.module('yaMap', []).
 						});
 						return result;
 					},
+					//находит гео объект на карте по его представлению в области видимости
+					findGeoObjectOnMap = function(geoObjInScope){
+						var index = scope.yaGeoObjects.indexOf(geoObjInScope),
+							result = null;
+						map.geoObjects.each(function(geoObj){
+							if(geoObj.properties.get('index')===index){
+								result = geoObj;
+								return false;
+							}
+						});
+						return result;
+					},
 					//отмена выделения текщего выбранного объекта
 					deselect = function(){
 						if(selectedGeoObject && backOptionsSelectedGeoObject){
@@ -179,7 +191,7 @@ angular.module('yaMap', []).
 						//очищаем старые значения
 						backOptionsSelectedGeoObject = null;
 						selectedGeoObject = null;
-						if(syncRun){
+						if(runAngularContext){
 							scope.yaSelect = null;
 						}else{
 							scope.$apply(function(){
@@ -206,9 +218,13 @@ angular.module('yaMap', []).
 						}
 						backOptionsSelectedGeoObject = backOptions;
 						selectedGeoObject = geoObj;
-						scope.$apply(function(){
+						if(runAngularContext){
 							scope.yaSelect = findGeoObject(geoObj.geometry.getCoordinates(), geoObj.geometry.getType());
-						});
+						}else{
+							scope.$apply(function(){
+								scope.yaSelect = findGeoObject(geoObj.geometry.getCoordinates(), geoObj.geometry.getType());
+							});
+						}
 					},
 					//возвращает true, если geoObj поддерживает визуальное редактирование
 					hasEditor = function(geoObj){
@@ -218,13 +234,13 @@ angular.module('yaMap', []).
 						return mode === 'edit';
 					},
 					isSelectable = function(){
-						return mode === 'select';
+						return mode === 'select' || isEditable();
 					},
 					//подписка на события
 					subscribeEvent = function(geoObject){
 						if(isEditable()){
 							geoObject.events.add('geometrychange', function (event) {
-								if(!syncRun){
+								if(!runAngularContext){
 									//получаем оригинальное событие
 									var originEvent = event;
 									while(originEvent.originalEvent){
@@ -258,7 +274,6 @@ angular.module('yaMap', []).
 						map.geoObjects.remove(geoObj);
 					},
 					synchronise = function(changedGeoObjects){
-						syncRun = true;
 						var processedIds = [], removedGeoObjects=[], addedGeoObjects=[];
 						map.geoObjects.each(function(geoObj){
 							var index = geoObj.properties.get('index'),
@@ -287,7 +302,6 @@ angular.module('yaMap', []).
 						for(j=0,jj=addedGeoObjects.length;j<jj;j++){
 							addOnMap(addedGeoObjects[j].element,addedGeoObjects[j].index);
 						}
-						syncRun = false;
 					},
 					addOnMap = function(geoObj, index){
 						var displayOptions = getDisplayOptions(geoObj);
@@ -298,9 +312,13 @@ angular.module('yaMap', []).
 						//т.к. координаты замкнутых фигур могут не содержать последней точки, мы их обновляем
 						//так чтобы эта точка была
 						if(geoObj.geometry.type === 'Polygon'){
-							scope.$apply(function(){
+							if(runAngularContext){
 								geoObj.geometry.coordinates = mapGeoObject.geometry.getCoordinates();
-							});
+							}else{
+								scope.$apply(function(){
+									geoObj.geometry.coordinates = mapGeoObject.geometry.getCoordinates();
+								});
+							}
 						}
 
 						map.geoObjects.add(mapGeoObject);
@@ -343,8 +361,17 @@ angular.module('yaMap', []).
 
 						//включаем отслеживаение изменений в коллекции гео данных
 						scope.$watch('yaGeoObjects', function(newGeoObjects, old){
+							runAngularContext = true;
 							synchronise(newGeoObjects);
+							runAngularContext = false;
 						}, function(){return false});
+
+						scope.$watch('yaSelect', function(newSelect, oldSelect){
+							runAngularContext = true;
+							var geoObj = findGeoObjectOnMap(newSelect);
+							select(geoObj);
+							runAngularContext = false;
+						});
 					};
 				ymaps.ready(function(){
 					var params = yaMapOptions.getParams(scope.yaProperties.params),

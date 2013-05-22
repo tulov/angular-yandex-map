@@ -4,6 +4,7 @@
 // Declare app level module which depends on filters, and services
 var app = angular.module('myApp', ['yaMap']).
 	controller('MapCtrl', ['$scope',function($scope){
+		var selectIndex = 3;
 		$scope.geoObjects=[
 			{
 				// Геометрия = тип объекта + географические координаты объекта
@@ -109,9 +110,11 @@ var app = angular.module('myApp', ['yaMap']).
 				center:[55.76, 37.64]
 			}
 		};
-		$scope.select = $scope.geoObjects[3];
+		$scope.select = $scope.geoObjects[selectIndex];
 		$scope.deleteObj = function(){
-			$scope.geoObjects.pop();
+			if($scope.geoObjects.length){
+				$scope.geoObjects.pop();
+			}
 		};
 		$scope.addObj = function(){
 			$scope.geoObjects.push({
@@ -130,7 +133,18 @@ var app = angular.module('myApp', ['yaMap']).
 			});
 		};
 		$scope.changeObj = function(){
-			$scope.geoObjects[4].geometry.radius=1000;
+			for(var i= 0,ii=$scope.geoObjects.length;i<ii;i++){
+				if($scope.geoObjects[i].geometry.type === 'Circle'){
+					$scope.geoObjects[i].geometry.radius /= 2;
+					return;
+				}
+			}
+		};
+		$scope.changeSelect = function(){
+			if($scope.geoObjects.length === ++selectIndex){
+				selectIndex=0;
+			}
+			$scope.select = $scope.geoObjects[selectIndex];
 		};
 	}]).
 	config(['YandexMapOptionsProvider', function(yaMapOptions){
