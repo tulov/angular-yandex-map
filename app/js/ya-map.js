@@ -360,16 +360,20 @@ angular.module('yaMap', []).
 						}
 
 						//включаем отслеживаение изменений в коллекции гео данных
-						scope.$watch('yaGeoObjects', function(newGeoObjects, old){
+						scope.$watch('yaGeoObjects', function(newGeoObjects){
 							runAngularContext = true;
 							synchronise(newGeoObjects);
 							runAngularContext = false;
 						}, function(){return false});
 
-						scope.$watch('yaSelect', function(newSelect, oldSelect){
+						scope.$watch('yaSelect', function(newSelect){
 							runAngularContext = true;
-							var geoObj = findGeoObjectOnMap(newSelect);
-							select(geoObj);
+							if(newSelect===null){
+								deselect();
+							}else{
+								var geoObj = findGeoObjectOnMap(newSelect);
+								select(geoObj);
+							}
 							runAngularContext = false;
 						});
 					};
