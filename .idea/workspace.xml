@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bda417d3-5858-4b12-b7d1-538470a42da2" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/js/app.js" afterPath="$PROJECT_DIR$/app/js/app.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/index.html" afterPath="$PROJECT_DIR$/app/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/js/ya-map.js" afterPath="$PROJECT_DIR$/app/js/ya-map.js" />
-    </list>
+    <list default="true" id="bda417d3-5858-4b12-b7d1-538470a42da2" name="Default" comment="" />
     <ignored path="yaMap.iws" />
     <ignored path=".idea/workspace.xml" />
     <file path="/Dummy.txt" changelist="bda417d3-5858-4b12-b7d1-538470a42da2" time="1369195876854" ignored="false" />
