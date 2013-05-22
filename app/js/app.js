@@ -109,6 +109,29 @@ var app = angular.module('myApp', ['yaMap']).
 				center:[55.76, 37.64]
 			}
 		};
+		$scope.select = $scope.geoObjects[3];
+		$scope.deleteObj = function(){
+			$scope.geoObjects.pop();
+		};
+		$scope.addObj = function(){
+			$scope.geoObjects.push({
+				// Геометрия.
+				geometry: {
+					// Тип геометрии - круг.
+					type: "Circle",
+					// Координаты центра.
+					coordinates: [55.8, 37.8],
+					radius:10000
+				},
+				properties:{
+					//Свойства
+					hintContent: "Круг"
+				}
+			});
+		};
+		$scope.changeObj = function(){
+			$scope.geoObjects[4].geometry.radius=1000;
+		};
 	}]).
 	config(['YandexMapOptionsProvider', function(yaMapOptions){
 		yaMapOptions.options({

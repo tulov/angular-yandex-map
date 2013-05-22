@@ -10,7 +10,7 @@ angular.module('yaMap', []).
 				// yandex#hybrid (гибрид);
 				// yandex#publicMap (народная карта);
 				// yandex#publicMapHybrid (гибрид народной карты)
-				type: 'yandex#satellite',
+				type: 'yandex#map',
 
 				zoom:10, //от 0 до 23 включительно, 23 - самое большой массштаб
 
@@ -36,57 +36,52 @@ angular.module('yaMap', []).
 			},
 			//параметры отображения различных объектов на карте
 			displayOptions:{
-				//эти параметры относятся ко всем объектам
-				all:{
-					draggable: false
-				},
-				point:{
-					// Иконка метки будет растягиваться под ее контент
-					preset: 'twirl#pinkStretchyIcon'
-				},
-				linestring:{
-					// Опции PolyLine
-					// Сделать доступным для перетаскивания.
-					draggable: true,
-					// Задаем цвет - желтый
-					strokeColor: "#FFFF00",
-					strokeWidth: 5
-				},
-				rectangle:{
+				//параметры отображения объектов в обычном состоянии
+				general:{
+					//эти параметры относятся ко всем объектам
+					all:{
+						//возможность перетаскивания мышью
+						draggable: false,
+						//ширина границы
+						strokeWidth: 3,
+						//цвет границы
+						strokeColor: "#FFFF00",
+						// Цвет и прозрачность заливки
+						fillColor: '#ffff0022'
+					},
+					point:{
+						// Иконка метки будет растягиваться под ее контент
+						preset: 'twirl#pinkStretchyIcon'
+					},
+					linestring:{
+						// Опции PolyLine
+						// Сделать доступным для перетаскивания.
+						draggable: true,
+						strokeWidth: 5
+					},
 					// Опции прямоугольника
-					// Объект нельзя перетаскивать
-					draggable: false,
-					// Цвет и прозрачность заливки
-					fillColor: '#ffff0022',
-					// Цвет и прозрачность границ
-					strokeColor: '#3caa3c88',
-					// Ширина линии
-					strokeWidth: 7
-				},
-				polygon:{
+					rectangle:{
+					},
 					// Опции многоугольника
-					// Цвет заливки (зеленый)
-					fillColor: '#00FF00',
-					// Цвет границ (синий)
-					strokeColor: '#0000FF',
-					// Прозрачность (полупрозрачная заливка)
-					opacity: 0.6,
-					// Ширина линии
-					strokeWidth: 5,
-					// Стиль линии
-					strokeStyle: 'shortdash'
+					polygon:{
+						// Стиль линии
+						strokeStyle: 'shortdash'
+					},
+					circle:	{
+					}
 				},
-				circle:	{
-					// Круг нельзя перемещать
-					draggable: false,
-					// Цвет заливки. Последние цифры "77" - прозрачность.
-					// Прозрачность заливки также можно указывать в "fillOpacity".
-					fillColor: "#DB709377",
-					// Цвет и прозрачность линии окружности.
-					strokeColor: "#990066",
-					strokeOpacity: 0.8,
-					// Ширина линии окружности
-					strokeWidth: 5
+				//параметры отопражения выбранных объектов
+				selected:{
+					//ширина границы
+					strokeWidth: 7,
+					//цвет границы
+					strokeColor: "#000000",
+					// Цвет и прозрачность заливки
+					fillColor: '#00ffff10',
+					//стиль границы
+					strokeStyle: 'solid',
+					//представление для точки на карте
+					preset: 'twirl#blackStretchyIcon'
 				}
 			}
 		};
@@ -108,15 +103,24 @@ angular.module('yaMap', []).
 						return defaults.controls;
 				},
 				getDisplayOptions:function(geoObjectType, options){
-					var globalDisplay = globalOptions.displayOptions || {};
+					var globalDisplay=globalOptions.displayOptions && globalOptions.displayOptions.general
+						?globalOptions.displayOptions.general
+						:{};
 					return angular.extend(
 						{},
-						defaults.displayOptions.all,
-						defaults.displayOptions[angular.lowercase(geoObjectType)],
+						defaults.displayOptions.general.all,
+						defaults.displayOptions.general[angular.lowercase(geoObjectType)],
 						globalDisplay.all,
 						globalDisplay[angular.lowercase(geoObjectType)],
 						options
 					);
+				},
+				getSelectedObjectDisplayOptions:function(){
+					var globalSelectedDisplay=globalOptions.displayOptions && globalOptions.displayOptions.selected
+						?globalOptions.displayOptions.selected
+						:{};
+
+					return angular.extend({}, defaults.displayOptions.selected, globalSelectedDisplay);
 				}
 			};
 		};
@@ -126,50 +130,200 @@ angular.module('yaMap', []).
 			restrict:'AC',
 			scope:{
 				yaProperties:'=',
-				yaGeoObjects:'='
+				yaGeoObjects:'=',
+				yaSelect:'='
 			},
 			template:'<div id="map"></div>',
 			replace:true,
 			link:function(scope, iElement, iAttrs){
 				scope.yaProperties = scope.yaProperties || {};
+				scope.yaSelect = scope.yaSelect || {};
 				scope.yaGeoObjects = scope.yaGeoObjects || [];
-				var map, i, ii, clickingGeoObjects=[],
+				var map, i, ii, syncRun = false,
+					editingTypes=['LineString', 'Polygon'],
+					mode,
+					modes=['view','select','edit'],
+					setMode=function(){
+						var m = iAttrs['yaMode'] ? iAttrs['yaMode'] : 'view';
+						if(modes.indexOf(m)>-1){
+							mode = m;
+						}else{
+							mode = 'view';
+						}
+					},
+					selectedGeoObject=null,
+					backOptionsSelectedGeoObject=null,
+					//находит объект во входной коллекции ангулаг
+					findGeoObject = function(coordinates, type){
+						var result = null;
+						angular.forEach(scope.yaGeoObjects, function(obj){
+							if(obj.geometry.type === type
+								&& angular.equals(obj.geometry.coordinates, coordinates)){
+								result = obj;
+							}
+						});
+						return result;
+					},
+					//отмена выделения текщего выбранного объекта
+					deselect = function(){
+						if(selectedGeoObject && backOptionsSelectedGeoObject){
+							//востанавливаем старые значения
+							for(var option in backOptionsSelectedGeoObject){
+								selectedGeoObject.options.set(option, backOptionsSelectedGeoObject[option]);
+							}
+							//прекращаем редактирование
+							if(hasEditor(selectedGeoObject)){
+								selectedGeoObject.editor.stopEditing();
+							}
+						}
+						//очищаем старые значения
+						backOptionsSelectedGeoObject = null;
+						selectedGeoObject = null;
+						if(syncRun){
+							scope.yaSelect = null;
+						}else{
+							scope.$apply(function(){
+								scope.yaSelect = null;
+							})
+						}
+					},
+					//установка выбранного объекта
+					select = function(geoObj){
+						deselect();
+						var backOptions = {},
+							selectedOptions = yaMapOptions.getSelectedObjectDisplayOptions();
+
+						for(var option in selectedOptions){
+							//сохраняем старые опции объекта, которые будем менять
+							backOptions[option]=geoObj.options.get(option);
+							//задаем ему новые опции
+							geoObj.options.set(option, selectedOptions[option]);
+						}
+
+						//включаем режим редактирования
+						if(hasEditor(geoObj)){
+							geoObj.editor.startEditing();
+						}
+						backOptionsSelectedGeoObject = backOptions;
+						selectedGeoObject = geoObj;
+						scope.$apply(function(){
+							scope.yaSelect = findGeoObject(geoObj.geometry.getCoordinates(), geoObj.geometry.getType());
+						});
+					},
+					//возвращает true, если geoObj поддерживает визуальное редактирование
+					hasEditor = function(geoObj){
+						return editingTypes.indexOf(geoObj.geometry.getType())>-1
+					},
+					isEditable = function(){
+						return mode === 'edit';
+					},
+					isSelectable = function(){
+						return mode === 'select';
+					},
 					//подписка на события
 					subscribeEvent = function(geoObject){
-						var editingTypes=['LineString', 'Polygon']
-
-						geoObject.events.add('geometrychange', function (event) {
-							//получаем оригинальное событие
-							var originEvent = event;
-							while(originEvent.originalEvent){
-								if(originEvent.type==='change')
-									break;
-								originEvent = originEvent.originalEvent;
-							}
-
-							//обновляем измененный объект
-							scope.$apply(function(){
-								angular.forEach(scope.yaGeoObjects, function(go){
-									if(angular.equals(go.geometry.coordinates, originEvent.oldCoordinates)){
-										go.geometry.coordinates = originEvent.newCoordinates;
+						if(isEditable()){
+							geoObject.events.add('geometrychange', function (event) {
+								if(!syncRun){
+									//получаем оригинальное событие
+									var originEvent = event;
+									while(originEvent.originalEvent){
+										if(originEvent.type==='change')
+											break;
+										originEvent = originEvent.originalEvent;
 									}
-								});
-							});
-						});
-						//если объект относиться к редактируемому типу, устанавливаем обработчик
-						if(editingTypes.indexOf(geoObject.geometry.getType())>-1){
-							clickingGeoObjects.push(geoObject);
-							geoObject.events.add('click', function () {
-								for(var j= 0, jj=clickingGeoObjects.length;j<jj;j++){
-									clickingGeoObjects[j].editor.stopEditing();
+									//обновляем измененный объект
+									scope.$apply(function(){
+										var obj = findGeoObject(originEvent.oldCoordinates, event.get('target').geometry.getType());
+										obj.geometry.coordinates = originEvent.newCoordinates;
+									});
 								}
-								geoObject.editor.startEditing();
 							});
+						}
+						geoObject.events.add('click', function () {
+							select(geoObject);
+						});
+					},
+					changeGeoObjectOnMap = function(geoObjOnMap, geoObjInScope){
+						var type = geoObjOnMap.geometry.getType();
+						if(type==='Circle'){
+							geoObjOnMap.geometry.setRadius(geoObjInScope.geometry.radius);
+						}
+						geoObjOnMap.geometry.setCoordinates(geoObjInScope.geometry.coordinates);
+					},
+					removeFromMap = function(geoObj){
+						if(geoObj===selectedGeoObject){
+							deselect();
+						}
+						map.geoObjects.remove(geoObj);
+					},
+					synchronise = function(changedGeoObjects){
+						syncRun = true;
+						var processedIds = [], removedGeoObjects=[], addedGeoObjects=[];
+						map.geoObjects.each(function(geoObj){
+							var index = geoObj.properties.get('index'),
+								curElement = changedGeoObjects[index];
+							if(curElement){
+								if(geoObj.geometry.getType()===curElement.geometry.type){
+									changeGeoObjectOnMap(geoObj, curElement);
+								}else{
+									removedGeoObjects.push(geoObj);
+									addedGeoObjects.push({index:index, element:curElement});
+								}
+							}else{
+								removedGeoObjects.push(geoObj);
+							}
+							processedIds[index]=true;
+						});
+						for(var j= 0, jj=changedGeoObjects.length; j<jj; j++){
+							if(processedIds[j]){
+								continue;
+							}
+							addedGeoObjects.push({index:j, element:changedGeoObjects[j]});
+						}
+						for(j=0,jj=removedGeoObjects.length;j<jj;j++){
+							removeFromMap(removedGeoObjects[j]);
+						}
+						for(j=0,jj=addedGeoObjects.length;j<jj;j++){
+							addOnMap(addedGeoObjects[j].element,addedGeoObjects[j].index);
+						}
+						syncRun = false;
+					},
+					addOnMap = function(geoObj, index){
+						var displayOptions = getDisplayOptions(geoObj);
+						var mapGeoObject = new ymaps.GeoObject(geoObj,
+							yaMapOptions.getDisplayOptions(geoObj.geometry.type, displayOptions)
+						);
+						mapGeoObject.properties.set('index', index);
+						//т.к. координаты замкнутых фигур могут не содержать последней точки, мы их обновляем
+						//так чтобы эта точка была
+						if(geoObj.geometry.type === 'Polygon'){
+							scope.$apply(function(){
+								geoObj.geometry.coordinates = mapGeoObject.geometry.getCoordinates();
+							});
+						}
+
+						map.geoObjects.add(mapGeoObject);
+
+						//если режим редактирования, тогда подписываемся на события
+						if(isEditable() || isSelectable()){
+							if(angular.equals(scope.yaSelect, geoObj)){
+								select(mapGeoObject);
+							}
+							subscribeEvent(mapGeoObject);
+						}
+					},
+					getDisplayOptions = function(geoObj){
+						//если режим редактирования, тогда всем элементам добавляем поведение перетаскивания мышью
+						if(isEditable()){
+							return angular.extend({}, geoObj.displayOptions, {draggable: true})
+						}else{
+							return geoObj.displayOptions;
 						}
 					},
 					//создание екземпляра карты и отображение объектов
 					createMap=function(params, controls, geoObjects){
-						var mode = iAttrs['yaMode'] === 'edit' ? 'edit' : 'read';
+						setMode();
 						map = new ymaps.Map('map', params);
 						for(var control in controls){
 							if(control==='default'){
@@ -181,32 +335,16 @@ angular.module('yaMap', []).
 								map.controls.add(control, controls[control]);
 							}
 						}
-						var geoObj, mapGeoObject, displayOptions;
 
 						//добавляем объекты на карту
 						for(i = 0, ii= geoObjects.length; i<ii; i++){
-							geoObj=geoObjects[i];
-							//если режим редактирования, тогда всем элементам добавляем поведение перетаскивания мышью
-							if(mode==='edit'){
-								displayOptions = angular.extend({}, geoObj.displayOptions, {draggable: true})
-							}else{
-								displayOptions = geoObj.displayOptions;
-							}
-							mapGeoObject = new ymaps.GeoObject(geoObj,
-								yaMapOptions.getDisplayOptions(geoObj.geometry.type, displayOptions)
-							);
-							//если режим редактирования, тогда подписываемся на события
-							if(mode==='edit'){
-								subscribeEvent(mapGeoObject);
-							}
-							//т.к. координаты замкнутых фигур могут не содержать последней точки, мы их обновляем
-							//так чтобы эта точка была
-							scope.$apply(function(){
-								geoObj.geometry.coordinates = mapGeoObject.geometry.getCoordinates();
-							})
-
-							map.geoObjects.add(mapGeoObject);
+							addOnMap(geoObjects[i], i);
 						}
+
+						//включаем отслеживаение изменений в коллекции гео данных
+						scope.$watch('yaGeoObjects', function(newGeoObjects, old){
+							synchronise(newGeoObjects);
+						}, function(){return false});
 					};
 				ymaps.ready(function(){
 					var params = yaMapOptions.getParams(scope.yaProperties.params),
