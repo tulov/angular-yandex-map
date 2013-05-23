@@ -7,13 +7,13 @@
 
 </head>
 <body ng-controller="MapCtrl">
-    <div ya-map ya-properties="mapProperties" ya-geo-objects="geoObjects" ya-mode="edit" ya-select="select"></div>
+    <div ya-map ya-properties="mapProperties" ya-geo-objects="geoObjects" ya-mode="edit" ya-select-index="selectIndex"></div>
     <button ng-click="deleteObj()">Удалить объект</button>
     <button ng-click="addObj()">Добавить объект</button>
     <button ng-click="changeObj()">Изменить объект</button>
     <button ng-click="changeSelect()">выбрать другой</button>
     <br>
-    select:{{select | json}}<br>
+    selectIndex:{{selectIndex}}<br>
     {{geoObjects | json}}
     <script src="http://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU"></script>
     <script src="lib/angular/angular.js"></script>
