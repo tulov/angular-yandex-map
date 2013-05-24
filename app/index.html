@@ -7,7 +7,15 @@
 
 </head>
 <body ng-controller="MapCtrl">
-    <div ya-map ya-properties="mapProperties" ya-geo-objects="geoObjects" ya-mode="edit" ya-select-index="selectIndex"></div>
+    <div
+            ya-map
+            ya-properties="mapProperties"
+            ya-geo-objects="geoObjects"
+            ya-mode="edit"
+            ya-select-index="selectIndex"
+            ya-valid-types="point linestring circle"
+            ya-max-count-geometry="3"
+            ></div>
     <button ng-click="deleteObj()">Удалить объект</button>
     <button ng-click="addObj()">Добавить объект</button>
     <button ng-click="changeObj()">Изменить объект</button>
