@@ -14,25 +14,39 @@ angular.module('yaMap', []).
 				return null;
 			},
 			editingTypes=['LineString', 'Polygon'],
-			modes=['view','select','edit'],
+			modes=['view','select','edit', 'add'],
 			//возвращает true, если geoObj поддерживает визуальное редактирование
 			hasEditor = function(geoObj){
 				return editingTypes.indexOf(geoObj.geometry.getType())>-1
 			},
-			getDisplayOptions=function(geoObjectType){
+			getDisplayOptions=function(geoObjectType, mode){
 				var globalDisplay=globalOptions.displayOptions && globalOptions.displayOptions.general
 					?globalOptions.displayOptions.general
-					:{};
+					:{},
+					modeOptions = mode === 'edit' || mode === 'add' ? {draggable:true} : {};
 				return angular.extend(
 					{},
 					globalDisplay.all,
-					globalDisplay[angular.lowercase(geoObjectType)]
+					globalDisplay[angular.lowercase(geoObjectType)],
+					modeOptions
 				);
 			},
 			getSelectedObjectDisplayOptions=function(){
 				return globalOptions.displayOptions && globalOptions.displayOptions.selected
 					?globalOptions.displayOptions.selected
 					:{};
+			},
+			VALID_TYPES_POINT = 'Point',
+			VALID_TYPES_LINE_STRING = 'LineString',
+			VALID_TYPES_RECTANGLE = 'Rectangle',
+			VALID_TYPES_POLYGON = 'Polygon',
+			VALID_TYPES_CIRCLE = 'Circle',
+			VALID_TYPES = {
+				point:VALID_TYPES_POINT,
+				linestring:VALID_TYPES_LINE_STRING,
+				rectangle:VALID_TYPES_RECTANGLE,
+				polygon:VALID_TYPES_POLYGON,
+				circle:VALID_TYPES_CIRCLE
 			};
 
 
@@ -48,7 +62,7 @@ angular.module('yaMap', []).
 			 * mapControls элементы управления картой
 			 * mapMode режим работы карты. (view, select, edit)
 			* */
-			function YandexMapWrapper(divId, mapParams, mapControls, mapMode){
+			function YandexMapWrapper(divId, mapParams, mapControls, mapMode, validTypes, maxCountGeometry){
 				var self = this,
 					//устанавливает режим работы карты
 					setMode=function(val){
@@ -74,21 +88,19 @@ angular.module('yaMap', []).
 							}
 						}
 
-						self._pointCollection = new ymaps.GeoObjectCollection({},getDisplayOptions('Point'));
-						self._polylineCollection = new ymaps.GeoObjectCollection({},getDisplayOptions('LineString'));
-						self._rectangeCollection = new ymaps.GeoObjectCollection({},getDisplayOptions('Rectangle'));
-						self._polygonCollection = new ymaps.GeoObjectCollection({},getDisplayOptions('Polygon'));
-						self._circleCollection = new ymaps.GeoObjectCollection({},getDisplayOptions('Circle'));
+						self.collections={};
+						var collectionKey, type;
+						for(var i=0, ii=self._validTypes.length;i<ii;i++){
+							type=self._validTypes[i];
+							collectionKey = angular.lowercase(type);
+							self.collections[collectionKey] =
+								new ymaps.GeoObjectCollection({},getDisplayOptions(type, self.mode));
+						}
+
 						self._allGeoObjects = {};
-						self.collections = {
-							point:self._pointCollection,
-							linestring:self._polylineCollection,
-							rectangle:self._rectangeCollection,
-							polygon:self._pointCollection,
-							circle:self._circleCollection
-						};
 						self._selectedObjectIndex = null;
 						self.selectedObjectBackOptions = null;
+						
 						//добавляем коллекции на карту
 						for(var key in self.collections){
 							self._map.geoObjects.add(self.collections[key]);
@@ -129,6 +141,8 @@ angular.module('yaMap', []).
 					}
 				});
 
+				this.setValidTypes(validTypes);
+				this.setMaxCountGeometry(maxCountGeometry);
 			}
 
 			 // Подписка на событие
@@ -206,9 +220,21 @@ angular.module('yaMap', []).
 			};
 
 			/**
+			 * проверяет, можно ли создать новый объект определенного типа
+			 * */
+			YandexMapWrapper.prototype.possibleCreateGeoObject = function(geometryType){
+				var maxCount = this.getMaxCountGeometry();
+				return (maxCount === 0 || maxCount > this.getCountGeometry())
+					&& this.isValidType(geometryType);
+			};
+
+			/**
 			 * создает гео объект на карте
 			 * */
 			YandexMapWrapper.prototype._createGeoObject = function(data, index){
+				if(!this.possibleCreateGeoObject(data.geometry.type)){
+					return;
+				}
 				if(!angular.isObject(data)){
 					throw new Error('data has been Object');
 				}
@@ -243,6 +269,7 @@ angular.module('yaMap', []).
 				if(this.isSelectable()){
 					this._subscribeEvent(geoObject);
 				}
+				this.incrementCountGeometry();
 			};
 
 			/**
@@ -306,7 +333,7 @@ angular.module('yaMap', []).
 						addedGeoObjects.push({index:i, element:changedData[i]});
 					}
 					for(i=0,ii=removedIndexes.length;i<ii;i++){
-						this.removeFromMap(removedIndexes[i]);
+						this.removeGeoObject(removedIndexes[i]);
 					}
 					for(i=0,ii=addedGeoObjects.length;i<ii;i++){
 						this.createGeoObject(addedGeoObjects[i].element,addedGeoObjects[i].index);
@@ -318,7 +345,7 @@ angular.module('yaMap', []).
 			/**
 			 * удаляет элемент с карты
 			 * */
-			YandexMapWrapper.prototype.removeFromMap = function(indexOfAllGeoObjects){
+			YandexMapWrapper.prototype.removeGeoObject = function(indexOfAllGeoObjects){
 				var geoObj = this._allGeoObjects[indexOfAllGeoObjects].mapObject,
 					key = angular.lowercase(geoObj.geometry.getType());
 				this.collections[key].remove(geoObj)
@@ -326,6 +353,7 @@ angular.module('yaMap', []).
 				if(indexOfAllGeoObjects===this.getSelectedObjectIndex()){
 					this.setSelectedObjectIndex(null);
 				}
+				this.decrementCountGeometry();
 			};
 
 			/**
@@ -388,6 +416,9 @@ angular.module('yaMap', []).
 			//установка выбранного объекта
 			YandexMapWrapper.prototype.select = function(index){
 				var fn = function(){
+					if(!this._allGeoObjects[index]){
+						return;
+					}
 					this.deselect();
 					var backOptions = {},
 						selectedOptions = getSelectedObjectDisplayOptions(),
@@ -406,15 +437,6 @@ angular.module('yaMap', []).
 					}
 					this.selectedObjectBackOptions = backOptions;
 					this.setSelectedObjectIndex(index);
-					/*
-					 if(runAngularContext){
-					 scope.yaSelect = findGeoObject(geoObj.geometry.getCoordinates(), geoObj.geometry.getType());
-					 }else{
-					 scope.$apply(function(){
-					 scope.yaSelect = findGeoObject(geoObj.geometry.getCoordinates(), geoObj.geometry.getType());
-					 });
-					 }
-					 */
 				};
 				this.callFunctionForMap(fn);
 			};
@@ -459,9 +481,79 @@ angular.module('yaMap', []).
 				});
 			};
 
+			/**
+			 * увтанавливает максимально допустимое количество объектов на карте
+			 * */
+			YandexMapWrapper.prototype.setMaxCountGeometry = function(val){
+				this._maxCountGeometry = val;
+			};
+
+			/**
+			 * возвращает максимально допустимое количество объектов на карте
+			 * */
+			YandexMapWrapper.prototype.getMaxCountGeometry = function(){
+				return this._maxCountGeometry ? this._maxCountGeometry : 0;
+			};
+
+			/**
+			 * декрементирует текущее количество объектов на карте
+			 * */
+			YandexMapWrapper.prototype.decrementCountGeometry = function(){
+				this._countGeometry--;
+			};
+
+			/**
+			 * инкрементирует текущее количество объектов на карте
+			 * */
+			YandexMapWrapper.prototype.incrementCountGeometry = function(){
+				if(!this._countGeometry){
+					this._countGeometry = 0;
+				}
+				this._countGeometry++;
+			};
+
+			/**
+			 * возвращает количество объектов на карте
+			 * */
+			YandexMapWrapper.prototype.getCountGeometry = function(){
+				return this._countGeometry ? this._countGeometry : 0;
+			};
+
+			/**
+			 * устанавливает типы геометрий, которые могут присутствовать на карте
+			 * */
+			YandexMapWrapper.prototype.setValidTypes = function(types){
+				if(types){
+					var validTypes = types.split(' ');
+					var curTypes = validTypes.map(function(type){
+						return angular.lowercase(type);
+					});
+					if(curTypes.indexOf('all')>-1){
+						this._validTypes = [VALID_TYPES_POINT,VALID_TYPES_LINE_STRING, VALID_TYPES_RECTANGLE,
+							VALID_TYPES_POLYGON, VALID_TYPES_CIRCLE];
+					}
+					else{
+						this._validTypes = [];
+						for(var i= 0,ii=curTypes.length;i<ii;i++){
+							this._validTypes.push(VALID_TYPES[curTypes[i]]);
+						}
+					}
+				}else{
+					this._validTypes = [VALID_TYPES_POINT,VALID_TYPES_LINE_STRING, VALID_TYPES_RECTANGLE,
+						VALID_TYPES_POLYGON, VALID_TYPES_CIRCLE];
+				}
+			};
+
+			/**
+			 * проверяет, является ли тип геометрии допустимым для данной карты
+			 * */
+			YandexMapWrapper.prototype.isValidType = function(type){
+				return this._validTypes.indexOf(type)>-1;
+			}
+
 			return {
-				createMap:function(divId, params, controls, mode){
-					return new YandexMapWrapper(divId, params, controls, mode);
+				createMap:function(divId, params, controls, mode, validTypes, maxCoutnGeometry){
+					return new YandexMapWrapper(divId, params, controls, mode, validTypes, maxCoutnGeometry);
 				}
 			};
 		}];
@@ -477,7 +569,10 @@ angular.module('yaMap', []).
 			template:'<div id="map"></div>',
 			replace:true,
 			link:function(scope, iElement, iAttrs){
-				var isRunAngularContext = false;
+				var isRunAngularContext = false,
+					maxCountGeometry = iAttrs["yaMaxCountGeometry"] ? iAttrs['yaMaxCountGeometry'] * 1 : 0;
+
+
 				//устанавливаем значения по умолчанию
 				scope.yaProperties = scope.yaProperties || {};
 				scope.yaSelectIndex = scope.yaSelectIndex || null;
@@ -489,7 +584,9 @@ angular.module('yaMap', []).
 				var map = yandexMap.createMap('map',
 					scope.yaProperties.params,
 					scope.yaProperties.controls,
-					iAttrs['yaMode']
+					iAttrs['yaMode'],
+					iAttrs['yaValidTypes'],
+					maxCountGeometry
 				);
 
 				//создаем на карте объекты
