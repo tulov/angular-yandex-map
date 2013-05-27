@@ -566,8 +566,6 @@ angular.module('yaMap', []).
 				yaGeoObjects:'=',
 				yaSelectIndex:'='
 			},
-			template:'<div id="map"></div>',
-			replace:true,
 			link:function(scope, iElement, iAttrs){
 				var isRunAngularContext = false,
 					maxCountGeometry = iAttrs["yaMaxCountGeometry"] ? iAttrs['yaMaxCountGeometry'] * 1 : 0;
@@ -577,11 +575,16 @@ angular.module('yaMap', []).
 				scope.yaProperties = scope.yaProperties || {};
 				scope.yaSelectIndex = scope.yaSelectIndex || null;
 				scope.yaGeoObjects = scope.yaGeoObjects || [];
+                var divId = iAttrs['id'];
+                if(!divId){
+                    throw new Error('not value in attribute "id"');
+                }
 
 				//создаем новую карту в диве в идентификатором 'map', с параметрами заданными во втором аргументе
 				//элементы управления задаются в третьем елементе, режим карты задаем в последнем аргументе.
 				//допустимые режимы 'veiw','select' или 'edit'
-				var map = yandexMap.createMap('map',
+				var map = yandexMap.createMap(
+                    divId,
 					scope.yaProperties.params,
 					scope.yaProperties.controls,
 					iAttrs['yaMode'],
