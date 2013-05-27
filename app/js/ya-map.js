@@ -1,6 +1,20 @@
 'use strict';
 
 angular.module('yaMap', []).
+    constant('GEOMETRY_TYPES', {
+        POINT:'Point',
+        LINE_STRING:'LineString',
+        RECTANGLE: 'Rectangle',
+        POLYGON: 'Polygon',
+        CIRCLE: 'Circle'
+    }).
+    constant('MAP_EVENTS',{
+        MAPCREATED:'mapcreated',
+        SELECTCHANGE:'selectchange',
+        GEOMETRYCHANGE:'geometrychange',
+        CLICK:'click',
+        CHANGE:'change'
+    }).
 	provider('YandexMap', function(){
 		var globalOptions={},
 			getParams = function(parameters){
@@ -14,7 +28,12 @@ angular.module('yaMap', []).
 				return null;
 			},
 			editingTypes=['LineString', 'Polygon'],
-			modes=['view','select','edit', 'add'],
+            MODES = {
+                VIEW:'view',
+                SELECT:'select',
+                EDIT:'edit',
+                ADD:'add'
+            },
 			//возвращает true, если geoObj поддерживает визуальное редактирование
 			hasEditor = function(geoObj){
 				return editingTypes.indexOf(geoObj.geometry.getType())>-1
@@ -23,7 +42,7 @@ angular.module('yaMap', []).
 				var globalDisplay=globalOptions.displayOptions && globalOptions.displayOptions.general
 					?globalOptions.displayOptions.general
 					:{},
-					modeOptions = mode === 'edit' || mode === 'add' ? {draggable:true} : {};
+					modeOptions = mode === MODES.EDIT || mode === MODES.ADD ? {draggable:true} : {};
 				return angular.extend(
 					{},
 					globalDisplay.all,
@@ -35,26 +54,14 @@ angular.module('yaMap', []).
 				return globalOptions.displayOptions && globalOptions.displayOptions.selected
 					?globalOptions.displayOptions.selected
 					:{};
-			},
-			VALID_TYPES_POINT = 'Point',
-			VALID_TYPES_LINE_STRING = 'LineString',
-			VALID_TYPES_RECTANGLE = 'Rectangle',
-			VALID_TYPES_POLYGON = 'Polygon',
-			VALID_TYPES_CIRCLE = 'Circle',
-			VALID_TYPES = {
-				point:VALID_TYPES_POINT,
-				linestring:VALID_TYPES_LINE_STRING,
-				rectangle:VALID_TYPES_RECTANGLE,
-				polygon:VALID_TYPES_POLYGON,
-				circle:VALID_TYPES_CIRCLE
-			};
+            };
 
 
 		this.options = function(val){
 			globalOptions = val;
 		};
 
-		this.$get = ['$window', function($window){
+		this.$get = ['$window', 'GEOMETRY_TYPES', 'MAP_EVENTS', function($window, GEOMETRY_TYPES, EVENTS){
 			/**
 			* Конструктор
 			* divId идентификатор div в котором будем создавать карту
@@ -63,16 +70,11 @@ angular.module('yaMap', []).
 			 * mapMode режим работы карты. (view, select, edit)
 			* */
 			function YandexMapWrapper(divId, mapParams, mapControls, mapMode, validTypes, maxCountGeometry, isClusterer){
-                console.log(isClusterer);
-				var self = this,
+                var self = this,
 					//устанавливает режим работы карты
 					setMode=function(val){
-						var m = val ? val : 'view';
-						if(modes.indexOf(m)>-1){
-							self.mode = m;
-						}else{
-							self.mode = 'view';
-						}
+						var m = val ? val : MODES.VIEW;
+                        self.mode = MODES[m] ? MODES[m] : MODES.VIEW;
 					},
 					//создание екземпляра карты
 					createMap=function(params, controls){
@@ -93,7 +95,7 @@ angular.module('yaMap', []).
 						var collectionKey, type, collection;
 						for(var i=0, ii=self._validTypes.length;i<ii;i++){
 							type=self._validTypes[i];
-                            if(type === 'Point' && self.isClusterer()){
+                            if(type === GEOMETRY_TYPES.POINT && self.isClusterer()){
                                 collection = new ymaps.Clusterer(getDisplayOptions(type, self.mode));
                             }else{
                                 collection = new ymaps.GeoObjectCollection({},getDisplayOptions(type, self.mode));
@@ -113,7 +115,7 @@ angular.module('yaMap', []).
 						}
 
 						//генерируем событие, карта создана
-						self.trigger('mapcreated');
+						self.trigger(EVENTS.MAPCREATED);
 					};
 
 				//как будет готово API инициализируем карту
@@ -218,13 +220,13 @@ angular.module('yaMap', []).
 			 * возвращает возможность редактирования элементов катры
 			 * */
 			YandexMapWrapper.prototype.isEditable = function(){
-				return this.mode === 'edit';
+				return this.mode === MODES.EDIT;
 			};
 			/**
 			 * возвращает возможность выбора мышью элементов катры
 			 * */
 			YandexMapWrapper.prototype.isSelectable = function(){
-				return this.mode === 'select' || this.isEditable();
+				return this.mode === MODES.SELECT || this.isEditable();
 			};
 
 			/**
@@ -260,7 +262,7 @@ angular.module('yaMap', []).
 				if(!data.geometry.type){
 					throw new Error('Not property geometry.type');
 				}
-				else if(data.geometry.type === 'Circle' && !data.geometry.radius){
+				else if(data.geometry.type === GEOMETRY_TYPES.CIRCLE && !data.geometry.radius){
 					throw new Error('Not property geometry.radius');
 				}
 
@@ -279,7 +281,7 @@ angular.module('yaMap', []).
 					throw new Error('index already busy');
 				}
 				this._allGeoObjects[index]={mapObject:geoObject, originObject:data};
-				if(data.geometry.type === 'Polygon'){
+				if(data.geometry.type === GEOMETRY_TYPES.POLYGON){
 					data.geometry.coordinates = geoObject.geometry.getCoordinates();
 				}
 				if(this.isSelectable()){
@@ -315,7 +317,7 @@ angular.module('yaMap', []).
 				if(this.isMapCreated()){
 					fn.apply(this);
 				}else{
-					this.onOne('mapcreated', fn);
+					this.onOne(EVENTS.MAPCREATED, fn);
 				}
 			};
 
@@ -377,7 +379,7 @@ angular.module('yaMap', []).
 			 * */
 			YandexMapWrapper.prototype.changeGeoObject = function(geoObjOnMap, geoObjInSource){
 				var type = geoObjOnMap.geometry.getType();
-				if(type==='Circle'){
+				if(type===GEOMETRY_TYPES.CIRCLE){
 					geoObjOnMap.geometry.setRadius(geoObjInSource.geometry.radius);
 				}
 				geoObjOnMap.geometry.setCoordinates(geoObjInSource.geometry.coordinates);
@@ -392,7 +394,7 @@ angular.module('yaMap', []).
 				}
 				var backValue = this._selectedObjectIndex;
 				this._selectedObjectIndex = val;
-				this.trigger('selectchange',{newIndex:val,oldIndex:backValue});
+				this.trigger(EVENTS.SELECTCHANGE,{newIndex:val,oldIndex:backValue});
 			};
 
 			/**
@@ -476,23 +478,23 @@ angular.module('yaMap', []).
 			YandexMapWrapper.prototype._subscribeEvent = function(geoObject){
 				var self = this;
 				if(this.isEditable()){
-					geoObject.events.add('geometrychange', function (event) {
+					geoObject.events.add(EVENTS.GEOMETRYCHANGE, function (event) {
 						//получаем оригинальное событие
 						var originEvent = event;
 						while(originEvent.originalEvent){
-							if(originEvent.type==='change')
+							if(originEvent.type===EVENTS.CHANGE)
 								break;
 							originEvent = originEvent.originalEvent;
 						}
 						//обновляем измененный объект
-						self.trigger('geometrychange',{
+						self.trigger(EVENTS.GEOMETRYCHANGE,{
 							type:event.get('target').geometry.getType(),
 							newCoordinates:originEvent.newCoordinates,
 							oldCoordinates:originEvent.oldCoordinates
 						});
 					});
 				}
-				geoObject.events.add('click', function () {
+				geoObject.events.add(EVENTS.CLICK, function () {
 					self.select(self.findIndex(geoObject));
 				});
 			};
@@ -545,18 +547,18 @@ angular.module('yaMap', []).
 						return angular.lowercase(type);
 					});
 					if(curTypes.indexOf('all')>-1){
-						this._validTypes = [VALID_TYPES_POINT,VALID_TYPES_LINE_STRING, VALID_TYPES_RECTANGLE,
-							VALID_TYPES_POLYGON, VALID_TYPES_CIRCLE];
+						this._validTypes = [GEOMETRY_TYPES.POINT,GEOMETRY_TYPES.LINE_STRING, GEOMETRY_TYPES.RECTANGLE,
+							GEOMETRY_TYPES.POLYGON, GEOMETRY_TYPES.CIRCLE];
 					}
 					else{
 						this._validTypes = [];
 						for(var i= 0,ii=curTypes.length;i<ii;i++){
-							this._validTypes.push(VALID_TYPES[curTypes[i]]);
+							this._validTypes.push(GEOMETRY_TYPES[angular.uppercase(curTypes[i])]);
 						}
 					}
 				}else{
-					this._validTypes = [VALID_TYPES_POINT,VALID_TYPES_LINE_STRING, VALID_TYPES_RECTANGLE,
-						VALID_TYPES_POLYGON, VALID_TYPES_CIRCLE];
+                    this._validTypes = [GEOMETRY_TYPES.POINT,GEOMETRY_TYPES.LINE_STRING, GEOMETRY_TYPES.RECTANGLE,
+                        GEOMETRY_TYPES.POLYGON, GEOMETRY_TYPES.CIRCLE];
 				}
 			};
 
@@ -574,8 +576,17 @@ angular.module('yaMap', []).
 			};
 		}];
 	}).
-	directive('yaMap', ['$window', 'YandexMap', function($window, yandexMap) {
-		var directiveObj = {
+	directive('yaMap', ['$window', 'YandexMap', 'MAP_EVENTS', function($window, yandexMap, MAP_EVENTS) {
+        var ATTRIBUTE_NAMES = {
+                MAX_COUNT_GEOMETRY:'yaMaxCountGeometry',
+                ID:'id',
+                CLUSTERER:'yaClusterer',
+                MODE:'yaMode',
+                VALID_TYPES:'yaValidTypes',
+                GEO_OBJECTS:'yaGeoObjects',
+                SELECT_INDEX:'yaSelectIndex'
+            },
+		    directiveObj = {
 			restrict:'AC',
 			scope:{
 				yaProperties:'=',
@@ -584,20 +595,21 @@ angular.module('yaMap', []).
 			},
 			link:function(scope, iElement, iAttrs){
 				var isRunAngularContext = false,
-					maxCountGeometry = iAttrs["yaMaxCountGeometry"] ? iAttrs['yaMaxCountGeometry'] * 1 : 0;
+					maxCountGeometry = iAttrs[ATTRIBUTE_NAMES.MAX_COUNT_GEOMETRY]
+                        ? iAttrs[ATTRIBUTE_NAMES.MAX_COUNT_GEOMETRY] * 1 : 0;
 
 
 				//устанавливаем значения по умолчанию
 				scope.yaProperties = scope.yaProperties || {};
 				scope.yaSelectIndex = scope.yaSelectIndex || null;
 				scope.yaGeoObjects = scope.yaGeoObjects || [];
-                var divId = iAttrs['id'];
+                var divId = iAttrs[ATTRIBUTE_NAMES.ID];
                 if(!divId){
-                    throw new Error('not value in attribute "id"');
+                    throw new Error('not value in attribute "'+ATTRIBUTE_NAMES.ID + '"');
                 }
                 var isClusterer = false;
-                if(angular.isDefined(iAttrs['yaClusterer'])){
-                    isClusterer = iAttrs['yaClusterer']==='' || iAttrs['yaClusterer']==true;
+                if(angular.isDefined(iAttrs[ATTRIBUTE_NAMES.CLUSTERER])){
+                    isClusterer = iAttrs[ATTRIBUTE_NAMES.CLUSTERER]==='' || iAttrs[ATTRIBUTE_NAMES.CLUSTERER]==true;
                 }
 
 				//создаем новую карту в диве в идентификатором 'map', с параметрами заданными во втором аргументе
@@ -607,8 +619,8 @@ angular.module('yaMap', []).
                     divId,
 					scope.yaProperties.params,
 					scope.yaProperties.controls,
-					iAttrs['yaMode'],
-					iAttrs['yaValidTypes'],
+					iAttrs[ATTRIBUTE_NAMES.MODE],
+					iAttrs[ATTRIBUTE_NAMES.VALID_TYPES],
 					maxCountGeometry,
                     isClusterer
 				);
@@ -617,7 +629,7 @@ angular.module('yaMap', []).
 				map.createGeoObject(scope.yaGeoObjects);
 
 				//подписываемся на события карты
-				map.on('geometrychange',function(eventData){
+				map.on(MAP_EVENTS.GEOMETRYCHANGE,function(eventData){
 					var curObject, result=null;
 					for(var i= 0,ii=scope.yaGeoObjects.length;i<ii;i++){
 						curObject = scope.yaGeoObjects[i];
@@ -640,7 +652,7 @@ angular.module('yaMap', []).
 						}
 					}
 				});
-				map.on('selectchange',function(eventData){
+				map.on(MAP_EVENTS.SELECTCHANGE,function(eventData){
 					if(isRunAngularContext){
 						scope.yaSelectIndex	= eventData.newIndex;
 					}else{
@@ -651,12 +663,12 @@ angular.module('yaMap', []).
 				});
 
 				//включаем отслеживаение изменений в scope
-				scope.$watch('yaGeoObjects', function(newGeoObjects){
+				scope.$watch(ATTRIBUTE_NAMES.GEO_OBJECTS, function(newGeoObjects){
 					isRunAngularContext = true;
 					map.synchronise(newGeoObjects);
 					isRunAngularContext = false;
 				}, function(){return false});
-				scope.$watch('yaSelectIndex', function(newSelectIndex){
+				scope.$watch(ATTRIBUTE_NAMES.SELECT_INDEX, function(newSelectIndex){
 					isRunAngularContext = true;
 					if(newSelectIndex===undefined){
 						return;
