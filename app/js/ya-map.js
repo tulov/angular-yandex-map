@@ -13,7 +13,8 @@ angular.module('yaMap', []).
         SELECTCHANGE:'selectchange',
         GEOMETRYCHANGE:'geometrychange',
         CLICK:'click',
-        CHANGE:'change'
+        CHANGE:'change',
+        REMOVEGEOOBJ:'removegeoobject'
     }).
 	provider('YandexMap', function(){
 		var globalOptions={},
@@ -73,23 +74,24 @@ angular.module('yaMap', []).
                 var self = this,
 					//устанавливает режим работы карты
 					setMode=function(val){
-						var m = val ? val : MODES.VIEW;
+                        var m = val ? angular.uppercase(val) : MODES.VIEW;
                         self.mode = MODES[m] ? MODES[m] : MODES.VIEW;
 					},
 					//создание екземпляра карты
 					createMap=function(params, controls){
 						setMode(mapMode);
 						self._map = new ymaps.Map(divId, params);
-						for(var control in controls){
-							if(control==='default'){
-								var d = controls[control];
-								for(var i= 0,ii= d.length;i<ii;i++){
-									self._map.controls.add(d[i]);
-								}
-							}else{
-								self._map.controls.add(control, controls[control]);
-							}
-						}
+                        var d;
+                        for(var control in controls){
+                            if(control==='default'){
+                                d = controls[control];
+                                for(var i= 0,ii= d.length;i<ii;i++){
+                                    self._addControl(d[i]);
+                                }
+                            }else{
+                                self._addControl(control, controls[control]);
+                            }
+                        }
 
 						self.collections={};
 						var collectionKey, type, collection;
@@ -160,6 +162,35 @@ angular.module('yaMap', []).
              */
             YandexMapWrapper.prototype.isClusterer = function(){
                 return this._isClusterer;
+            }
+
+            /**
+             * Добавляет элементы управления на карту
+             * @param key - ключ элемента управления
+             * @param options - опции элемента управления
+             * @private
+             */
+            YandexMapWrapper.prototype._addControl = function(key, options){
+                //если это стандартная панель управления, добавляем кнопки для редактирования
+                if(key === 'mapTools' && this.isEditable()){
+                    var mapTools = new ymaps.control.MapTools(['default'], options);
+                    mapTools.add(new ymaps.control.ToolBarSeparator(1));
+                    var myButton = new ymaps.control.Button('<b>Удалить</b>',{
+                        selectOnClick: false
+                    });
+                    var self = this;
+                    myButton.events.add(EVENTS.CLICK, function(){
+                        var index = self.getSelectedObjectIndex();
+                        if(index === null){
+                            return;
+                        }
+                        self.removeGeoObject(index);
+                    });
+                    mapTools.add(myButton);
+                    this._map.controls.add(mapTools);
+                }else{
+                    this._map.controls.add(key,options);
+                }
             }
 
 			 // Подписка на событие
@@ -336,7 +367,9 @@ angular.module('yaMap', []).
 								this.changeGeoObject(curMapElement, curSourceElement);
 							}else{
 								removedIndexes.push(i);
-								addedGeoObjects.push({index:i,element:curSourceElement});
+                                if(curSourceElement){
+								    addedGeoObjects.push({index:i,element:curSourceElement});
+                                }
 							}
 						}else{
 							removedIndexes.push(i);
@@ -348,7 +381,9 @@ angular.module('yaMap', []).
 						if(processedIds[i]){
 							continue;
 						}
-						addedGeoObjects.push({index:i, element:changedData[i]});
+                        if(changedData[i]){
+                            addedGeoObjects.push({index:i, element:changedData[i]});
+                        }
 					}
 					for(i=0,ii=removedIndexes.length;i<ii;i++){
 						this.removeGeoObject(removedIndexes[i]);
@@ -372,6 +407,7 @@ angular.module('yaMap', []).
 					this.setSelectedObjectIndex(null);
 				}
 				this.decrementCountGeometry();
+                this.trigger(EVENTS.REMOVEGEOOBJ,{index:indexOfAllGeoObjects});
 			};
 
 			/**
@@ -661,6 +697,15 @@ angular.module('yaMap', []).
 						});
 					}
 				});
+                map.on(MAP_EVENTS.REMOVEGEOOBJ, function(eventData){
+                    if(isRunAngularContext){
+                        delete scope.yaGeoObjects[eventData.index];
+                    }else{
+                        scope.$apply(function(){
+                            delete scope.yaGeoObjects[eventData.index];
+                        });
+                    }
+                });
 
 				//включаем отслеживаение изменений в scope
 				scope.$watch(ATTRIBUTE_NAMES.GEO_OBJECTS, function(newGeoObjects){
