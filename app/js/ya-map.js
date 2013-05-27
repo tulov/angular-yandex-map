@@ -62,7 +62,8 @@ angular.module('yaMap', []).
 			 * mapControls элементы управления картой
 			 * mapMode режим работы карты. (view, select, edit)
 			* */
-			function YandexMapWrapper(divId, mapParams, mapControls, mapMode, validTypes, maxCountGeometry){
+			function YandexMapWrapper(divId, mapParams, mapControls, mapMode, validTypes, maxCountGeometry, isClusterer){
+                console.log(isClusterer);
 				var self = this,
 					//устанавливает режим работы карты
 					setMode=function(val){
@@ -89,12 +90,17 @@ angular.module('yaMap', []).
 						}
 
 						self.collections={};
-						var collectionKey, type;
+						var collectionKey, type, collection;
 						for(var i=0, ii=self._validTypes.length;i<ii;i++){
 							type=self._validTypes[i];
-							collectionKey = angular.lowercase(type);
-							self.collections[collectionKey] =
-								new ymaps.GeoObjectCollection({},getDisplayOptions(type, self.mode));
+                            if(type === 'Point' && self.isClusterer()){
+                                collection = new ymaps.Clusterer(getDisplayOptions(type, self.mode));
+                            }else{
+                                collection = new ymaps.GeoObjectCollection({},getDisplayOptions(type, self.mode));
+                            }
+
+                            collectionKey = angular.lowercase(type);
+                            self.collections[collectionKey] = collection;
 						}
 
 						self._allGeoObjects = {};
@@ -143,7 +149,16 @@ angular.module('yaMap', []).
 
 				this.setValidTypes(validTypes);
 				this.setMaxCountGeometry(maxCountGeometry);
+                this._isClusterer = isClusterer;
 			}
+
+            /**
+             * Определяет, используются ли на карте кластеры
+             * @returns истина, если кластеры используются
+             */
+            YandexMapWrapper.prototype.isClusterer = function(){
+                return this._isClusterer;
+            }
 
 			 // Подписка на событие
 			 // Использование:
@@ -258,6 +273,7 @@ angular.module('yaMap', []).
 
 				var key = angular.lowercase(data.geometry.type),
 					geoObject = new ymaps.GeoObject(data, data.displayOptions);
+                geoObject.properties.set('_index', index);
 				this.collections[key].add(geoObject);
 				if(this._allGeoObjects[index]){
 					throw new Error('index already busy');
@@ -552,8 +568,8 @@ angular.module('yaMap', []).
 			}
 
 			return {
-				createMap:function(divId, params, controls, mode, validTypes, maxCoutnGeometry){
-					return new YandexMapWrapper(divId, params, controls, mode, validTypes, maxCoutnGeometry);
+				createMap:function(divId, params, controls, mode, validTypes, maxCoutnGeometry, isClusterer){
+					return new YandexMapWrapper(divId, params, controls, mode, validTypes, maxCoutnGeometry, isClusterer);
 				}
 			};
 		}];
@@ -579,6 +595,10 @@ angular.module('yaMap', []).
                 if(!divId){
                     throw new Error('not value in attribute "id"');
                 }
+                var isClusterer = false;
+                if(angular.isDefined(iAttrs['yaClusterer'])){
+                    isClusterer = iAttrs['yaClusterer']==='' || iAttrs['yaClusterer']==true;
+                }
 
 				//создаем новую карту в диве в идентификатором 'map', с параметрами заданными во втором аргументе
 				//элементы управления задаются в третьем елементе, режим карты задаем в последнем аргументе.
@@ -589,7 +609,8 @@ angular.module('yaMap', []).
 					scope.yaProperties.controls,
 					iAttrs['yaMode'],
 					iAttrs['yaValidTypes'],
-					maxCountGeometry
+					maxCountGeometry,
+                    isClusterer
 				);
 
 				//создаем на карте объекты
