@@ -18,7 +18,9 @@ angular.module('yaMap', []).
         SELECT:'select',
         DESELECT:'deselect',
         ADDSTATECHANGE:'addstatechange',
-        GEOOBJECTCREATED:'geoobjcreated'
+        GEOOBJECTCREATED:'geoobjcreated',
+        DRAWINGPOINTSCHANGE:'drawingPointsChange',
+        DRAWINGTYPECHANGE:'drawingTypeChange'
     }).
     filter('geometryTypeTitle', ['GEOMETRY_TYPES',function(GEOMETRY_TYPES){
         return function(geometryType){
@@ -85,8 +87,12 @@ angular.module('yaMap', []).
 				return globalOptions.displayOptions && globalOptions.displayOptions.selected
 					?globalOptions.displayOptions.selected
 					:{};
+            },
+            getDrawingOptions = function(){
+                return globalOptions.displayOptions && globalOptions.displayOptions.drawing
+                        ?globalOptions.displayOptions.drawing
+                        :{};
             };
-
 
 		this.options = function(val){
 			globalOptions = val;
@@ -112,6 +118,23 @@ angular.module('yaMap', []).
                         self.setAddState(null);
                         self.trigger(EVENTS.GEOOBJECTCREATED, geometry);
                     },
+                    addLineStringClickHandler = function(e){
+                        self.addDrawingPoint( e.get('coordPosition'));
+                    },
+                    drawingPointsChangeHadler = function(){
+                        if(self._drawingGeoObject){
+                            self._map.geoObjects.remove(self._drawingGeoObject);
+                        }
+                        var drawingGeoObject = new ymaps.GeoObject({
+                            geometry: {
+                                type: self.getDrawingType(),
+                                coordinates: self.getDrawingPoints()
+                            }
+                        }, getDrawingOptions());
+                        self._map.geoObjects.add(drawingGeoObject);
+                        self._drawingGeoObject = drawingGeoObject;
+                    },
+
 					//устанавливает режим работы карты
 					setMode=function(val){
                         var m = val ? angular.uppercase(val) : MODES.VIEW;
@@ -165,6 +188,10 @@ angular.module('yaMap', []).
                                     self._map.events.remove(EVENTS.CLICK, addPointHandler);
                                     break;
                                 case ADD_STATES.LINESTRING:
+                                    self._map.events.remove(EVENTS.CLICK, addLineStringClickHandler);
+                                    self.off(EVENTS.DRAWINGPOINTSCHANGE, drawingPointsChangeHadler);
+                                    self.drawingEnd();
+                                    break;
                                 case ADD_STATES.RECTANGLE:
                                 case ADD_STATES.POLYGON:
                                 case ADD_STATES.CIRCLE:
@@ -178,6 +205,10 @@ angular.module('yaMap', []).
                                     self._map.events.add(EVENTS.CLICK, addPointHandler);
                                     break;
                                 case ADD_STATES.LINESTRING:
+                                    self.setDrawingType(GEOMETRY_TYPES.LINESTRING);
+                                    self._map.events.add(EVENTS.CLICK, addLineStringClickHandler);
+                                    self.on(EVENTS.DRAWINGPOINTSCHANGE, drawingPointsChangeHadler);
+                                    break;
                                 case ADD_STATES.RECTANGLE:
                                 case ADD_STATES.POLYGON:
                                 case ADD_STATES.CIRCLE:
@@ -226,7 +257,49 @@ angular.module('yaMap', []).
                 this._isClusterer = isClusterer;
                 this.setAddState(null);
                 this._customButtons = {};
+                this._drawingPoints = [];
+                this._drawingType = null;
+                this._drawingGeoObject = null;
 			}
+
+            YandexMapWrapper.prototype.addDrawingPoint = function(point){
+                if(!angular.isArray(point)){
+                    throw new Error('point has been Array');
+                }
+                this._drawingPoints.push(point);
+                this.trigger(EVENTS.DRAWINGPOINTSCHANGE);
+            };
+
+            YandexMapWrapper.prototype.getDrawingPoints = function(){
+                return this._drawingPoints;
+            };
+
+            YandexMapWrapper.prototype.getDrawingType = function(){
+                return this._drawingType;
+            };
+
+            YandexMapWrapper.prototype.setDrawingType = function(type){
+                if(this._drawingType === type){
+                    return;
+                }
+                var backValue = this.getDrawingType();
+                this._drawingType = type;
+                this.trigger(EVENTS.DRAWINGTYPECHANGE, {newValue:this.getDrawingType(), oldValue:backValue});
+            };
+
+            YandexMapWrapper.prototype.drawingEnd = function(){
+                var geometry = {
+                    type: this.getDrawingType(),
+                    coordinates: this.getDrawingPoints()
+                };
+                this.trigger(EVENTS.GEOOBJECTCREATED, geometry);
+                this._drawingPoints = [];
+                this._drawingType = null;
+                if(this._drawingGeoObject){
+                    this._map.geoObjects.remove(this._drawingGeoObject);
+                }
+                this._drawingGeoObject = null;
+            };
 
             /**
              * Устанавливает состояние редактирования

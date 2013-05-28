@@ -280,7 +280,13 @@ var app = angular.module('myApp', ['yaMap']).
 					strokeStyle: 'solid',
 					//представление для точки на карте
 					preset: 'twirl#blackStretchyIcon'
-				}
+				},
+                drawing:{
+                    strokeWidth: 1,
+                    strokeColor: "#000000",
+                    fillColor: '#00ffff10',
+                    strokeStyle: 'shortdash'
+                }
 			}
 		});
 
