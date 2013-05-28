@@ -109,30 +109,33 @@ angular.module('yaMap', []).
 			* */
 			function YandexMapWrapper(divId, mapParams, mapControls, mapMode, validTypes, maxCountGeometry, isClusterer){
                 var self = this,
-                    addPointHandler = function(e){
-                        var geometry = {
-                            type: GEOMETRY_TYPES.POINT,
-                            coordinates: e.get('coordPosition')
-                        };
-                        self._customButtons[GEOMETRY_TYPES.POINT].deselect();
-                        self.setAddState(null);
-                        self.trigger(EVENTS.GEOOBJECTCREATED, geometry);
-                    },
-                    addLineStringClickHandler = function(e){
+                    addGeometryClickHandler = function(e){
                         self.addDrawingPoint( e.get('coordPosition'));
                     },
-                    drawingPointsChangeHadler = function(){
-                        if(self._drawingGeoObject){
-                            self._map.geoObjects.remove(self._drawingGeoObject);
+                    drawingPointsChangeHandler = function(){
+                        var type = self.getDrawingType(),
+                            coordinates = self.getDrawingPoints();
+                        if(type === GEOMETRY_TYPES.POINT){
+                            self._customButtons[type].deselect();
                         }
-                        var drawingGeoObject = new ymaps.GeoObject({
-                            geometry: {
-                                type: self.getDrawingType(),
-                                coordinates: self.getDrawingPoints()
+                        else if(type === GEOMETRY_TYPES.POLYGON || type === GEOMETRY_TYPES.LINESTRING){
+                            if(self._drawingGeoObject){
+                                self._map.geoObjects.remove(self._drawingGeoObject);
                             }
-                        }, getDrawingOptions());
-                        self._map.geoObjects.add(drawingGeoObject);
-                        self._drawingGeoObject = drawingGeoObject;
+                            var drawingGeoObject = new ymaps.GeoObject({
+                                geometry: {
+                                    type: type,
+                                    coordinates: GEOMETRY_TYPES.POLYGON===type ? [coordinates,[]] : coordinates
+                                }
+                            }, getDrawingOptions());
+                            self._map.geoObjects.add(drawingGeoObject);
+                            self._drawingGeoObject = drawingGeoObject;
+                        }
+                        else if(type===GEOMETRY_TYPES.RECTANGLE || type === GEOMETRY_TYPES.CIRCLE){
+                            if(coordinates.length === 2){
+                                self._customButtons[type].deselect();
+                            }
+                        }
                     },
 
 					//устанавливает режим работы карты
@@ -179,43 +182,43 @@ angular.module('yaMap', []).
 							self._map.geoObjects.add(self.collections[key]);
 						}
 
-
-                        self.on(EVENTS.ADDSTATECHANGE, function(eventData){
-                            switch(eventData.oldValue){
-                                case ADD_STATES.NONE:
-                                    break;
-                                case ADD_STATES.POINT:
-                                    self._map.events.remove(EVENTS.CLICK, addPointHandler);
-                                    break;
-                                case ADD_STATES.LINESTRING:
-                                    self._map.events.remove(EVENTS.CLICK, addLineStringClickHandler);
-                                    self.off(EVENTS.DRAWINGPOINTSCHANGE, drawingPointsChangeHadler);
+                        //добавляем поддержку рисования
+                        if(self.isAddable()){
+                            self.on(EVENTS.ADDSTATECHANGE, function(eventData){
+                                if(eventData.oldValue !== ADD_STATES.NONE){
+                                    self._map.events.remove(EVENTS.CLICK, addGeometryClickHandler);
+                                    self.off(EVENTS.DRAWINGPOINTSCHANGE, drawingPointsChangeHandler);
                                     self.drawingEnd();
-                                    break;
-                                case ADD_STATES.RECTANGLE:
-                                case ADD_STATES.POLYGON:
-                                case ADD_STATES.CIRCLE:
-                                default:
-                                    throw new Error('Not correct new value');
-                            }
-                            switch(eventData.newValue){
-                                case ADD_STATES.NONE:
-                                    break;
-                                case ADD_STATES.POINT:
-                                    self._map.events.add(EVENTS.CLICK, addPointHandler);
-                                    break;
-                                case ADD_STATES.LINESTRING:
-                                    self.setDrawingType(GEOMETRY_TYPES.LINESTRING);
-                                    self._map.events.add(EVENTS.CLICK, addLineStringClickHandler);
-                                    self.on(EVENTS.DRAWINGPOINTSCHANGE, drawingPointsChangeHadler);
-                                    break;
-                                case ADD_STATES.RECTANGLE:
-                                case ADD_STATES.POLYGON:
-                                case ADD_STATES.CIRCLE:
-                                default:
-                                    throw new Error('Not correct new value');
-                            }
-                        });
+                                }
+                                var geometryType=null;
+                                switch(eventData.newValue){
+                                    case ADD_STATES.NONE:
+                                        break;
+                                    case ADD_STATES.POINT:
+                                        geometryType = GEOMETRY_TYPES.POINT;
+                                        break;
+                                    case ADD_STATES.LINESTRING:
+                                        geometryType = GEOMETRY_TYPES.LINESTRING;
+                                        break;
+                                    case ADD_STATES.RECTANGLE:
+                                        geometryType = GEOMETRY_TYPES.RECTANGLE;
+                                        break;
+                                    case ADD_STATES.POLYGON:
+                                        geometryType = GEOMETRY_TYPES.POLYGON;
+                                        break;
+                                    case ADD_STATES.CIRCLE:
+                                        geometryType = GEOMETRY_TYPES.CIRCLE;
+                                        break;
+                                    default:
+                                        throw new Error('Not correct new value');
+                                }
+                                if(eventData.newValue !== ADD_STATES.NONE){
+                                    self.setDrawingType(geometryType);
+                                    self._map.events.add(EVENTS.CLICK, addGeometryClickHandler);
+                                    self.on(EVENTS.DRAWINGPOINTSCHANGE, drawingPointsChangeHandler);
+                                }
+                            });
+                        }
 
                         //генерируем событие, карта создана
 						self.trigger(EVENTS.MAPCREATED);
@@ -262,6 +265,10 @@ angular.module('yaMap', []).
                 this._drawingGeoObject = null;
 			}
 
+            /**
+             * Добавляет новую точку в коллекцию точек геообъекта
+             * @param point добавляемая точка в виде массива координат
+             */
             YandexMapWrapper.prototype.addDrawingPoint = function(point){
                 if(!angular.isArray(point)){
                     throw new Error('point has been Array');
@@ -270,14 +277,26 @@ angular.module('yaMap', []).
                 this.trigger(EVENTS.DRAWINGPOINTSCHANGE);
             };
 
+            /**
+             * Возвращает массив точек нарисованной фигуры
+             * @returns {Array} координаты фигуры
+             */
             YandexMapWrapper.prototype.getDrawingPoints = function(){
                 return this._drawingPoints;
             };
 
+            /**
+             * Возвращает тип рисуемой геометрии
+             * @returns {*} тип рисуемой геометрии
+             */
             YandexMapWrapper.prototype.getDrawingType = function(){
                 return this._drawingType;
             };
 
+            /**
+             * Устанавливает тип рисуемой геометрии
+             * @param type тип рисуемой геометрии
+             */
             YandexMapWrapper.prototype.setDrawingType = function(type){
                 if(this._drawingType === type){
                     return;
@@ -287,11 +306,31 @@ angular.module('yaMap', []).
                 this.trigger(EVENTS.DRAWINGTYPECHANGE, {newValue:this.getDrawingType(), oldValue:backValue});
             };
 
+            /**
+             * Заканчивает рисование объекта
+             */
             YandexMapWrapper.prototype.drawingEnd = function(){
-                var geometry = {
-                    type: this.getDrawingType(),
-                    coordinates: this.getDrawingPoints()
-                };
+                var type = this.getDrawingType(),
+                    coordinates = this.getDrawingPoints(),
+                    geometry = {type:type};
+                if(coordinates.length===0){
+                    return;
+                }
+                switch(type){
+                    case GEOMETRY_TYPES.POINT:
+                        geometry.coordinates = coordinates[0]
+                        break;
+                    case GEOMETRY_TYPES.POLYGON:
+                        geometry.coordinates = [coordinates, []];
+                        break;
+                    case GEOMETRY_TYPES.CIRCLE:
+                        geometry.coordinates = coordinates[0];
+                        geometry.radius = ymaps.coordSystem.geo.getDistance(coordinates[0], coordinates[1]);
+                        break;
+                    default:
+                        geometry.coordinates = coordinates;
+                        break;
+                }
                 this.trigger(EVENTS.GEOOBJECTCREATED, geometry);
                 this._drawingPoints = [];
                 this._drawingType = null;
