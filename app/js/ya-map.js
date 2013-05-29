@@ -26,9 +26,9 @@ angular.module('yaMap', []).
         return function(geometryType){
             switch(geometryType){
                 case GEOMETRY_TYPES.POINT:
-                    return 'точка';
+                    return 'точку';
                 case GEOMETRY_TYPES.LINESTRING:
-                    return 'ломанная';
+                    return 'ломанную';
                 case GEOMETRY_TYPES.RECTANGLE:
                     return 'прямоугольник';
                 case GEOMETRY_TYPES.POLYGON:
@@ -393,7 +393,13 @@ angular.module('yaMap', []).
                 if(key === 'mapTools' && this.isEditable()){
                     var mapTools = new ymaps.control.MapTools(['default'], options);
                     mapTools.add(new ymaps.control.ToolBarSeparator(1));
-                    var myButton = new ymaps.control.Button('<b>Удалить</b>',{
+                    var myButton = new ymaps.control.Button({
+                        data: {
+                            image: 'img/delete.png',
+                            imageDisabled: 'img/delete_gray.png',
+                            title: 'Нажмите для удаления выделенной фигуры'
+                        }
+                    }, {
                         selectOnClick: false
                     });
                     var self = this;
@@ -418,10 +424,17 @@ angular.module('yaMap', []).
 
                     if(this.isAddable()){
                         //список с возможными вариантами добавления элементов
-                        var rollupItems = [], button;
+                        var rollupItems = [], button, buttonData;
                         for(var prop in GEOMETRY_TYPES){
                             if(this.isValidType(GEOMETRY_TYPES[prop])){
-                                button = new ymaps.control.Button(geometryTypeTitle(GEOMETRY_TYPES[prop]));
+                                buttonData = {
+                                    data: {
+                                        image: 'img/' + angular.lowercase(prop) + '.png',
+                                        //imageDisabled: 'img/delete_gray.png',
+                                        title: 'Добавить ' + geometryTypeTitle(GEOMETRY_TYPES[prop])
+                                    }
+                                };
+                                button = new ymaps.control.Button(buttonData);
                                 button.geometryType = GEOMETRY_TYPES[prop];
                                 rollupItems.push(button);
                                 self._customButtons[GEOMETRY_TYPES[prop]] = button;
