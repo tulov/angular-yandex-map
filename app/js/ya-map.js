@@ -43,9 +43,13 @@ angular.module('yaMap', []).
     }]).
 	provider('YandexMap', function(){
 		var globalOptions={},
+
+            //возвращает параметры для карты
 			getParams = function(parameters){
 				return angular.extend({}, globalOptions.params, parameters);
 			},
+
+            //возвращает список элементов управления для карты
 			getControls=function(controls){
 				if(controls)
 					return controls;
@@ -53,13 +57,19 @@ angular.module('yaMap', []).
 					return globalOptions.controls;
 				return null;
 			},
+
+            //типы, поддерживающие редактирование
 			editingTypes=['LineString', 'Polygon'],
+
+            //режимы
             MODES = {
                 VIEW:'view',
                 SELECT:'select',
                 EDIT:'edit',
                 ADD:'add'
             },
+
+            //состояния добавления новых объектов на карту
             ADD_STATES = {
                 NONE:'N',
                 POINT:'P',
@@ -68,10 +78,13 @@ angular.module('yaMap', []).
                 RECTANGLE:'R',
                 CIRCLE:'C'
             },
+
 			//возвращает true, если geoObj поддерживает визуальное редактирование
 			hasEditor = function(geoObj){
 				return editingTypes.indexOf(geoObj.geometry.getType())>-1
 			},
+
+            //возвращает опции отображения в зависимости от типа объекта и режима работы карты
 			getDisplayOptions=function(geoObjectType, mode){
 				var globalDisplay=globalOptions.displayOptions && globalOptions.displayOptions.general
 					?globalOptions.displayOptions.general
@@ -84,11 +97,14 @@ angular.module('yaMap', []).
 					modeOptions
 				);
 			},
+
+            //возвращает опции отображения для выбранного объекта на карте
 			getSelectedObjectDisplayOptions=function(){
 				return globalOptions.displayOptions && globalOptions.displayOptions.selected
 					?globalOptions.displayOptions.selected
 					:{};
             },
+
             /**
              * Возращает опции рисуемого объекта
              */
@@ -97,40 +113,62 @@ angular.module('yaMap', []).
                         ?globalOptions.displayOptions.drawing
                         :{};
             },
+
             /**
              * В стандартной панели элементов создает кнопку для удаления выбранного элемента
              * @param EVENTS Объект с досутпными событиями
              * @param mapTools Объект стандартной панели управления
              */
             createDeleteButton  =  function(EVENTS, mapTools) {
-            var myButton = new ymaps.control.Button({
-                data: {
-                    image: 'img/delete.png',
-                    imageDisabled: 'img/delete_gray.png',
-                    title: 'Нажмите для удаления выделенной фигуры'
-                }
-            }, {
-                selectOnClick: false
-            });
-            var self = this;
+                var myButton = new ymaps.control.Button({
+                    data: {
+                        image: 'img/delete.png',
+                        imageDisabled: 'img/delete_gray.png',
+                        title: 'Нажмите для удаления выделенной фигуры'
+                    }
+                }, {
+                    selectOnClick: false
+                });
+                var self = this;
 
-            //кнопка удаления выделенного объекта
-            myButton.events.add(EVENTS.CLICK, function () {
-                var index = self.getSelectedObjectIndex();
-                if (index === null) {
-                    return;
+                //кнопка удаления выделенного объекта
+                myButton.events.add(EVENTS.CLICK, function () {
+                    var index = getSelectedObjectIndex.call(self);
+                    if (index === null) {
+                        return;
+                    }
+                    self.removeGeoObject(index);
+                });
+                mapTools.add(myButton);
+                this._customButtons.delete = myButton;
+                self.on(EVENTS.SELECTCHANGE, function (eventData) {
+                    if (eventData.newIndex !== null && eventData.newIndex !== undefined) {
+                        myButton.enable();
+                    } else {
+                        myButton.disable();
+                    }
+                });
+            },
+
+            /**
+             * возвращает состояние при добавлении элементов
+             * @returns {*} член перечислимого ADD_STATES
+             */
+            getAddState = function(){
+                return this._addState;
+            },
+
+            /**
+             * Устанавливает состояние редактирования
+             * @param geoObjectType тип гео объекта который будет добавляться
+             */
+            setAddState = function(geoObjectType, EVENTS) {
+                var key = angular.uppercase(geoObjectType),
+                    backValue = getAddState.call(this);
+                this._addState = ADD_STATES[key] || ADD_STATES.NONE;
+                if (backValue !== getAddState.call(this)) {
+                    trigger.call(this, EVENTS.ADDSTATECHANGE, {newValue: getAddState.call(this), oldValue: backValue});
                 }
-                self.removeGeoObject(index);
-            });
-            mapTools.add(myButton);
-            this._customButtons.delete = myButton;
-            self.on(EVENTS.SELECTCHANGE, function (eventData) {
-                if (eventData.newIndex !== null && eventData.newIndex !== undefined) {
-                    myButton.enable();
-                } else {
-                    myButton.disable();
-                }
-            });
             },
 
             /**
@@ -141,64 +179,434 @@ angular.module('yaMap', []).
              * @param mapTools Объект стандартной панели управления
              */
             createAddButtons=function(GEOMETRY_TYPES, geometryTypeTitle, EVENTS, mapTools) {
-            var self = this;
-            //список с возможными вариантами добавления элементов
-            var rollupItems = [], button, buttonData;
-            for (var prop in GEOMETRY_TYPES) {
-                if (this.isValidType(GEOMETRY_TYPES[prop])) {
-                    buttonData = {
-                        data: {
-                            image: 'img/' + angular.lowercase(prop) + '.png',
-                            //imageDisabled: 'img/delete_gray.png',
-                            title: 'Добавить ' + geometryTypeTitle(GEOMETRY_TYPES[prop])
+                var self = this;
+                //список с возможными вариантами добавления элементов
+                var rollupItems = [], button, buttonData;
+                for (var prop in GEOMETRY_TYPES) {
+                    if (this.isValidType(GEOMETRY_TYPES[prop])) {
+                        buttonData = {
+                            data: {
+                                image: 'img/' + angular.lowercase(prop) + '.png',
+                                //imageDisabled: 'img/delete_gray.png',
+                                title: 'Добавить ' + geometryTypeTitle(GEOMETRY_TYPES[prop])
+                            }
+                        };
+                        button = new ymaps.control.Button(buttonData);
+                        button.geometryType = GEOMETRY_TYPES[prop];
+                        rollupItems.push(button);
+                        self._customButtons[GEOMETRY_TYPES[prop]] = button;
+                    }
+                }
+                var myRollupButton = new ymaps.control.RollupButton({
+                    items: rollupItems
+                });
+
+                self.on(EVENTS.COUNTGEOMETRYCHANGE, function (eventData) {
+                    var method = eventData.newValue < self.getMaxCountGeometry() ? 'enable' : 'disable';
+                    for (var key in self._customButtons) {
+                        if (key === 'delete') {
+                            continue;
+                        }
+                        self._customButtons[key][method]();
+                    }
+                });
+                myRollupButton.events.add(EVENTS.SELECT, function (e) {
+                    var button = e.get('item');
+                    setAddState.call(self, button.geometryType, EVENTS);
+                });
+                myRollupButton.events.add(EVENTS.DESELECT, function (e) {
+                    var button = e.get('item');
+                    setAddState.call(self, null, EVENTS);
+                });
+                mapTools.add(myRollupButton);
+            },
+
+            /**
+             * Добавляет новую точку в коллекцию точек геообъекта
+             * @param point добавляемая точка в виде массива координат
+             * @param EVENTS объект с доступными событиями
+             */
+            addDrawingPoint = function(point, EVENTS) {
+                if (!angular.isArray(point)) {
+                    throw new Error('point has been Array');
+                }
+                this._drawingPoints.push(point);
+                trigger.call(this,EVENTS.DRAWINGPOINTSCHANGE);
+            },
+
+            /**
+             * Возвращает массив точек нарисованной фигуры
+             * @returns {Array} координаты фигуры
+             */
+            getDrawingPoints = function(){
+                return this._drawingPoints;
+            },
+
+            /**
+             * Возвращает тип рисуемой геометрии
+             * @returns {*} тип рисуемой геометрии
+             */
+            getDrawingType = function(){
+                return this._drawingType;
+            },
+
+            /**
+             * Устанавливает тип рисуемой геометрии
+             * @param type тип рисуемой геометрии
+             */
+            setDrawingType = function(type, EVENTS){
+                if(this._drawingType === type){
+                    return;
+                }
+                var backValue = getDrawingType.call(this);
+                this._drawingType = type;
+                trigger.call(this, EVENTS.DRAWINGTYPECHANGE, {newValue:getDrawingType.call(this), oldValue:backValue});
+            },
+
+            /**
+             * Заканчивает рисование объекта
+             */
+            drawingEnd = function(GEOMETRY_TYPES, EVENTS){
+                var type = getDrawingType.call(this),
+                    coordinates = getDrawingPoints.call(this),
+                    geometry = {type:type};
+                if(coordinates.length===0){
+                    return;
+                }
+                switch(type){
+                    case GEOMETRY_TYPES.POINT:
+                        geometry.coordinates = coordinates[0]
+                        break;
+                    case GEOMETRY_TYPES.POLYGON:
+                        geometry.coordinates = [coordinates, []];
+                        break;
+                    case GEOMETRY_TYPES.CIRCLE:
+                        geometry.coordinates = coordinates[0];
+                        geometry.radius = ymaps.coordSystem.geo.getDistance(coordinates[0], coordinates[1]);
+                        break;
+                    default:
+                        geometry.coordinates = coordinates;
+                        break;
+                }
+                trigger.call(this, EVENTS.GEOOBJECTCREATED, geometry);
+                this._drawingPoints = [];
+                this._drawingType = null;
+                if(this._drawingGeoObject){
+                    this._map.geoObjects.remove(this._drawingGeoObject);
+                }
+                this._drawingGeoObject = null;
+            },
+
+            /**
+             * Устанавливает поддержку рисования
+             */
+            setDrawingSupport = function(GEOMETRY_TYPES, EVENTS) {
+                var self = this,
+                    addGeometryClickHandler = function (e) {
+                        addDrawingPoint.call(self, e.get('coordPosition'), EVENTS);
+                    },
+                    drawingPointsChangeHandler = function () {
+                        var type = getDrawingType.call(self),
+                            coordinates = getDrawingPoints.call(self);
+                        if (type === GEOMETRY_TYPES.POINT) {
+                            self._customButtons[type].deselect();
+                        }
+                        else if (type === GEOMETRY_TYPES.POLYGON || type === GEOMETRY_TYPES.LINESTRING) {
+                            if (self._drawingGeoObject) {
+                                self._map.geoObjects.remove(self._drawingGeoObject);
+                            }
+                            var drawingGeoObject = new ymaps.GeoObject({
+                                geometry: {
+                                    type: type,
+                                    coordinates: GEOMETRY_TYPES.POLYGON === type ? [coordinates, []] : coordinates
+                                }
+                            }, getDrawingOptions());
+                            self._map.geoObjects.add(drawingGeoObject);
+                            self._drawingGeoObject = drawingGeoObject;
+                        }
+                        else if (type === GEOMETRY_TYPES.RECTANGLE || type === GEOMETRY_TYPES.CIRCLE) {
+                            if (coordinates.length === 2) {
+                                self._customButtons[type].deselect();
+                            }
                         }
                     };
-                    button = new ymaps.control.Button(buttonData);
-                    button.geometryType = GEOMETRY_TYPES[prop];
-                    rollupItems.push(button);
-                    self._customButtons[GEOMETRY_TYPES[prop]] = button;
-                }
-            }
-            var myRollupButton = new ymaps.control.RollupButton({
-                items: rollupItems
-            });
 
-            self.on(EVENTS.COUNTGEOMETRYCHANGE, function (eventData) {
-                var method = eventData.newValue < self.getMaxCountGeometry() ? 'enable' : 'disable';
-                for (var key in self._customButtons) {
-                    if (key === 'delete') {
-                        continue;
+
+                var cursor;
+                self.on(EVENTS.ADDSTATECHANGE, function (eventData) {
+                    if (eventData.oldValue !== ADD_STATES.NONE) {
+                        self._map.events.remove(EVENTS.CLICK, addGeometryClickHandler);
+                        self.off(EVENTS.DRAWINGPOINTSCHANGE, drawingPointsChangeHandler);
+                        drawingEnd.call(self, GEOMETRY_TYPES, EVENTS);
                     }
-                    self._customButtons[key][method]();
+                    var geometryType = null;
+                    switch (eventData.newValue) {
+                        case ADD_STATES.NONE:
+                            cursor.remove();
+                            break;
+                        case ADD_STATES.POINT:
+                            geometryType = GEOMETRY_TYPES.POINT;
+                            break;
+                        case ADD_STATES.LINESTRING:
+                            geometryType = GEOMETRY_TYPES.LINESTRING;
+                            break;
+                        case ADD_STATES.RECTANGLE:
+                            geometryType = GEOMETRY_TYPES.RECTANGLE;
+                            break;
+                        case ADD_STATES.POLYGON:
+                            geometryType = GEOMETRY_TYPES.POLYGON;
+                            break;
+                        case ADD_STATES.CIRCLE:
+                            geometryType = GEOMETRY_TYPES.CIRCLE;
+                            break;
+                        default:
+                            throw new Error('Not correct new value');
+                    }
+                    if (eventData.newValue !== ADD_STATES.NONE) {
+                        cursor = self._map.cursors.push('crosshair');
+                        setDrawingType.call(self, geometryType, EVENTS);
+                        self._map.events.add(EVENTS.CLICK, addGeometryClickHandler);
+                        self.on(EVENTS.DRAWINGPOINTSCHANGE, drawingPointsChangeHandler);
+                    }
+                });
+            },
+
+            /**
+             * Добавляет элементы управления на карту
+             * @param key - ключ элемента управления
+             * @param options - опции элемента управления
+             * @private
+             */
+            addControl = function(key, options, EVENTS, GEOMETRY_TYPES, geometryTypeTitle) {
+                //если это стандартная панель управления, добавляем кнопки для редактирования
+                if (key === 'mapTools' && this.isEditable()) {
+                    var mapTools = new ymaps.control.MapTools(['default'], options);
+                    createDeleteButton.call(this, EVENTS, mapTools);
+                    if (this.isAddable()) {
+                        createAddButtons.call(this, GEOMETRY_TYPES, geometryTypeTitle, EVENTS, mapTools);
+                    }
+                    this._map.controls.add(mapTools);
+                } else {
+                    this._map.controls.add(key, options);
                 }
-            });
-            myRollupButton.events.add(EVENTS.SELECT, function (e) {
-                var button = e.get('item');
-                self.setAddState(button.geometryType);
-            });
-            myRollupButton.events.add(EVENTS.DESELECT, function (e) {
-                var button = e.get('item');
-                self.setAddState(null);
-            });
-            mapTools.add(myRollupButton);
-        };
+            },
+
+            /**
+             * Генерация события с передачей данных
+             * @param eventName имя генерируемого события
+             */
+            trigger = function(eventName){
+                var handlers, i, ii;
+                if (this._eventHandlers && this._eventHandlers[eventName]) {
+                    handlers = this._eventHandlers[eventName];
+                    for (i = 0, ii = handlers.length; i < ii; i++) {
+                        handlers[i].apply(this, [].slice.call(arguments, 1));
+                    }
+                }
+
+                if (this._oneEventHandlers && this._oneEventHandlers[eventName]) {
+                    handlers = this._oneEventHandlers[eventName];
+                    for (i = 0, ii = handlers.length; i < ii; i++) {
+                        handlers[i].apply(this, [].slice.call(arguments, 1));
+                    }
+                    this._oneEventHandlers[eventName] = [];
+                }
+            },
+
+            /**
+             * проверяет, можно ли создать новый объект определенного типа
+             */
+            possibleCreateGeoObject = function(geometryType){
+                var maxCount = this.getMaxCountGeometry();
+                return (maxCount === 0 || maxCount > this.getCountGeometry())
+                    && this.isValidType(geometryType);
+            },
+
+            /**
+             * создает гео объект на карте
+             * */
+            createGeoObjectOnMap = function(data, index, GEOMETRY_TYPES, EVENTS){
+                if(!angular.isObject(data)){
+                    throw new Error('data has been Object');
+                }
+                if(!data.geometry){
+                    throw new Error('Not property geometry');
+                }
+
+                if(!data.geometry.type){
+                    throw new Error('Not property geometry.type');
+                }
+                else if(data.geometry.type === GEOMETRY_TYPES.CIRCLE && !data.geometry.radius){
+                    throw new Error('Not property geometry.radius');
+                }
+
+                if(!data.geometry.coordinates){
+                    throw new Error('Not property geometry.coordinates');
+                }
+                else if(!angular.isArray(data.geometry.coordinates)){
+                    throw new Error('geometry.coordinates has been Array');
+                }
+                if(!possibleCreateGeoObject.call(this, data.geometry.type)){
+                    return;
+                }
+
+                var key = angular.lowercase(data.geometry.type),
+                    geoObject = new ymaps.GeoObject(data, data.displayOptions);
+                geoObject.properties.set('_index', index);
+                this.collections[key].add(geoObject);
+                if(this._allGeoObjects[index]){
+                    throw new Error('index already busy');
+                }
+                this._allGeoObjects[index]={mapObject:geoObject, originObject:data};
+                if(data.geometry.type === GEOMETRY_TYPES.POLYGON){
+                    data.geometry.coordinates = geoObject.geometry.getCoordinates();
+                }
+                if(this.isSelectable()){
+                    subscribeEvent.call(this, geoObject, EVENTS);
+                }
+                incrementCountGeometry.call(this, EVENTS);
+            },
+
+            /**
+             * Вызывает переданную функцию только после создания объекта карты
+             * */
+            callFunctionBeforeMapCreated = function(fn, EVENTS) {
+                if (this.isMapCreated()) {
+                    fn.apply(this);
+                } else {
+                    this.onOne(EVENTS.MAPCREATED, fn);
+                }
+            },
+
+            /**
+             * изменяет гео объект
+             * */
+            changeGeoObject = function(geoObjOnMap, geoObjInSource, GEOMETRY_TYPES) {
+                var type = geoObjOnMap.geometry.getType();
+                if (type === GEOMETRY_TYPES.CIRCLE) {
+                    geoObjOnMap.geometry.setRadius(geoObjInSource.geometry.radius);
+                }
+                geoObjOnMap.geometry.setCoordinates(geoObjInSource.geometry.coordinates);
+            },
+
+            /**
+             * Устанавливает индекс выбранного элемента в коллекции
+             */
+            setSelectedObjectIndex = function(val, EVENTS){
+                if(this._selectedObjectIndex===val){
+                    return;
+                }
+                var backValue = this._selectedObjectIndex;
+                this._selectedObjectIndex = val;
+                trigger.call(this, EVENTS.SELECTCHANGE,{newIndex:val,oldIndex:backValue});
+            },
+
+            /**
+             * возвращает индеск гео объекта в коллекции
+             * */
+            findIndex = function(geoObject) {
+                return geoObject.properties.get('_index');
+            },
+
+            /**
+             * подписывает объекты на события
+             * */
+            subscribeEvent=function(geoObject, EVENTS) {
+                var self = this;
+                if (this.isEditable()) {
+                    geoObject.events.add(EVENTS.GEOMETRYCHANGE, function (event) {
+                        //получаем оригинальное событие
+                        var originEvent = event;
+                        while (originEvent.originalEvent) {
+                            if (originEvent.type === EVENTS.CHANGE)
+                                break;
+                            originEvent = originEvent.originalEvent;
+                        }
+                        //обновляем измененный объект
+                        trigger.call(self, EVENTS.GEOMETRYCHANGE, {
+                            type: event.get('target').geometry.getType(),
+                            newCoordinates: originEvent.newCoordinates,
+                            oldCoordinates: originEvent.oldCoordinates
+                        });
+                    });
+                }
+                geoObject.events.add(EVENTS.CLICK, function () {
+                    self.select(findIndex.call(self, geoObject));
+                });
+            },
+
+            /**
+             * возвращает индекс выбранного элемента
+             * */
+            getSelectedObjectIndex = function(){
+                return this._selectedObjectIndex;
+            },
+
+            /**
+             * устанавливает максимально допустимое количество объектов на карте
+             * */
+            setMaxCountGeometry = function(val){
+                this._maxCountGeometry = val;
+            },
+
+            /**
+             * устанавливает типы геометрий, которые могут присутствовать на карте
+             * */
+            setValidTypes = function(types, GEOMETRY_TYPES) {
+                if (types) {
+                    var validTypes = types.split(' ');
+                    var curTypes = validTypes.map(function (type) {
+                        return angular.lowercase(type);
+                    });
+                    if (curTypes.indexOf('all') > -1) {
+                        this._validTypes = [GEOMETRY_TYPES.POINT, GEOMETRY_TYPES.LINESTRING, GEOMETRY_TYPES.RECTANGLE,
+                            GEOMETRY_TYPES.POLYGON, GEOMETRY_TYPES.CIRCLE];
+                    }
+                    else {
+                        this._validTypes = [];
+                        for (var i = 0, ii = curTypes.length; i < ii; i++) {
+                            this._validTypes.push(GEOMETRY_TYPES[angular.uppercase(curTypes[i])]);
+                        }
+                    }
+                } else {
+                    this._validTypes = [GEOMETRY_TYPES.POINT, GEOMETRY_TYPES.LINESTRING, GEOMETRY_TYPES.RECTANGLE,
+                        GEOMETRY_TYPES.POLYGON, GEOMETRY_TYPES.CIRCLE];
+                }
+            },
+
+            /**
+             * декрементирует текущее количество объектов на карте
+             * */
+            decrementCountGeometry= function(EVENTS) {
+                this._countGeometry--;
+                trigger.call(this, EVENTS.COUNTGEOMETRYCHANGE, {newValue: this._countGeometry});
+            },
+
+            /**
+             * инкрементирует текущее количество объектов на карте
+             * */
+            incrementCountGeometry = function(EVENTS) {
+                if (!this._countGeometry) {
+                    this._countGeometry = 0;
+                }
+                this._countGeometry++;
+                trigger.call(this, EVENTS.COUNTGEOMETRYCHANGE, {newValue: this._countGeometry});
+            };
 
 		this.options = function(val){
 			globalOptions = val;
 		};
 
-
-
         this.$get = ['$window', 'GEOMETRY_TYPES', 'MAP_EVENTS', 'geometryTypeTitleFilter',
         function($window, GEOMETRY_TYPES, EVENTS, geometryTypeTitle){
-                /**
+            /**
                  * Конструктор
                  * divId идентификатор div в котором будем создавать карту
                  * mapParams параметры карты
                  * mapControls элементы управления картой
                  * mapMode режим работы карты. (view, select, edit)
                  * */
-                function YandexMapWrapper(divId, mapParams, mapControls, mapMode, validTypes, maxCountGeometry, isClusterer){
+            function YandexMapWrapper(divId, mapParams, mapControls, mapMode, validTypes, maxCountGeometry, isClusterer){
                 var self = this,
                     //устанавливает режим работы карты
 					setMode=function(val){
@@ -214,10 +622,10 @@ angular.module('yaMap', []).
                             if(control==='default'){
                                 d = controls[control];
                                 for(var i= 0,ii= d.length;i<ii;i++){
-                                    self._addControl(d[i]);
+                                    addControl.call(self, d[i], undefined,EVENTS,GEOMETRY_TYPES,geometryTypeTitle);
                                 }
                             }else{
-                                self._addControl(control, controls[control]);
+                                addControl.call(self, control, controls[control], EVENTS,GEOMETRY_TYPES,geometryTypeTitle);
                             }
                         }
 
@@ -246,11 +654,11 @@ angular.module('yaMap', []).
 
                         //добавляем поддержку рисования
                         if(self.isAddable()){
-                            self._setDrawingSupport();
+                            setDrawingSupport.call(self, GEOMETRY_TYPES, EVENTS);
                         }
 
                         //генерируем событие, карта создана
-						self.trigger(EVENTS.MAPCREATED);
+						trigger.call(self, EVENTS.MAPCREATED);
 					};
 
 				//как будет готово API инициализируем карту
@@ -284,186 +692,15 @@ angular.module('yaMap', []).
 					}
 				});
 
-				this.setValidTypes(validTypes);
-				this.setMaxCountGeometry(maxCountGeometry);
+				setValidTypes.call(this, validTypes, GEOMETRY_TYPES);
+				setMaxCountGeometry.call(this, maxCountGeometry);
                 this._isClusterer = isClusterer;
-                this.setAddState(null);
+                setAddState.call(this, null, EVENTS);
                 this._customButtons = {};
                 this._drawingPoints = [];
                 this._drawingType = null;
                 this._drawingGeoObject = null;
 			}
-
-            /**
-             * Устанавливает поддержку рисования
-             * @private
-             */
-            YandexMapWrapper.prototype._setDrawingSupport = function(){
-                var self = this,
-                addGeometryClickHandler = function(e){
-                    self.addDrawingPoint( e.get('coordPosition'));
-                },
-                drawingPointsChangeHandler = function(){
-                    var type = self.getDrawingType(),
-                        coordinates = self.getDrawingPoints();
-                    if(type === GEOMETRY_TYPES.POINT){
-                        self._customButtons[type].deselect();
-                    }
-                    else if(type === GEOMETRY_TYPES.POLYGON || type === GEOMETRY_TYPES.LINESTRING){
-                        if(self._drawingGeoObject){
-                            self._map.geoObjects.remove(self._drawingGeoObject);
-                        }
-                        var drawingGeoObject = new ymaps.GeoObject({
-                            geometry: {
-                                type: type,
-                                coordinates: GEOMETRY_TYPES.POLYGON===type ? [coordinates,[]] : coordinates
-                            }
-                        }, getDrawingOptions());
-                        self._map.geoObjects.add(drawingGeoObject);
-                        self._drawingGeoObject = drawingGeoObject;
-                    }
-                    else if(type===GEOMETRY_TYPES.RECTANGLE || type === GEOMETRY_TYPES.CIRCLE){
-                        if(coordinates.length === 2){
-                            self._customButtons[type].deselect();
-                        }
-                    }
-                };
-
-
-                var cursor;
-                self.on(EVENTS.ADDSTATECHANGE, function(eventData){
-                    if(eventData.oldValue !== ADD_STATES.NONE){
-                        self._map.events.remove(EVENTS.CLICK, addGeometryClickHandler);
-                        self.off(EVENTS.DRAWINGPOINTSCHANGE, drawingPointsChangeHandler);
-                        self.drawingEnd();
-                    }
-                    var geometryType=null;
-                    switch(eventData.newValue){
-                        case ADD_STATES.NONE:
-                            cursor.remove();
-                            break;
-                        case ADD_STATES.POINT:
-                            geometryType = GEOMETRY_TYPES.POINT;
-                            break;
-                        case ADD_STATES.LINESTRING:
-                            geometryType = GEOMETRY_TYPES.LINESTRING;
-                            break;
-                        case ADD_STATES.RECTANGLE:
-                            geometryType = GEOMETRY_TYPES.RECTANGLE;
-                            break;
-                        case ADD_STATES.POLYGON:
-                            geometryType = GEOMETRY_TYPES.POLYGON;
-                            break;
-                        case ADD_STATES.CIRCLE:
-                            geometryType = GEOMETRY_TYPES.CIRCLE;
-                            break;
-                        default:
-                            throw new Error('Not correct new value');
-                    }
-                    if(eventData.newValue !== ADD_STATES.NONE){
-                        cursor = self._map.cursors.push('crosshair');
-                        self.setDrawingType(geometryType);
-                        self._map.events.add(EVENTS.CLICK, addGeometryClickHandler);
-                        self.on(EVENTS.DRAWINGPOINTSCHANGE, drawingPointsChangeHandler);
-                    }
-                });
-            };
-
-            /**
-             * Добавляет новую точку в коллекцию точек геообъекта
-             * @param point добавляемая точка в виде массива координат
-             */
-            YandexMapWrapper.prototype.addDrawingPoint = function(point){
-                if(!angular.isArray(point)){
-                    throw new Error('point has been Array');
-                }
-                this._drawingPoints.push(point);
-                this.trigger(EVENTS.DRAWINGPOINTSCHANGE);
-            };
-
-            /**
-             * Возвращает массив точек нарисованной фигуры
-             * @returns {Array} координаты фигуры
-             */
-            YandexMapWrapper.prototype.getDrawingPoints = function(){
-                return this._drawingPoints;
-            };
-
-            /**
-             * Возвращает тип рисуемой геометрии
-             * @returns {*} тип рисуемой геометрии
-             */
-            YandexMapWrapper.prototype.getDrawingType = function(){
-                return this._drawingType;
-            };
-
-            /**
-             * Устанавливает тип рисуемой геометрии
-             * @param type тип рисуемой геометрии
-             */
-            YandexMapWrapper.prototype.setDrawingType = function(type){
-                if(this._drawingType === type){
-                    return;
-                }
-                var backValue = this.getDrawingType();
-                this._drawingType = type;
-                this.trigger(EVENTS.DRAWINGTYPECHANGE, {newValue:this.getDrawingType(), oldValue:backValue});
-            };
-
-            /**
-             * Заканчивает рисование объекта
-             */
-            YandexMapWrapper.prototype.drawingEnd = function(){
-                var type = this.getDrawingType(),
-                    coordinates = this.getDrawingPoints(),
-                    geometry = {type:type};
-                if(coordinates.length===0){
-                    return;
-                }
-                switch(type){
-                    case GEOMETRY_TYPES.POINT:
-                        geometry.coordinates = coordinates[0]
-                        break;
-                    case GEOMETRY_TYPES.POLYGON:
-                        geometry.coordinates = [coordinates, []];
-                        break;
-                    case GEOMETRY_TYPES.CIRCLE:
-                        geometry.coordinates = coordinates[0];
-                        geometry.radius = ymaps.coordSystem.geo.getDistance(coordinates[0], coordinates[1]);
-                        break;
-                    default:
-                        geometry.coordinates = coordinates;
-                        break;
-                }
-                this.trigger(EVENTS.GEOOBJECTCREATED, geometry);
-                this._drawingPoints = [];
-                this._drawingType = null;
-                if(this._drawingGeoObject){
-                    this._map.geoObjects.remove(this._drawingGeoObject);
-                }
-                this._drawingGeoObject = null;
-            };
-
-            /**
-             * Устанавливает состояние редактирования
-             * @param geoObjectType тип гео объекта который будет добавляться
-             */
-            YandexMapWrapper.prototype.setAddState = function(geoObjectType){
-                var key = angular.uppercase(geoObjectType),
-                    backValue = this.getAddState();
-                this._addState = ADD_STATES[key] || ADD_STATES.NONE;
-                if(backValue !== this.getAddState()){
-                    this.trigger(EVENTS.ADDSTATECHANGE, {newValue: this.getAddState(), oldValue:backValue});
-                }
-            };
-
-            /**
-             * возвращает состояние при добавлении элементов
-             * @returns {*} член перечислимого ADD_STATES
-             */
-            YandexMapWrapper.prototype.getAddState = function(){
-                return this._addState;
-            };
 
             /**
              * Определяет, используются ли на карте кластеры
@@ -472,26 +709,6 @@ angular.module('yaMap', []).
             YandexMapWrapper.prototype.isClusterer = function(){
                 return this._isClusterer;
             }
-
-            /**
-             * Добавляет элементы управления на карту
-             * @param key - ключ элемента управления
-             * @param options - опции элемента управления
-             * @private
-             */
-            YandexMapWrapper.prototype._addControl = function(key, options){
-                //если это стандартная панель управления, добавляем кнопки для редактирования
-                if(key === 'mapTools' && this.isEditable()){
-                    var mapTools = new ymaps.control.MapTools(['default'], options);
-                    createDeleteButton.call(this, EVENTS, mapTools);
-                    if(this.isAddable()){
-                        createAddButtons.call(this, GEOMETRY_TYPES, geometryTypeTitle, EVENTS, mapTools);
-                    }
-                    this._map.controls.add(mapTools);
-                }else{
-                    this._map.controls.add(key,options);
-                }
-            };
 
             /**
              * Подписка на событие
@@ -533,28 +750,6 @@ angular.module('yaMap', []).
 				}
 			};
 
-            /**
-             * Генерация события с передачей данных
-             * @param eventName имя генерируемого события
-             */
-			YandexMapWrapper.prototype.trigger = function(eventName) {
-				// вызвать обработчики
-				var handlers, i, ii;
-				if(this._eventHandlers && this._eventHandlers[eventName]){
-					handlers = this._eventHandlers[eventName];
-					for (i = 0, ii=handlers.length; i < ii; i++) {
-						handlers[i].apply(this, [].slice.call(arguments, 1));
-					}
-				}
-
-				if(this._oneEventHandlers && this._oneEventHandlers[eventName]){
-					handlers = this._oneEventHandlers[eventName];
-					for (i = 0, ii=handlers.length; i < ii; i++) {
-						handlers[i].apply(this, [].slice.call(arguments, 1));
-					}
-					this._oneEventHandlers[eventName]=[];
-				}
-			};
 
 			/**
 			 * возвращает возможность редактирования элементов катры
@@ -584,60 +779,6 @@ angular.module('yaMap', []).
 				return this._map ? true : false;
 			};
 
-			/**
-			 * проверяет, можно ли создать новый объект определенного типа
-			 * */
-			YandexMapWrapper.prototype.possibleCreateGeoObject = function(geometryType){
-				var maxCount = this.getMaxCountGeometry();
-				return (maxCount === 0 || maxCount > this.getCountGeometry())
-					&& this.isValidType(geometryType);
-			};
-
-			/**
-			 * создает гео объект на карте
-			 * */
-			YandexMapWrapper.prototype._createGeoObject = function(data, index, generateEvent){
-                if(!angular.isObject(data)){
-					throw new Error('data has been Object');
-				}
-				if(!data.geometry){
-					throw new Error('Not property geometry');
-				}
-
-				if(!data.geometry.type){
-					throw new Error('Not property geometry.type');
-				}
-				else if(data.geometry.type === GEOMETRY_TYPES.CIRCLE && !data.geometry.radius){
-					throw new Error('Not property geometry.radius');
-				}
-
-				if(!data.geometry.coordinates){
-					throw new Error('Not property geometry.coordinates');
-				}
-				else if(!angular.isArray(data.geometry.coordinates)){
-					throw new Error('geometry.coordinates has been Array');
-				}
-                if(!this.possibleCreateGeoObject(data.geometry.type)){
-                    return;
-                }
-
-                var key = angular.lowercase(data.geometry.type),
-					geoObject = new ymaps.GeoObject(data, data.displayOptions);
-                geoObject.properties.set('_index', index);
-				this.collections[key].add(geoObject);
-				if(this._allGeoObjects[index]){
-					throw new Error('index already busy');
-				}
-				this._allGeoObjects[index]={mapObject:geoObject, originObject:data};
-				if(data.geometry.type === GEOMETRY_TYPES.POLYGON){
-					data.geometry.coordinates = geoObject.geometry.getCoordinates();
-				}
-				if(this.isSelectable()){
-					this._subscribeEvent(geoObject);
-				}
-				this.incrementCountGeometry();
-			};
-
  			/**
 			 * создает гео объект(ы) на карте.
 			 * */
@@ -645,28 +786,17 @@ angular.module('yaMap', []).
 				var fn = function(){
 					if(angular.isArray(data)){
 						for(var i= 0, ii=data.length;i<ii;i++){
-							this._createGeoObject(data[i], i);
+							createGeoObjectOnMap.call(this, data[i], i, GEOMETRY_TYPES, EVENTS);
 						}
 					}
 					else if(angular.isObject(data)){
-						this._createGeoObject(data, index)
+						createGeoObjectOnMap.call(this, data, index, GEOMETRY_TYPES, EVENTS)
 					}
 					else{
 						throw new Error('not correct type argument data');
 					}
 				};
-				this.callFunctionForMap(fn);
-			};
-
-			/**
-			 * Вызывает переданную функцию только после создания объекта карты
-			 * */
-			YandexMapWrapper.prototype.callFunctionForMap = function(fn){
-				if(this.isMapCreated()){
-					fn.apply(this);
-				}else{
-					this.onOne(EVENTS.MAPCREATED, fn);
-				}
+				callFunctionBeforeMapCreated.call(this, fn, EVENTS);
 			};
 
 			/**
@@ -681,7 +811,7 @@ angular.module('yaMap', []).
 						curMapElement = this._allGeoObjects[i].mapObject;
 						if(curSourceElement){
 							if(curMapElement.geometry.getType()===curSourceElement.geometry.type){
-								this.changeGeoObject(curMapElement, curSourceElement);
+								changeGeoObject.call(this, curMapElement, curSourceElement, GEOMETRY_TYPES);
 							}else{
 								removedIndexes.push(i);
                                 if(curSourceElement){
@@ -709,7 +839,7 @@ angular.module('yaMap', []).
 						this.createGeoObject(addedGeoObjects[i].element,addedGeoObjects[i].index);
 					}
 				};
-				this.callFunctionForMap(fn);
+				callFunctionBeforeMapCreated.call(this, fn, EVENTS);
 			};
 
 			/**
@@ -720,47 +850,17 @@ angular.module('yaMap', []).
 					key = angular.lowercase(geoObj.geometry.getType());
 				this.collections[key].remove(geoObj)
 				delete this._allGeoObjects[indexOfAllGeoObjects];
-				if(indexOfAllGeoObjects===this.getSelectedObjectIndex()){
-					this.setSelectedObjectIndex(null);
+				if(indexOfAllGeoObjects===getSelectedObjectIndex.call(this)){
+					setSelectedObjectIndex.call(this, null, EVENTS);
 				}
-				this.decrementCountGeometry();
-                this.trigger(EVENTS.REMOVEGEOOBJ,{index:indexOfAllGeoObjects});
+				decrementCountGeometry.call(this, EVENTS);
+                trigger.call(this, EVENTS.REMOVEGEOOBJ,{index:indexOfAllGeoObjects});
 			};
-
-			/**
-			 * изменяет гео объект
-			 * */
-			YandexMapWrapper.prototype.changeGeoObject = function(geoObjOnMap, geoObjInSource){
-				var type = geoObjOnMap.geometry.getType();
-				if(type===GEOMETRY_TYPES.CIRCLE){
-					geoObjOnMap.geometry.setRadius(geoObjInSource.geometry.radius);
-				}
-				geoObjOnMap.geometry.setCoordinates(geoObjInSource.geometry.coordinates);
-			};
-
-			/**
-			 * устанавливает индекс выбранного элемента
-			 * */
-			YandexMapWrapper.prototype.setSelectedObjectIndex = function(val){
-				if(this._selectedObjectIndex===val){
-					return;
-				}
-				var backValue = this._selectedObjectIndex;
-				this._selectedObjectIndex = val;
-				this.trigger(EVENTS.SELECTCHANGE,{newIndex:val,oldIndex:backValue});
-			};
-
-			/**
-			 * возвращает индекс выбранного элемента
-			 * */
-			YandexMapWrapper.prototype.getSelectedObjectIndex = function(){
-				return this._selectedObjectIndex;
-			}
 
 			//отмена выделения текщего выбранного объекта
 			YandexMapWrapper.prototype.deselect = function(){
 				var fn = function(){
-					var selectIndex = this.getSelectedObjectIndex();
+					var selectIndex = getSelectedObjectIndex.call(this);
 					if(selectIndex!==null && selectIndex>-1){
 						var selectedObject = this._allGeoObjects[selectIndex].mapObject;
 						selectedObject.options.set(this.selectedObjectBackOptions.setOptions);
@@ -772,10 +872,11 @@ angular.module('yaMap', []).
 
 					//очищаем старые значения
 					this.selectedObjectBackOptions = null;
-					this.setSelectedObjectIndex(null);
+					setSelectedObjectIndex.call(this,null,EVENTS);
 				};
-				this.callFunctionForMap(fn);
+				callFunctionBeforeMapCreated.call(this, fn, EVENTS);
 			};
+
 			//установка выбранного объекта
 			YandexMapWrapper.prototype.select = function(index){
 				var fn = function(){
@@ -810,50 +911,9 @@ angular.module('yaMap', []).
                         setOptions:backOptions,
                         unsetOptions:unsetOptions
                     };
-                    this.setSelectedObjectIndex(index);
+                    setSelectedObjectIndex.call(this,index,EVENTS);
 				};
-				this.callFunctionForMap(fn);
-			};
-
-			/**
-			 * возвращает индеск гео объекта в коллекции
-			 * */
-			YandexMapWrapper.prototype.findIndex = function(geoObject){
-				return geoObject.properties.get('_index');
-			};
-
-			/**
-			 * подписывает объекты на события
-			 * */
-			YandexMapWrapper.prototype._subscribeEvent = function(geoObject){
-				var self = this;
-				if(this.isEditable()){
-					geoObject.events.add(EVENTS.GEOMETRYCHANGE, function (event) {
-						//получаем оригинальное событие
-						var originEvent = event;
-						while(originEvent.originalEvent){
-							if(originEvent.type===EVENTS.CHANGE)
-								break;
-							originEvent = originEvent.originalEvent;
-						}
-						//обновляем измененный объект
-						self.trigger(EVENTS.GEOMETRYCHANGE,{
-							type:event.get('target').geometry.getType(),
-							newCoordinates:originEvent.newCoordinates,
-							oldCoordinates:originEvent.oldCoordinates
-						});
-					});
-				}
-				geoObject.events.add(EVENTS.CLICK, function () {
-					self.select(self.findIndex(geoObject));
-				});
-			};
-
-			/**
-			 * увтанавливает максимально допустимое количество объектов на карте
-			 * */
-			YandexMapWrapper.prototype.setMaxCountGeometry = function(val){
-				this._maxCountGeometry = val;
+				callFunctionBeforeMapCreated.call(this, fn, EVENTS);
 			};
 
 			/**
@@ -864,54 +924,10 @@ angular.module('yaMap', []).
 			};
 
 			/**
-			 * декрементирует текущее количество объектов на карте
-			 * */
-			YandexMapWrapper.prototype.decrementCountGeometry = function(){
-				this._countGeometry--;
-                this.trigger(EVENTS.COUNTGEOMETRYCHANGE, {newValue:this._countGeometry});
-			};
-
-			/**
-			 * инкрементирует текущее количество объектов на карте
-			 * */
-			YandexMapWrapper.prototype.incrementCountGeometry = function(){
-				if(!this._countGeometry){
-					this._countGeometry = 0;
-				}
-				this._countGeometry++;
-                this.trigger(EVENTS.COUNTGEOMETRYCHANGE, {newValue:this._countGeometry});
-			};
-
-			/**
 			 * возвращает количество объектов на карте
 			 * */
 			YandexMapWrapper.prototype.getCountGeometry = function(){
 				return this._countGeometry ? this._countGeometry : 0;
-			};
-
-			/**
-			 * устанавливает типы геометрий, которые могут присутствовать на карте
-			 * */
-			YandexMapWrapper.prototype.setValidTypes = function(types){
-				if(types){
-					var validTypes = types.split(' ');
-					var curTypes = validTypes.map(function(type){
-						return angular.lowercase(type);
-					});
-					if(curTypes.indexOf('all')>-1){
-						this._validTypes = [GEOMETRY_TYPES.POINT,GEOMETRY_TYPES.LINESTRING, GEOMETRY_TYPES.RECTANGLE,
-							GEOMETRY_TYPES.POLYGON, GEOMETRY_TYPES.CIRCLE];
-					}
-					else{
-						this._validTypes = [];
-						for(var i= 0,ii=curTypes.length;i<ii;i++){
-							this._validTypes.push(GEOMETRY_TYPES[angular.uppercase(curTypes[i])]);
-						}
-					}
-				}else{
-                    this._validTypes = [GEOMETRY_TYPES.POINT,GEOMETRY_TYPES.LINESTRING, GEOMETRY_TYPES.RECTANGLE,
-                        GEOMETRY_TYPES.POLYGON, GEOMETRY_TYPES.CIRCLE];
-				}
 			};
 
 			/**
@@ -937,8 +953,8 @@ angular.module('yaMap', []).
                 VALID_TYPES:'yaValidTypes',
                 GEO_OBJECTS:'yaGeoObjects',
                 SELECT_INDEX:'yaSelectIndex'
-            },
-		    directiveObj = {
+            };
+		return {
 			restrict:'AC',
 			scope:{
 				yaProperties:'=',
@@ -1060,6 +1076,5 @@ angular.module('yaMap', []).
 				});
 			}
 		};
-		return directiveObj;
 	}]);
 
