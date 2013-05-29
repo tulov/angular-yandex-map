@@ -20,7 +20,8 @@ angular.module('yaMap', []).
         ADDSTATECHANGE:'addstatechange',
         GEOOBJECTCREATED:'geoobjcreated',
         DRAWINGPOINTSCHANGE:'drawingPointsChange',
-        DRAWINGTYPECHANGE:'drawingTypeChange'
+        DRAWINGTYPECHANGE:'drawingTypeChange',
+        COUNTGEOMETRYCHANGE:'countGeometryChange'
     }).
     filter('geometryTypeTitle', ['GEOMETRY_TYPES',function(GEOMETRY_TYPES){
         return function(geometryType){
@@ -444,6 +445,15 @@ angular.module('yaMap', []).
                             items: rollupItems
                         });
 
+                        self.on(EVENTS.COUNTGEOMETRYCHANGE, function(eventData){
+                            var method = eventData.newValue < self.getMaxCountGeometry() ? 'enable' : 'disable';
+                            for(var key in self._customButtons){
+                                if(key==='delete'){
+                                    continue;
+                                }
+                                self._customButtons[key][method]();
+                            }
+                        });
                         myRollupButton.events.add(EVENTS.SELECT,function(e){
                             var button = e.get('item');
                             self.setAddState(button.geometryType);
@@ -826,6 +836,7 @@ angular.module('yaMap', []).
 			 * */
 			YandexMapWrapper.prototype.decrementCountGeometry = function(){
 				this._countGeometry--;
+                this.trigger(EVENTS.COUNTGEOMETRYCHANGE, {newValue:this._countGeometry});
 			};
 
 			/**
@@ -836,6 +847,7 @@ angular.module('yaMap', []).
 					this._countGeometry = 0;
 				}
 				this._countGeometry++;
+                this.trigger(EVENTS.COUNTGEOMETRYCHANGE, {newValue:this._countGeometry});
 			};
 
 			/**
