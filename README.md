@@ -3,14 +3,13 @@ yaMap
 
 **yaMap** This is an easy way to add a Yandex map to your page AngularJS
 
-Nodemailer is Windows friendly, you can install it with *npm* on Windows just like any other module, there are no compiled dependencies. Use it from Azure or from your Windows box hassle free.
-
 Using
 -----
-1. Add api support yandex map:
+1. Add api support yandex map and yaMap module:
 
    ```html
    <script src="http://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU"></script>
+   <script src="js/ya-map.js"></script>
    ```
 2. Specify dependence yaMap module for your application:
 
