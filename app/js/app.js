@@ -281,6 +281,7 @@ var app = angular.module('myApp', ['yaMap']).
 					//представление для точки на карте
 					preset: 'twirl#blackStretchyIcon'
 				},
+                //параметры отображения рисуемых объектов
                 drawing:{
                     strokeWidth: 1,
                     strokeColor: "#000000",
