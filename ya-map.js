@@ -23,31 +23,21 @@ angular.module('yaMap', []).
         DRAWINGTYPECHANGE:'drawingTypeChange',
         COUNTGEOMETRYCHANGE:'countGeometryChange'
     }).
-    filter('geometryTypeTitle', ['GEOMETRY_TYPES',function(GEOMETRY_TYPES){
-        return function(geometryType){
-            switch(geometryType){
-                case GEOMETRY_TYPES.POINT:
-                    return 'точку';
-                case GEOMETRY_TYPES.LINESTRING:
-                    return 'ломанную';
-                case GEOMETRY_TYPES.RECTANGLE:
-                    return 'прямоугольник';
-                case GEOMETRY_TYPES.POLYGON:
-                    return 'многоугольник';
-                case GEOMETRY_TYPES.CIRCLE:
-                    return 'круг';
-                default:
-                    throw new Error('not correct geometry type');
-            }
-        };
-    }]).
-	provider('YandexMap', function(){
+    provider('YandexMap', function(){
 		var globalOptions={},
 
             //возвращает параметры для карты
 			getParams = function(parameters){
 				return angular.extend({}, globalOptions.params, parameters);
 			},
+
+            /**
+             * Возвращает параметры отображения пользовательских кнопок
+             */
+            getCustomButtonParams = function(key){
+                var customButtons = globalOptions.customButtons || {};
+                return customButtons[key] ? customButtons[key] : {};
+            },
 
             //возвращает список элементов управления для карты
 			getControls=function(controls){
@@ -121,11 +111,7 @@ angular.module('yaMap', []).
              */
             createDeleteButton  =  function(EVENTS, mapTools) {
                 var myButton = new ymaps.control.Button({
-                    data: {
-                        image: 'img/delete.png',
-                        imageDisabled: 'img/delete_gray.png',
-                        title: 'Нажмите для удаления выделенной фигуры'
-                    }
+                    data: getCustomButtonParams('delete')
                 }, {
                     selectOnClick: false
                 });
@@ -174,22 +160,17 @@ angular.module('yaMap', []).
             /**
              * В стандартной панели элементов создает группу кнопок для добавления новых элементов на карту
              * @param GEOMETRY_TYPES Объект, содержащий возможные типы объектов на карте
-             * @param geometryTypeTitle Функция, которая преобразует тип объекта в понятную надпис
              * @param EVENTS Объект с доступными событиями
              * @param mapTools Объект стандартной панели управления
              */
-            createAddButtons=function(GEOMETRY_TYPES, geometryTypeTitle, EVENTS, mapTools) {
+            createAddButtons=function(GEOMETRY_TYPES, EVENTS, mapTools) {
                 var self = this;
                 //список с возможными вариантами добавления элементов
                 var rollupItems = [], button, buttonData;
                 for (var prop in GEOMETRY_TYPES) {
                     if (this.isValidType(GEOMETRY_TYPES[prop])) {
                         buttonData = {
-                            data: {
-                                image: 'img/' + angular.lowercase(prop) + '.png',
-                                //imageDisabled: 'img/delete_gray.png',
-                                title: 'Добавить ' + geometryTypeTitle(GEOMETRY_TYPES[prop])
-                            }
+                            data: getCustomButtonParams(angular.lowercase(prop))
                         };
                         button = new ymaps.control.Button(buttonData);
                         button.geometryType = GEOMETRY_TYPES[prop];
@@ -377,13 +358,13 @@ angular.module('yaMap', []).
              * @param options - опции элемента управления
              * @private
              */
-            addControl = function(key, options, EVENTS, GEOMETRY_TYPES, geometryTypeTitle) {
+            addControl = function(key, options, EVENTS, GEOMETRY_TYPES) {
                 //если это стандартная панель управления, добавляем кнопки для редактирования
                 if (key === 'mapTools' && this.isEditable()) {
                     var mapTools = new ymaps.control.MapTools(['default'], options);
                     createDeleteButton.call(this, EVENTS, mapTools);
                     if (this.isAddable()) {
-                        createAddButtons.call(this, GEOMETRY_TYPES, geometryTypeTitle, EVENTS, mapTools);
+                        createAddButtons.call(this, GEOMETRY_TYPES, EVENTS, mapTools);
                     }
                     this._map.controls.add(mapTools);
                 } else {
@@ -597,8 +578,8 @@ angular.module('yaMap', []).
 			globalOptions = val;
 		};
 
-        this.$get = ['$window', 'GEOMETRY_TYPES', 'MAP_EVENTS', 'geometryTypeTitleFilter',
-        function($window, GEOMETRY_TYPES, EVENTS, geometryTypeTitle){
+        this.$get = ['$window', 'GEOMETRY_TYPES', 'MAP_EVENTS',
+        function($window, GEOMETRY_TYPES, EVENTS){
             /**
                  * Конструктор
                  * divId идентификатор div в котором будем создавать карту
@@ -622,10 +603,10 @@ angular.module('yaMap', []).
                             if(control==='default'){
                                 d = controls[control];
                                 for(var i= 0,ii= d.length;i<ii;i++){
-                                    addControl.call(self, d[i], undefined,EVENTS,GEOMETRY_TYPES,geometryTypeTitle);
+                                    addControl.call(self, d[i], undefined,EVENTS,GEOMETRY_TYPES);
                                 }
                             }else{
-                                addControl.call(self, control, controls[control], EVENTS,GEOMETRY_TYPES,geometryTypeTitle);
+                                addControl.call(self, control, controls[control], EVENTS,GEOMETRY_TYPES);
                             }
                         }
 

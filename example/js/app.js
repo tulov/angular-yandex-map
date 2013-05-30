@@ -1,7 +1,5 @@
 'use strict';
 
-
-// Declare app level module which depends on filters, and services
 var app = angular.module('myApp', ['yaMap']).
 	controller('MapCtrl', ['$scope',function($scope){
 		$scope.selectIndex = 3;
@@ -288,12 +286,35 @@ var app = angular.module('myApp', ['yaMap']).
                     fillColor: '#00ffff10',
                     strokeStyle: 'shortdash'
                 }
-			}
+			},
+            //путь к папке с иконками отображаемыми на кнопках удалить или добавить новую фигуру
+            customButtons:{
+                delete:{
+                    image:'img/delete.png',
+                    imageDisabled:'img/delete_gray.png',
+                    help:'Нажмите для удаления выделенной фигуры'
+                },
+                point:{
+                    image: 'img/point.png',
+                    title: 'Добавить метку'
+                },
+                rectangle:{
+                    image: 'img/rectangle.png',
+                    title: 'Добавить прямоугольник'
+                },
+                linestring:{
+                    image: 'img/linestring.png',
+                    title: 'Добавить ломанную'
+                },
+                polygon:{
+                    image: 'img/polygon.png',
+                    title: 'Добавить многоугольник'
+                },
+                circle:{
+                    image: 'img/circle.png',
+                    title: 'Добавить круг'
+                }
+            }
 		});
 
-	}])/*.
-  config(['$routeProvider', function($routeProvider) {
-    $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: MyCtrl1});
-    $routeProvider.when('/view2', {templateUrl: 'partials/partial2.html', controller: MyCtrl2});
-    $routeProvider.otherwise({redirectTo: '/view1'});
-  }])*/;
+	}]);
