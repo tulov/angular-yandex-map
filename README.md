@@ -145,6 +145,3 @@ Using
        height: 400px;
    }
    ```
-## License
-
-**Nodemailer** is licensed under [MIT license](https://github.com/andris9/Nodemailer/blob/master/LICENSE). Basically you can do whatever you want to with it.
