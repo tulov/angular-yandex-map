@@ -646,6 +646,11 @@ angular.module('yaMap', []).
 						trigger.call(self, EVENTS.MAPCREATED);
 					};
 
+                setValidTypes.call(this, validTypes, GEOMETRY_TYPES);
+                setMaxCountGeometry.call(this, maxCountGeometry);
+                this._isClusterer = isClusterer;
+                setAddState.call(this, null, EVENTS);
+
 				//как будет готово API инициализируем карту
 				ymaps.ready(function(){
 					var params = getParams(mapParams),
@@ -676,11 +681,6 @@ angular.module('yaMap', []).
 						})
 					}
 				});
-
-				setValidTypes.call(this, validTypes, GEOMETRY_TYPES);
-				setMaxCountGeometry.call(this, maxCountGeometry);
-                this._isClusterer = isClusterer;
-                setAddState.call(this, null, EVENTS);
 			}
 
             /**
@@ -916,7 +916,31 @@ angular.module('yaMap', []).
 			 * */
 			YandexMapWrapper.prototype.isValidType = function(type){
                 return this._validTypes.indexOf(type)>-1;
-			}
+			};
+
+            /**
+             * Задает центр карты
+             * @param center может быть объектом, массивом координат, или строкой. В случае строки применяется геокодирование
+             */
+            YandexMapWrapper.prototype.setCenter = function(center){
+                if(!center){
+                    center = [ymaps.geolocation.latitude, ymaps.geolocation.longitude];
+                }
+                if(center.x && center.y){
+                    this._map.setCenter([center.x, center.y]);
+                }else if(center.length === 2){
+                    this._map.setCenter(center);
+                }else{
+                    var self = this;
+                    var myGeocoder = ymaps.geocode(center);
+                    myGeocoder.then(
+                        function (res) {
+                            var firstGeoObject = res.geoObjects.get(0);
+                            self._map.setCenter(firstGeoObject.geometry.getCoordinates());
+                        }
+                    );
+                }
+            };
 
 			return {
 				createMap:function(divId, params, controls, mode, validTypes, maxCoutnGeometry, isClusterer){
@@ -933,7 +957,8 @@ angular.module('yaMap', []).
                 MODE:'yaMode',
                 VALID_TYPES:'yaValidTypes',
                 GEO_OBJECTS:'yaGeoObjects',
-                SELECT_INDEX:'yaSelectIndex'
+                SELECT_INDEX:'yaSelectIndex',
+                PROPERTIES_CENTER:'yaProperties.params.center'
             };
 		return {
 			restrict:'AC',
@@ -1055,6 +1080,12 @@ angular.module('yaMap', []).
 					}
 					isRunAngularContext = false;
 				});
+                scope.$watch(ATTRIBUTE_NAMES.PROPERTIES_CENTER, function(newCenter, oldCenter){
+                    if(angular.equals(newCenter, oldCenter)){
+                        return;
+                    }
+                    map.setCenter(newCenter);
+                });
 			}
 		};
 	}]);

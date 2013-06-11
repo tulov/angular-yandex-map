@@ -196,6 +196,18 @@ var app = angular.module('myApp', ['yaMap']).
 				$scope.selectIndex=0;
 			}
 		};
+        $scope.changeCenter = function(){
+            var currentCenter = $scope.mapProperties.params.center;
+            if(!currentCenter){
+                $scope.mapProperties.params.center = {x:55.76, y:37.64};
+            }else if(currentCenter.x && currentCenter.y){
+                $scope.mapProperties.params.center='Казахстан, город Алматы';
+            }else if(currentCenter.length===2){
+                $scope.mapProperties.params.center = null;
+            }else if(currentCenter==='Казахстан, город Алматы'){
+                $scope.mapProperties.params.center = [55.76, 37.64];
+            }
+        }
 	}]).
 	config(['YandexMapProvider', function(yaMapOptions){
 		yaMapOptions.options({
