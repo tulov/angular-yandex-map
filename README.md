@@ -118,25 +118,7 @@ Using
 4. When you need a map on your page, use the following markup:
 
    ```html
-   <div
-       <!-- required attribute -->
-       id="map"
-       ya-map
-       <!-- Is not a required attribute. Property within the scope of which would be based upon the map settings. -->
-       ya-properties="mapProperties"
-       <!-- This is a required attribute. In-scope property, which contains an array of geo objects for binding. -->
-       ya-geo-objects="geoObjects"
-       <!-- Is not a required attribute. Defaults to 'view'. The valid values for the: 'veiw', 'select', 'edit' or 'add'. -->
-       ya-mode="add"
-       <!-- Is not a required attribute. Property binding in scope for that contains the index of the selected item within the array of geo objects. -->
-       ya-select-index="selectIndex"
-       <!-- Is not a required attribute. Defaults to 'all'. The valid values for the: 'point', 'rectangle', 'polygon', 'linestring', 'circle' or 'all'. -->
-       ya-valid-types="circle point"
-       <!-- Is not a required attribute. Specifies the maximum number of geo objects on the map. -->
-       ya-max-count-geometry="7"
-       <!-- Is not a required attribute. If specified, will apply the clustering of points on the map. -->
-       ya-clusterer
-       ></div>
+   <div id="map" ya-map ya-geo-objects="geoObjects"></div>
    ```
 5. Set the style for the div that displays the map. To display the map you need to set the width and height.
    ```css

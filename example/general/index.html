@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="utf-8">
+    <title>Directive yaMap</title>
+    <link rel="stylesheet" href="css/app.css"/>
+
+</head>
+<body ng-controller="MapCtrl">
+    <div id="map"
+            ya-map
+            ya-properties="mapProperties"
+            ya-geo-objects="geoObjects"
+            ya-mode="add"
+            ya-select-index="selectIndex"
+            ya-valid-types="circle point"
+            ya-max-count-geometry="7"
+            ya-clusterer
+            ></div>
+    <button ng-click="deleteObj()">Удалить объект</button>
+    <button ng-click="addObj()">Добавить объект</button>
+    <button ng-click="changeObj()">Изменить объект</button>
+    <button ng-click="changeSelect()">выбрать другой</button>
+    <br>
+    selectIndex:{{selectIndex}}<br>
+    {{geoObjects | json}}
+    <script src="http://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU"></script>
+    <script src="../lib/angular/angular.js"></script>
+    <script src="js/app.js"></script>
+    <script src="../../../ya-map.js"></script>
+</body>
+</html>

@@ -588,6 +588,10 @@ angular.module('yaMap', []).
                  * mapMode режим работы карты. (view, select, edit)
                  * */
             function YandexMapWrapper(divId, mapParams, mapControls, mapMode, validTypes, maxCountGeometry, isClusterer){
+                this._customButtons = {};
+                this._drawingPoints = [];
+                this._drawingType = null;
+                this._drawingGeoObject = null;
                 var self = this,
                     //устанавливает режим работы карты
 					setMode=function(val){
@@ -677,10 +681,6 @@ angular.module('yaMap', []).
 				setMaxCountGeometry.call(this, maxCountGeometry);
                 this._isClusterer = isClusterer;
                 setAddState.call(this, null, EVENTS);
-                this._customButtons = {};
-                this._drawingPoints = [];
-                this._drawingType = null;
-                this._drawingGeoObject = null;
 			}
 
             /**
