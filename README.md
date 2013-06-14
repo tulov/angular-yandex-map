@@ -8,7 +8,6 @@ Using
 1. Add api support yandex map and yaMap module:
 
    ```html
-   <script src="http://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU"></script>
    <script src="js/ya-map.js"></script>
    ```
 2. Specify dependence yaMap module for your application:
@@ -118,7 +117,7 @@ Using
 4. When you need a map on your page, use the following markup:
 
    ```html
-   <div id="map" ya-map ya-geo-objects="geoObjects"></div>
+   <div id="map" ya-map ya-geo-objects="geoObjects" ya-properties="mapProperties" ya-select-index="selectIndex"></div>
    ```
 5. Set the style for the div that displays the map. To display the map you need to set the width and height.
    ```css
