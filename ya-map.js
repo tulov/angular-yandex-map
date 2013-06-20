@@ -670,39 +670,42 @@ angular.module('yaMap', []).
                 this._isClusterer = isClusterer;
                 setAddState.call(this, null, EVENTS);
 
-                if(!$window.ymaps){
-                    loadScript('http://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU', function(){
-                        //как будет готово API инициализируем карту
-                        ymaps.ready(function(){
-                            var params = getParams(mapParams),
-                                controls = getControls(mapControls);
-                            if (undefined === params.zoom) {
-                                params.zoom = 10;
-                            }
+                var ymapReady = function(){
+                    //как будет готово API инициализируем карту
+                    ymaps.ready(function(){
+                        var params = getParams(mapParams),
+                            controls = getControls(mapControls);
+                        if (undefined === params.zoom) {
+                            params.zoom = 10;
+                        }
 
-                            //если не переданы параметры центр, тогда по API определяем его
-                            if(!params.center){
-                                params.center =  [ymaps.geolocation.latitude, ymaps.geolocation.longitude];
-                            }
+                        //если не переданы параметры центр, тогда по API определяем его
+                        if(!params.center){
+                            params.center =  [ymaps.geolocation.latitude, ymaps.geolocation.longitude];
+                        }
 
-                            //если переданы координаты начальной точки
-                            if(angular.isArray(params.center)){
+                        //если переданы координаты начальной точки
+                        if(angular.isArray(params.center)){
+                            createMap(params,controls);
+                        }
+                        //иначе считаем что передан адрес начальной точки
+                        else{
+                            // Поиск координат переданного адреса
+                            ymaps.geocode(params.center, { results: 1 }).then(function (res) {
+                                var firstGeoObject = res.geoObjects.get(0);
+                                params.center = firstGeoObject.geometry.getCoordinates();
                                 createMap(params,controls);
-                            }
-                            //иначе считаем что передан адрес начальной точки
-                            else{
-                                // Поиск координат переданного адреса
-                                ymaps.geocode(params.center, { results: 1 }).then(function (res) {
-                                    var firstGeoObject = res.geoObjects.get(0);
-                                    params.center = firstGeoObject.geometry.getCoordinates();
-                                    createMap(params,controls);
-                                }, function (err) {
-                                    // Если геокодирование не удалось, сообщаем об ошибке
-                                    $window.alert(err.message);
-                                })
-                            }
-                        });
+                            }, function (err) {
+                                // Если геокодирование не удалось, сообщаем об ошибке
+                                $window.alert(err.message);
+                            })
+                        }
                     });
+                };
+                if(!$window.ymaps){
+                    loadScript('http://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU', ymapReady);
+                }else{
+                    ymapReady();
                 }
 			}
 
