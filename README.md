@@ -117,7 +117,7 @@ Using
 4. When you need a map on your page, use the following markup:
 
    ```html
-   <div id="map" ya-map ya-geo-objects="geoObjects" ya-properties="mapProperties" ya-select-index="selectIndex"></div>
+   <div id="map" ya-map ng-model="geoObjects" ya-properties="mapProperties" ya-select-index="selectIndex"></div>
    ```
 5. Set the style for the div that displays the map. To display the map you need to set the width and height.
    ```css

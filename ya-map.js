@@ -868,7 +868,7 @@ angular.module('yaMap', []).
 			YandexMapWrapper.prototype.deselect = function(){
 				var fn = function(){
 					var selectIndex = getSelectedObjectIndex.call(this);
-					if(selectIndex!==null && selectIndex>-1){
+					if(selectIndex!==null && selectIndex>-1 && this._allGeoObjects[selectIndex]){
 						var selectedObject = this._allGeoObjects[selectIndex].mapObject;
 						selectedObject.options.set(this.selectedObjectBackOptions.setOptions);
 						selectedObject.options.unset(this.selectedObjectBackOptions.unsetOptions);
@@ -988,12 +988,14 @@ angular.module('yaMap', []).
             };
 		return {
 			restrict:'AC',
+            require:'ngModel',
 			scope:{
 				yaProperties:'=',
-				yaGeoObjects:'=',
-				yaSelectIndex:'='
+				yaGeoObjects:'=ngModel',
+				yaSelectIndex:'=',
+                yaRequired:'&'
 			},
-			link:function(scope, iElement, iAttrs){
+			link:function(scope, iElement, iAttrs, controller){
 				var isRunAngularContext = false,
 					maxCountGeometry = iAttrs[ATTRIBUTE_NAMES.MAX_COUNT_GEOMETRY]
                         ? iAttrs[ATTRIBUTE_NAMES.MAX_COUNT_GEOMETRY] * 1 : 0;
@@ -1069,6 +1071,7 @@ angular.module('yaMap', []).
                             delete scope.yaGeoObjects[eventData.index];
                         });
                     }
+                    parser(scope.yaGeoObjects);
                 });
                 map.on(MAP_EVENTS.GEOOBJECTCREATED, function(eventData){
                     var geoObj = {
@@ -1079,19 +1082,19 @@ angular.module('yaMap', []).
                             scope.yaGeoObjects[index] = geoObj;
                             scope.yaSelectIndex = index;
                         };
-
-
                     if(isRunAngularContext){
                         setScopeProperty();
                     }else{
                         scope.$apply(setScopeProperty());
                     }
+                    parser(scope.yaGeoObjects);
                 });
 
 				//включаем отслеживаение изменений в scope
 				scope.$watch(ATTRIBUTE_NAMES.GEO_OBJECTS, function(newGeoObjects){
 					isRunAngularContext = true;
 					map.synchronise(newGeoObjects);
+                    parser(scope.yaGeoObjects);
 					isRunAngularContext = false;
 				}, function(){return false});
 				scope.$watch(ATTRIBUTE_NAMES.SELECT_INDEX, function(newSelectIndex){
@@ -1111,6 +1114,40 @@ angular.module('yaMap', []).
                         return;
                     }
                     map.setCenter(newCenter);
+                });
+
+                var parser = function(viewValue){
+                    if(!iAttrs.yaRequired && !iAttrs.required){
+                        return viewValue;
+                    }
+                    if(iAttrs.yaRequired){
+                        if(scope.yaRequired()){
+                            iAttrs.required = true;
+                        }else{
+                            delete iAttrs.required;
+                        }
+                    }
+
+                    var req = iAttrs.required !== undefined;
+                    if(req){
+                        var item, valid = false;
+                        for (var i = 0, ii = viewValue.length; i < ii; i++) {
+                            item = viewValue[i];
+                            if(item){
+                                valid = true;
+                                break;
+                            }
+                        }
+                        controller.$setValidity('required', valid);
+                    }
+                    return viewValue;
+                };
+                controller.$render = function(){
+                    parser(scope.yaGeoObjects);
+                };
+                controller.$parsers.push(parser);
+                scope.$watch(scope.yaRequired, function(){
+                    parser(scope.yaGeoObjects);
                 });
 			}
 		};
