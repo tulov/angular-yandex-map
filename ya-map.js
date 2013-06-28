@@ -1139,6 +1139,8 @@ angular.module('yaMap', []).
                             }
                         }
                         controller.$setValidity('required', valid);
+                    }else{
+                        controller.$setValidity('required', true);
                     }
                     return viewValue;
                 };
