@@ -789,7 +789,8 @@ angular.module('yaMap', []).
  			/**
 			 * создает гео объект(ы) на карте.
 			 * */
-			YandexMapWrapper.prototype.createGeoObject = function(data, index){
+			YandexMapWrapper.prototype.createGeoObject = function(data, index, showAll){
+                var self = this;
 				var fn = function(){
 					if(angular.isArray(data)){
 						for(var i= 0, ii=data.length;i<ii;i++){
@@ -802,6 +803,9 @@ angular.module('yaMap', []).
 					else{
 						throw new Error('not correct type argument data');
 					}
+                    if(showAll){
+                        self.showAll();
+                    }
 				};
 				callFunctionBeforeMapCreated.call(this, fn, EVENTS);
 			};
@@ -968,6 +972,13 @@ angular.module('yaMap', []).
                 }
             };
 
+            /**
+             * Устанавливает границы карты и ее масштаб так, чтобы показать все геообъекты
+             */
+            YandexMapWrapper.prototype.showAll = function(){
+                this._map.setBounds(this._map.geoObjects.getBounds());
+            };
+
 			return {
 				createMap:function(divId, params, controls, mode, validTypes, maxCoutnGeometry, isClusterer){
 					return new YandexMapWrapper(divId, params, controls, mode, validTypes, maxCoutnGeometry, isClusterer);
@@ -984,7 +995,8 @@ angular.module('yaMap', []).
                 VALID_TYPES:'yaValidTypes',
                 GEO_OBJECTS:'yaGeoObjects',
                 SELECT_INDEX:'yaSelectIndex',
-                PROPERTIES_CENTER:'yaProperties.params.center'
+                PROPERTIES_CENTER:'yaProperties.params.center',
+                SHOW_ALL:'yaShowAll'
             };
 		return {
 			restrict:'AC',
@@ -1000,7 +1012,6 @@ angular.module('yaMap', []).
 					maxCountGeometry = iAttrs[ATTRIBUTE_NAMES.MAX_COUNT_GEOMETRY]
                         ? iAttrs[ATTRIBUTE_NAMES.MAX_COUNT_GEOMETRY] * 1 : 0;
 
-
 				//устанавливаем значения по умолчанию
 				scope.yaProperties = scope.yaProperties || {};
 				scope.yaSelectIndex = scope.yaSelectIndex || null;
@@ -1013,7 +1024,10 @@ angular.module('yaMap', []).
                 if(angular.isDefined(iAttrs[ATTRIBUTE_NAMES.CLUSTERER])){
                     isClusterer = iAttrs[ATTRIBUTE_NAMES.CLUSTERER]==='' || iAttrs[ATTRIBUTE_NAMES.CLUSTERER]==true;
                 }
-
+                var showAll = false;
+                if(angular.isDefined(iAttrs[ATTRIBUTE_NAMES.SHOW_ALL])){
+                    showAll = iAttrs[ATTRIBUTE_NAMES.SHOW_ALL]==='' || iAttrs[ATTRIBUTE_NAMES.SHOW_ALL]==true;
+                }
 				//создаем новую карту в диве в идентификатором 'map', с параметрами заданными во втором аргументе
 				//элементы управления задаются в третьем елементе, режим карты задаем в последнем аргументе.
 				//допустимые режимы 'veiw','select' или 'edit'
@@ -1028,7 +1042,7 @@ angular.module('yaMap', []).
 				);
 
 				//создаем на карте объекты
-				map.createGeoObject(scope.yaGeoObjects);
+				map.createGeoObject(scope.yaGeoObjects, undefined, showAll);
 
 				//подписываемся на события карты
 				map.on(MAP_EVENTS.GEOMETRYCHANGE,function(eventData){

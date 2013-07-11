@@ -159,7 +159,7 @@ var app = angular.module('myApp', ['yaMap']).
 		];
 		$scope.mapProperties = {
 			params:{
-				center:[55.76, 37.64]
+				center:[59.76, 37.64]
 			}
 		};
 		$scope.deleteObj = function(){
