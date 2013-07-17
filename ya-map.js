@@ -976,7 +976,9 @@ angular.module('yaMap', []).
              * Устанавливает границы карты и ее масштаб так, чтобы показать все геообъекты
              */
             YandexMapWrapper.prototype.showAll = function(){
-                this._map.setBounds(this._map.geoObjects.getBounds());
+                if(this.getCountGeometry()>0){
+                    this._map.setBounds(this._map.geoObjects.getBounds());
+                }
             };
 
 			return {
