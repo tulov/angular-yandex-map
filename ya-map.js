@@ -1124,10 +1124,12 @@ angular.module('yaMap', []).
 					isRunAngularContext = false;
 				});
                 scope.$watch(ATTRIBUTE_NAMES.PROPERTIES_CENTER, function(newCenter, oldCenter){
+                    isRunAngularContext = true;
                     if(angular.equals(newCenter, oldCenter)){
                         return;
                     }
                     map.setCenter(newCenter);
+                    isRunAngularContext = false;
                 });
 
                 var parser = function(viewValue){
@@ -1163,7 +1165,9 @@ angular.module('yaMap', []).
                 };
                 controller.$parsers.push(parser);
                 scope.$watch(scope.yaRequired, function(){
+                    isRunAngularContext = true;
                     parser(scope.yaGeoObjects);
+                    isRunAngularContext = false;
                 });
 			}
 		};
