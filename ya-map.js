@@ -41,9 +41,9 @@ angular.module('yaMap', []).
 
             //возвращает список элементов управления для карты
 			getControls=function(controls){
-				if(controls)
+                if(controls)
 					return controls;
-				if(globalOptions.controls)
+                if(globalOptions.controls)
 					return globalOptions.controls;
 				return null;
 			},
@@ -147,6 +147,7 @@ angular.module('yaMap', []).
             /**
              * Устанавливает состояние редактирования
              * @param geoObjectType тип гео объекта который будет добавляться
+             * @param EVENTS
              */
             setAddState = function(geoObjectType, EVENTS) {
                 var key = angular.uppercase(geoObjectType),
@@ -168,7 +169,7 @@ angular.module('yaMap', []).
                 //список с возможными вариантами добавления элементов
                 var rollupItems = [], button, buttonData;
                 for (var prop in GEOMETRY_TYPES) {
-                    if (this.isValidType(GEOMETRY_TYPES[prop])) {
+                    if (GEOMETRY_TYPES.hasOwnProperty(prop) && this.isValidType(GEOMETRY_TYPES[prop])) {
                         buttonData = {
                             data: getCustomButtonParams(angular.lowercase(prop))
                         };
@@ -185,7 +186,7 @@ angular.module('yaMap', []).
                 self.on(EVENTS.COUNTGEOMETRYCHANGE, function (eventData) {
                     var method = eventData.newValue < self.getMaxCountGeometry() ? 'enable' : 'disable';
                     for (var key in self._customButtons) {
-                        if (key === 'delete') {
+                        if (!self._customButtons.hasOwnProperty(key) || key === 'delete') {
                             continue;
                         }
                         self._customButtons[key][method]();
@@ -195,8 +196,7 @@ angular.module('yaMap', []).
                     var button = e.get('item');
                     setAddState.call(self, button.geometryType, EVENTS);
                 });
-                myRollupButton.events.add(EVENTS.DESELECT, function (e) {
-                    var button = e.get('item');
+                myRollupButton.events.add(EVENTS.DESELECT, function () {
                     setAddState.call(self, null, EVENTS);
                 });
                 mapTools.add(myRollupButton);
@@ -234,6 +234,7 @@ angular.module('yaMap', []).
             /**
              * Устанавливает тип рисуемой геометрии
              * @param type тип рисуемой геометрии
+             * @param EVENTS типы события
              */
             setDrawingType = function(type, EVENTS){
                 if(this._drawingType === type){
@@ -256,7 +257,7 @@ angular.module('yaMap', []).
                 }
                 switch(type){
                     case GEOMETRY_TYPES.POINT:
-                        geometry.coordinates = coordinates[0]
+                        geometry.coordinates = coordinates[0];
                         break;
                     case GEOMETRY_TYPES.POLYGON:
                         geometry.coordinates = [coordinates, []];
@@ -356,6 +357,8 @@ angular.module('yaMap', []).
              * Добавляет элементы управления на карту
              * @param key - ключ элемента управления
              * @param options - опции элемента управления
+             * @param EVENTS - доступные события
+             * @param GEOMETRY_TYPES - типы геометрий
              * @private
              */
             addControl = function(key, options, EVENTS, GEOMETRY_TYPES) {
@@ -575,7 +578,7 @@ angular.module('yaMap', []).
             },
 
             loadScript = function(url, callback){
-                var script = document.createElement("script")
+                var script = document.createElement("script");
                 script.type = "text/javascript";
                 if (script.readyState){ // IE
                     script.onreadystatechange = function(){
@@ -599,6 +602,7 @@ angular.module('yaMap', []).
 
         this.$get = ['$window', 'GEOMETRY_TYPES', 'MAP_EVENTS',
         function($window, GEOMETRY_TYPES, EVENTS){
+            var loadUrl = 'http://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU&coordorder=longlat';
             /**
                  * Конструктор
                  * divId идентификатор div в котором будем создавать карту
@@ -619,13 +623,16 @@ angular.module('yaMap', []).
 					},
 					//создание екземпляра карты
 					createMap=function(params, controls){
+                        if(self._isDestroyed){
+                            return;
+                        }
 						setMode(mapMode);
-						self._map = new ymaps.Map(divId, params);
-                        var d;
+                        self._map = new ymaps.Map(divId, params);
+                        var d, i, ii;
                         for(var control in controls){
                             if(control==='default'){
                                 d = controls[control];
-                                for(var i= 0,ii= d.length;i<ii;i++){
+                                for(i= 0,ii= d.length;i<ii;i++){
                                     addControl.call(self, d[i], undefined,EVENTS,GEOMETRY_TYPES);
                                 }
                             }else{
@@ -635,7 +642,7 @@ angular.module('yaMap', []).
 
 						self.collections={};
 						var collectionKey, type, collection;
-						for(var i=0, ii=self._validTypes.length;i<ii;i++){
+						for(i=0, ii=self._validTypes.length;i<ii;i++){
 							type=self._validTypes[i];
                             if(type === GEOMETRY_TYPES.POINT && self.isClusterer()){
                                 collection = new ymaps.Clusterer(getDisplayOptions(type, self.mode));
@@ -681,7 +688,7 @@ angular.module('yaMap', []).
 
                         //если не переданы параметры центр, тогда по API определяем его
                         if(!params.center){
-                            params.center =  [ymaps.geolocation.latitude, ymaps.geolocation.longitude];
+                            params.center =  [ymaps.geolocation.longitude, ymaps.geolocation.latitude];
                         }
 
                         //если переданы координаты начальной точки
@@ -703,11 +710,20 @@ angular.module('yaMap', []).
                     });
                 };
                 if(!$window.ymaps){
-                    loadScript('http://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU', ymapReady);
+                    loadScript(loadUrl, ymapReady);
                 }else{
                     ymapReady();
                 }
 			}
+
+            /**
+             * Уничтожает карту
+             */
+            YandexMapWrapper.prototype.destroy = function(){
+                if(this._map)
+                    this._map.destroy();
+                this._isDestroyed = true;
+            };
 
             /**
              * Определяет, используются ли на карте кластеры
@@ -715,7 +731,7 @@ angular.module('yaMap', []).
              */
             YandexMapWrapper.prototype.isClusterer = function(){
                 return this._isClusterer;
-            }
+            };
 
             /**
              * Подписка на событие
@@ -814,12 +830,16 @@ angular.module('yaMap', []).
 			 * синхронизирует состояние объектов на карте с переданным данными
 			 * */
 			YandexMapWrapper.prototype.synchronise = function(changedData){
+                var self = this;
 				var fn = function(){
 					var processedIds = [], removedIndexes=[], addedGeoObjects=[],
 						curSourceElement, curMapElement;
-					for(var i in this._allGeoObjects){
+					for(var i in self._allGeoObjects){
+                        if(!self._allGeoObjects.hasOwnProperty(i)){
+                            continue;
+                        }
 						curSourceElement = changedData[i];
-						curMapElement = this._allGeoObjects[i].mapObject;
+						curMapElement = self._allGeoObjects[i].mapObject;
 						if(curSourceElement){
 							if(curMapElement.geometry.getType()===curSourceElement.geometry.type){
 								changeGeoObject.call(this, curMapElement, curSourceElement, GEOMETRY_TYPES);
@@ -844,10 +864,10 @@ angular.module('yaMap', []).
                         }
 					}
 					for(i=0,ii=removedIndexes.length;i<ii;i++){
-						this.removeGeoObject(removedIndexes[i]);
+						self.removeGeoObject(removedIndexes[i]);
 					}
 					for(i=0,ii=addedGeoObjects.length;i<ii;i++){
-						this.createGeoObject(addedGeoObjects[i].element,addedGeoObjects[i].index);
+						self.createGeoObject(addedGeoObjects[i].element,addedGeoObjects[i].index);
 					}
 				};
 				callFunctionBeforeMapCreated.call(this, fn, EVENTS);
@@ -859,7 +879,7 @@ angular.module('yaMap', []).
 			YandexMapWrapper.prototype.removeGeoObject = function(indexOfAllGeoObjects){
 				var geoObj = this._allGeoObjects[indexOfAllGeoObjects].mapObject,
 					key = angular.lowercase(geoObj.geometry.getType());
-				this.collections[key].remove(geoObj)
+				this.collections[key].remove(geoObj);
 				delete this._allGeoObjects[indexOfAllGeoObjects];
 				if(indexOfAllGeoObjects===getSelectedObjectIndex.call(this)){
 					setSelectedObjectIndex.call(this, null, EVENTS);
@@ -998,7 +1018,8 @@ angular.module('yaMap', []).
                 GEO_OBJECTS:'yaGeoObjects',
                 SELECT_INDEX:'yaSelectIndex',
                 PROPERTIES_CENTER:'yaProperties.params.center',
-                SHOW_ALL:'yaShowAll'
+                SHOW_ALL:'yaShowAll',
+                CONTROLS:'yaControls'
             };
 		return {
 			restrict:'AC',
@@ -1030,13 +1051,17 @@ angular.module('yaMap', []).
                 if(angular.isDefined(iAttrs[ATTRIBUTE_NAMES.SHOW_ALL])){
                     showAll = iAttrs[ATTRIBUTE_NAMES.SHOW_ALL]==='' || iAttrs[ATTRIBUTE_NAMES.SHOW_ALL]==true;
                 }
-				//создаем новую карту в диве в идентификатором 'map', с параметрами заданными во втором аргументе
+
+                var controls = angular.isDefined(iAttrs[ATTRIBUTE_NAMES.CONTROLS]) ?
+                    {default:iAttrs[ATTRIBUTE_NAMES.CONTROLS].split(' ')} :
+                    undefined;
+                //создаем новую карту в диве в идентификатором 'map', с параметрами заданными во втором аргументе
 				//элементы управления задаются в третьем елементе, режим карты задаем в последнем аргументе.
 				//допустимые режимы 'veiw','select' или 'edit'
 				var map = yandexMap.createMap(
                     divId,
 					scope.yaProperties.params,
-					scope.yaProperties.controls,
+					controls || scope.yaProperties.controls,
 					iAttrs[ATTRIBUTE_NAMES.MODE],
 					iAttrs[ATTRIBUTE_NAMES.VALID_TYPES],
 					maxCountGeometry,
@@ -1135,18 +1160,10 @@ angular.module('yaMap', []).
                 });
 
                 var parser = function(viewValue){
-                    if(!iAttrs.yaRequired && !iAttrs.required){
+                    if(iAttrs['yaRequired']===undefined){
                         return viewValue;
                     }
-                    if(iAttrs.yaRequired){
-                        if(scope.yaRequired()){
-                            iAttrs.required = true;
-                        }else{
-                            delete iAttrs.required;
-                        }
-                    }
-
-                    var req = iAttrs.required !== undefined;
+                    var req = iAttrs.yaRequired == '' || scope.yaRequired();
                     if(req){
                         var item, valid = false;
                         for (var i = 0, ii = viewValue.length; i < ii; i++) {
@@ -1156,9 +1173,7 @@ angular.module('yaMap', []).
                                 break;
                             }
                         }
-                        controller.$setValidity('required', valid);
-                    }else{
-                        controller.$setValidity('required', true);
+                        controller.$setValidity('ya-required', valid);
                     }
                     return viewValue;
                 };
@@ -1170,6 +1185,9 @@ angular.module('yaMap', []).
                     isRunAngularContext = true;
                     parser(scope.yaGeoObjects);
                     isRunAngularContext = false;
+                });
+                iElement.bind('$destroy',function(){
+                    map.destroy();
                 });
 			}
 		};
