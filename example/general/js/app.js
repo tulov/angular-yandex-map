@@ -10,7 +10,7 @@ var app = angular.module('myApp', ['yaMap']).
 					// Тип геометрии - точка
 					type: 'Point',
 					// Координаты точки.
-					coordinates: [55.85, 37.8]
+					coordinates: [37.8,55.85]
 				},
 				// Свойства
 				properties: {
@@ -24,7 +24,7 @@ var app = angular.module('myApp', ['yaMap']).
 					// Тип геометрии - точка
 					type: 'Point',
 					// Координаты точки.
-					coordinates: [55.75, 37.8]
+					coordinates: [37.8,55.75]
 				},
 				// Свойства
 				properties: {
@@ -38,7 +38,7 @@ var app = angular.module('myApp', ['yaMap']).
 					// Тип геометрии - точка
 					type: 'Point',
 					// Координаты точки.
-					coordinates: [55.8, 37.85]
+					coordinates: [37.85,55.8]
 				},
 				// Свойства
 				properties: {
@@ -52,7 +52,7 @@ var app = angular.module('myApp', ['yaMap']).
 					// Тип геометрии - точка
 					type: 'Point',
 					// Координаты точки.
-					coordinates: [55.8, 37.75]
+					coordinates: [37.75,55.8]
 				},
 				// Свойства
 				properties: {
@@ -66,7 +66,7 @@ var app = angular.module('myApp', ['yaMap']).
 					// Тип геометрии - точка
 					type: 'Point',
 					// Координаты точки.
-					coordinates: [55.8, 37.8]
+					coordinates: [37.8,55.8]
 				},
 				// Свойства
 				properties: {
@@ -81,9 +81,9 @@ var app = angular.module('myApp', ['yaMap']).
 					type: "LineString",
 					// Координаты точки
 					coordinates: [
-						[55.80, 37.30],
-						[55.70, 37.90],
-						[55.70, 37.40]
+						[37.30,55.80],
+						[37.90,55.70],
+						[37.40,55.70]
 					]
 				},
 				// Свойства геообъекта
@@ -104,8 +104,8 @@ var app = angular.module('myApp', ['yaMap']).
 					type: 'Rectangle',
 					// Координаты
 					coordinates: [
-						[55.665, 37.66],
-						[55.64, 37.53]
+						[ 37.66,55.665],
+						[37.53,55.64]
 					]
 				},
 				// Свойства
@@ -123,17 +123,17 @@ var app = angular.module('myApp', ['yaMap']).
 					coordinates: [
 						// Координаты вершин внешнего контура
 						[
-							[55.75, 37.80],
-							[55.80, 37.90],
-							[55.75, 38.00],
-							[55.70, 38.00],
-							[55.70, 37.80]
+							[37.80,55.75],
+							[37.90,55.80],
+							[38.00,55.75],
+							[ 38.00,55.70],
+							[37.80,55.70]
 						],
 						// Координаты вершин внутренней границы многоугольника.
 						[
-							[55.75, 37.82],
-							[55.75, 37.98],
-							[55.65, 37.90]
+							[37.82,55.75],
+							[37.98,55.75],
+							[37.90,55.65]
 						]
 					]
 				},
@@ -148,7 +148,7 @@ var app = angular.module('myApp', ['yaMap']).
 					// Тип геометрии - круг.
 					type: "Circle",
 					// Координаты центра.
-					coordinates: [55.76, 37.60],
+					coordinates: [37.60,55.76],
 					radius:10000
 				},
 				properties:{
@@ -159,7 +159,7 @@ var app = angular.module('myApp', ['yaMap']).
 		];
 		$scope.mapProperties = {
 			params:{
-				center:[59.76, 37.64]
+				center:[37.64,59.76]
 			}
 		};
 		$scope.deleteObj = function(){
@@ -174,7 +174,7 @@ var app = angular.module('myApp', ['yaMap']).
 					// Тип геометрии - круг.
 					type: "Circle",
 					// Координаты центра.
-					coordinates: [55.8, 37.8],
+					coordinates: [37.8,55.8],
 					radius:10000
 				},
 				properties:{
@@ -199,13 +199,13 @@ var app = angular.module('myApp', ['yaMap']).
         $scope.changeCenter = function(){
             var currentCenter = $scope.mapProperties.params.center;
             if(!currentCenter){
-                $scope.mapProperties.params.center = {x:55.76, y:37.64};
+                $scope.mapProperties.params.center = {x:37.64, y:55.76};
             }else if(currentCenter.x && currentCenter.y){
                 $scope.mapProperties.params.center='Казахстан, город Алматы';
             }else if(currentCenter.length===2){
                 $scope.mapProperties.params.center = null;
             }else if(currentCenter==='Казахстан, город Алматы'){
-                $scope.mapProperties.params.center = [55.76, 37.64];
+                $scope.mapProperties.params.center = [37.64,55.76];
             }
         };
 	}]).

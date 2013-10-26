@@ -5,7 +5,7 @@ var app = angular.module('myApp', ['yaMap']).
 		$scope.geoObjects=[];
 		$scope.mapProperties = {
 			params:{
-				center:[55.76, 37.64]
+				center:[37.64,55.76]
 			}
 		};
         $scope.delete = function(){
