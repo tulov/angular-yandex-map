@@ -253,41 +253,7 @@ angular.module('myApp', ['yaMap']).
                     fillColor: '#00ffff10',
                     strokeStyle: 'shortdash'
                 }
-			},
-            //путь к папке с иконками отображаемыми на кнопках удалить или добавить новую фигуру
-            customButtons:{
-                //кнопка удаления фигуры
-                delete:{
-                    image:'img/delete.png',
-                    imageDisabled:'img/delete_gray.png',
-                    help:'Нажмите для удаления выделенной фигуры'
-                },
-                //кнопка добавления метки
-                point:{
-                    image: 'img/point.png',
-                    title: 'Добавить метку'
-                },
-                //кнопка добавления прямоугольника
-                rectangle:{
-                    image: 'img/rectangle.png',
-                    title: 'Добавить прямоугольник'
-                },
-                //кнопка добавления ломанной линии
-                linestring:{
-                    image: 'img/linestring.png',
-                    title: 'Добавить ломанную'
-                },
-                //кнопка добавления полигона
-                polygon:{
-                    image: 'img/polygon.png',
-                    title: 'Добавить многоугольник'
-                },
-                //кнопка добавления круга
-                circle:{
-                    image: 'img/circle.png',
-                    title: 'Добавить круг'
-                }
-            }
+			}
 		});
 
 	}]);
