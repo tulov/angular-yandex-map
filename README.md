@@ -114,17 +114,10 @@ Using
        	}]);
    ```
 
-4. When you need a map on your page, use the following markup:
+4. When you need a map on your page, use the following markup. Set the style for the div that displays the map. To display the map you need to set the width and height.:
 
    ```html
-   <div id="map" ya-map ng-model="geoObjects" ya-properties="mapProperties" ya-select-index="selectIndex"></div>
-   ```
-5. Set the style for the div that displays the map. To display the map you need to set the width and height.
-   ```css
-   #map{
-       width: 600px;
-       height: 400px;
-   }
+   <div style="width:600px;height:400px;" ya-map ng-model="geoObjects" ya-properties="mapProperties" ya-select-index="selectIndex"></div>
    ```
 Example
 -----
