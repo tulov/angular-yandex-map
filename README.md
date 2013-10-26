@@ -126,3 +126,6 @@ Using
        height: 400px;
    }
    ```
+Example
+-----
+A directory in the example are examples of the directive.

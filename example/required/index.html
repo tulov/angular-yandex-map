@@ -3,22 +3,17 @@
 <head>
     <meta charset="utf-8">
     <title>Directive yaMap</title>
-    <link rel="stylesheet" href="css/app.css"/>
-
 </head>
 <body ng-controller="MapCtrl">
-    <div ng-class="class">
-        <div id="map"
-            ya-map
+    <form name="mapForm" novalidate>
+        <div ya-map="{mode:'add',geoTypes:'point',maxCount:7}"
             ya-properties="mapProperties"
             ng-model="geoObjects"
-            ya-mode="add"
             ya-select-index="selectIndex"
-            ya-valid-types="point"
-            ya-max-count-geometry="7"
-            required
-            ></div>
-    </div>
+            ya-required="true"
+            style="width: 600px;height: 400px"></div>
+        <span ng-show="mapForm.$invalid">Нужно добавить хотя бы один геообъект</span>
+    </form>
     {{geoObjects | json}}
     <button ng-click="delete()">Удалить</button>
     <script src="../lib/angular/angular.js"></script>

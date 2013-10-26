@@ -605,12 +605,12 @@ angular.module('yaMap', []).
             var loadUrl = 'http://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU&coordorder=longlat';
             /**
                  * Конструктор
-                 * divId идентификатор div в котором будем создавать карту
+                 * div - div в котором будем создавать карту
                  * mapParams параметры карты
                  * mapControls элементы управления картой
-                 * mapMode режим работы карты. (view, select, edit)
+                 * mapMode режим работы карты. (view, select, edit, select)
                  * */
-            function YandexMapWrapper(divId, mapParams, mapControls, mapMode, validTypes, maxCountGeometry, isClusterer){
+            function YandexMapWrapper(div, mapParams, mapControls, mapMode, validTypes, maxCountGeometry, isClusterer){
                 this._customButtons = {};
                 this._drawingPoints = [];
                 this._drawingType = null;
@@ -627,7 +627,7 @@ angular.module('yaMap', []).
                             return;
                         }
 						setMode(mapMode);
-                        self._map = new ymaps.Map(divId, params);
+                        self._map = new ymaps.Map(div, params);
                         var d, i, ii;
                         for(var control in controls){
                             if(control==='default'){
@@ -1002,24 +1002,17 @@ angular.module('yaMap', []).
             };
 
 			return {
-				createMap:function(divId, params, controls, mode, validTypes, maxCoutnGeometry, isClusterer){
-					return new YandexMapWrapper(divId, params, controls, mode, validTypes, maxCoutnGeometry, isClusterer);
+				createMap:function(div, params, controls, mode, validTypes, maxCoutnGeometry, isClusterer){
+					return new YandexMapWrapper(div, params, controls, mode, validTypes, maxCoutnGeometry, isClusterer);
 				}
 			};
 		}];
 	}).
 	directive('yaMap', ['$window', 'YandexMap', 'MAP_EVENTS', function($window, yandexMap, MAP_EVENTS) {
         var ATTRIBUTE_NAMES = {
-                MAX_COUNT_GEOMETRY:'yaMaxCountGeometry',
-                ID:'id',
-                CLUSTERER:'yaClusterer',
-                MODE:'yaMode',
-                VALID_TYPES:'yaValidTypes',
                 GEO_OBJECTS:'yaGeoObjects',
                 SELECT_INDEX:'yaSelectIndex',
-                PROPERTIES_CENTER:'yaProperties.params.center',
-                SHOW_ALL:'yaShowAll',
-                CONTROLS:'yaControls'
+                PROPERTIES_CENTER:'yaProperties.params.center'
             };
 		return {
 			restrict:'AC',
@@ -1031,39 +1024,32 @@ angular.module('yaMap', []).
                 yaRequired:'&'
 			},
 			link:function(scope, iElement, iAttrs, controller){
+                var options = scope.$eval(iAttrs.yaMap) || {};
 				var isRunAngularContext = false,
-					maxCountGeometry = iAttrs[ATTRIBUTE_NAMES.MAX_COUNT_GEOMETRY]
-                        ? iAttrs[ATTRIBUTE_NAMES.MAX_COUNT_GEOMETRY] * 1 : 0;
+					maxCountGeometry = options && options.maxCount ? options.maxCount : 0;
 
 				//устанавливаем значения по умолчанию
 				scope.yaProperties = scope.yaProperties || {};
 				scope.yaSelectIndex = scope.yaSelectIndex || null;
 				scope.yaGeoObjects = scope.yaGeoObjects || [];
-                var divId = iAttrs[ATTRIBUTE_NAMES.ID];
-                if(!divId){
-                    throw new Error('not value in attribute "'+ATTRIBUTE_NAMES.ID + '"');
+                if(iElement[0].tagName!=='DIV'){
+                    throw new Error('container not DIV');
                 }
-                var isClusterer = false;
-                if(angular.isDefined(iAttrs[ATTRIBUTE_NAMES.CLUSTERER])){
-                    isClusterer = iAttrs[ATTRIBUTE_NAMES.CLUSTERER]==='' || iAttrs[ATTRIBUTE_NAMES.CLUSTERER]==true;
-                }
-                var showAll = false;
-                if(angular.isDefined(iAttrs[ATTRIBUTE_NAMES.SHOW_ALL])){
-                    showAll = iAttrs[ATTRIBUTE_NAMES.SHOW_ALL]==='' || iAttrs[ATTRIBUTE_NAMES.SHOW_ALL]==true;
-                }
+                var isClusterer = !!options.cluster;
+                var showAll = !!options.showAll;
 
-                var controls = angular.isDefined(iAttrs[ATTRIBUTE_NAMES.CONTROLS]) ?
-                    {default:iAttrs[ATTRIBUTE_NAMES.CONTROLS].split(' ')} :
+                var controls = angular.isDefined(options.controls) ?
+                    {default:options.controls.split(' ')} :
                     undefined;
                 //создаем новую карту в диве в идентификатором 'map', с параметрами заданными во втором аргументе
 				//элементы управления задаются в третьем елементе, режим карты задаем в последнем аргументе.
 				//допустимые режимы 'veiw','select' или 'edit'
 				var map = yandexMap.createMap(
-                    divId,
+                    iElement[0],
 					scope.yaProperties.params,
 					controls || scope.yaProperties.controls,
-					iAttrs[ATTRIBUTE_NAMES.MODE],
-					iAttrs[ATTRIBUTE_NAMES.VALID_TYPES],
+					options.mode,
+                    options.geoTypes,
 					maxCountGeometry,
                     isClusterer
 				);
@@ -1107,12 +1093,13 @@ angular.module('yaMap', []).
                 map.on(MAP_EVENTS.REMOVEGEOOBJ, function(eventData){
                     if(isRunAngularContext){
                         delete scope.yaGeoObjects[eventData.index];
+                        parser(scope.yaGeoObjects);
                     }else{
                         scope.$apply(function(){
                             delete scope.yaGeoObjects[eventData.index];
+                            parser(scope.yaGeoObjects);
                         });
                     }
-                    parser(scope.yaGeoObjects);
                 });
                 map.on(MAP_EVENTS.GEOOBJECTCREATED, function(eventData){
                     var geoObj = {
@@ -1120,6 +1107,7 @@ angular.module('yaMap', []).
                         },
                         index = scope.yaGeoObjects.length,
                         setScopeProperty = function(){
+                            parser(scope.yaGeoObjects);
                             scope.yaGeoObjects[index] = geoObj;
                             scope.yaSelectIndex = index;
                         };
@@ -1128,7 +1116,6 @@ angular.module('yaMap', []).
                     }else{
                         scope.$apply(setScopeProperty());
                     }
-                    parser(scope.yaGeoObjects);
                 });
 
 				//включаем отслеживаение изменений в scope

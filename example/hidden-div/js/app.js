@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('myApp', ['yaMap']).
+angular.module('myApp', ['yaMap']).
 	controller('MapCtrl', ['$scope',function($scope){
 		$scope.selectIndex = 3;
         $scope.geoObjects=[
@@ -162,11 +162,8 @@ var app = angular.module('myApp', ['yaMap']).
 				center:[37.64,55.76]
 			}
 		};
-        $scope.class = 'hide';
-        $scope.changeClass = function(){
-            $scope.class = $scope.class === 'hide' ? 'show' : 'hide';
-        }
-	}]).
+        $scope.params={show: true};
+   	}]).
 	config(['YandexMapProvider', function(yaMapOptions){
 		yaMapOptions.options({
 			//параметры передаваемые к конструктор карты
