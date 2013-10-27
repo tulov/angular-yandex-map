@@ -454,7 +454,7 @@ angular.module('yaMap', []).
             /**
              * Вызывает переданную функцию только после создания объекта карты
              * */
-            callFunctionBeforeMapCreated = function(fn, EVENTS) {
+            callFunctionAfterMapCreated = function(fn, EVENTS) {
                 if (this.isMapCreated()) {
                     fn.apply(this);
                 } else {
@@ -823,7 +823,7 @@ angular.module('yaMap', []).
                         self.showAll();
                     }
 				};
-				callFunctionBeforeMapCreated.call(this, fn, EVENTS);
+				callFunctionAfterMapCreated.call(this, fn, EVENTS);
 			};
 
 			/**
@@ -870,7 +870,7 @@ angular.module('yaMap', []).
 						self.createGeoObject(addedGeoObjects[i].element,addedGeoObjects[i].index);
 					}
 				};
-				callFunctionBeforeMapCreated.call(this, fn, EVENTS);
+				callFunctionAfterMapCreated.call(this, fn, EVENTS);
 			};
 
 			/**
@@ -905,7 +905,7 @@ angular.module('yaMap', []).
 					this.selectedObjectBackOptions = null;
 					setSelectedObjectIndex.call(this,null,EVENTS);
 				};
-				callFunctionBeforeMapCreated.call(this, fn, EVENTS);
+				callFunctionAfterMapCreated.call(this, fn, EVENTS);
 			};
 
 			//установка выбранного объекта
@@ -944,7 +944,7 @@ angular.module('yaMap', []).
                     };
                     setSelectedObjectIndex.call(this,index,EVENTS);
 				};
-				callFunctionBeforeMapCreated.call(this, fn, EVENTS);
+				callFunctionAfterMapCreated.call(this, fn, EVENTS);
 			};
 
 			/**
