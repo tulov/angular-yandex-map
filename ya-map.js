@@ -602,7 +602,6 @@ angular.module('yaMap', []).
 
         this.$get = ['$window', 'GEOMETRY_TYPES', 'MAP_EVENTS',
         function($window, GEOMETRY_TYPES, EVENTS){
-            var loadUrl = 'http://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU&coordorder=longlat';
             /**
                  * Конструктор
                  * div - div в котором будем создавать карту
@@ -710,6 +709,8 @@ angular.module('yaMap', []).
                     });
                 };
                 if(!$window.ymaps){
+                    var loadUrl = 'http://api-maps.yandex.ru/2.0/?load=package.full&lang=' +
+                        globalOptions.lang +'&coordorder=' +globalOptions.order;
                     loadScript(loadUrl, ymapReady);
                 }else{
                     ymapReady();

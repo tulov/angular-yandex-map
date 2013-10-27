@@ -332,7 +332,9 @@ var app = angular.module('myApp', ['yaMap']).
                     image: 'img/circle.png',
                     title: 'Добавить круг'
                 }
-            }
+            },
+            lang:'ru-RU', //язык
+            order:'longlat' //порядок указания координат для точки - longlat = [x,y] и latlong = [y,x]
 		});
 
 	}]);
