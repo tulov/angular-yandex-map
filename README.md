@@ -125,6 +125,7 @@ Example
 
 A directory in the example are examples of the directive.
 You need to run the examples:
+
     1 run bower install in the root folder
     2 start node web-server.js in the root folder.
     3 type in the browser to: localhost: 8000
