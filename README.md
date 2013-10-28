@@ -2,6 +2,9 @@ yaMap
 ==========
 
 **yaMap** This is an easy way to add a Yandex map to your page AngularJS
+Demo
+-----
+[a link](http://tulov-alex.ru)
 
 Using
 -----
