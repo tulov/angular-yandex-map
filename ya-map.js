@@ -710,7 +710,7 @@ angular.module('yaMap', []).
                 };
                 if(!$window.ymaps){
                     var loadUrl = 'http://api-maps.yandex.ru/2.0/?load=package.full&lang=' +
-                        globalOptions.lang +'&coordorder=' +globalOptions.order;
+                        (globalOptions.lang || 'ru-RU') +'&coordorder=' +(globalOptions.order || 'longlat');
                     loadScript(loadUrl, ymapReady);
                 }else{
                     ymapReady();
@@ -773,7 +773,6 @@ angular.module('yaMap', []).
 					}
 				}
 			};
-
 
 			/**
 			 * возвращает возможность редактирования элементов катры
@@ -1180,4 +1179,3 @@ angular.module('yaMap', []).
 			}
 		};
 	}]);
-
