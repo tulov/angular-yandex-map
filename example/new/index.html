@@ -51,6 +51,7 @@
     представляет коллекцию гео.объектов. Атрибуты:
     options - задает настройки отображения объектов для всей карты. По умолчанию {}. Если не заданны, используются
         настройки по умолчанию из yaMapSettings.displayOptions.general
+    is-cluster - если установлен, задает использование кластеризации на карте.
 
     ==================================================================================
     элемент geo-object
@@ -65,7 +66,7 @@
         <!--<map-control name="zoomControl"></map-control>
         <map-control name="smallZoomControl" options="{right: 5, top: 75}"></map-control>-->
     </map-controls>
-    <geo-objects>
+    <geo-objects is-cluster>
         <geo-object ng-repeat="o in geoObjects" source="o" options="{draggable:true}"></geo-object>
     </geo-objects>
 </ya-map>

@@ -211,12 +211,20 @@ angular.module('yaMap',[]).
         }
     }]).
 
-    controller('GeoObjectsCtrl',['$scope','mapApiLoad',function($scope,mapApiLoad){
+    controller('GeoObjectsCtrl',['$scope','GEOMETRY_TYPES',function($scope,GEOMETRY_TYPES){
         this.add = function(geoObject){
-            $scope.collection.add(geoObject);
+            if($scope.cluster && geoObject.geometry.getType()===GEOMETRY_TYPES.POINT){
+                $scope.cluster.add(geoObject);
+            }else{
+                $scope.collection.add(geoObject);
+            }
         };
         this.remove = function(geoObject){
-            $scope.collection.remove(geoObject);
+            if($scope.cluster && geoObject.geometry.getType()===GEOMETRY_TYPES.POINT){
+                $scope.cluster.remove(geoObject);
+            }else{
+                $scope.collection.remove(geoObject);
+            }
         };
     }]).
     directive('geoObjects',['$compile','yaMapSettings',function($compile,yaMapSettings){
@@ -232,6 +240,13 @@ angular.module('yaMap',[]).
                     var settingOptions = yaMapSettings.displayOptions && yaMapSettings.displayOptions.general
                         ? yaMapSettings.displayOptions.general : {};
                     var collectionOptions = angular.extend({}, settingOptions, options);
+                    var isCluster = angular.isDefined(attrs.isCluster) && attrs.isCluster!='false';
+
+                    if(isCluster){
+                        scope.cluster = new ymaps.Clusterer(collectionOptions);
+                        yaMap.addCollection(scope.cluster);
+                    }
+
                     scope.collection = new ymaps.GeoObjectCollection({},collectionOptions);
                     yaMap.addCollection(scope.collection);
                     element.append(childNodes);
