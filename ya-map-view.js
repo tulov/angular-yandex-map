@@ -1,6 +1,3 @@
-/**
- * Created by владелец on 05.11.13.
- */
 angular.module('yaMap',[]).
     constant('GEOMETRY_TYPES', {
         POINT:'Point',
@@ -9,6 +6,7 @@ angular.module('yaMap',[]).
         POLYGON: 'Polygon',
         CIRCLE: 'Circle'
     }).
+
     value('yaMapSettings',{
         lang:'ru-RU',
         order:'longlat',
@@ -40,6 +38,7 @@ angular.module('yaMap',[]).
             }
         }
     }).
+
     factory('mapApiLoad',['yaMapSettings',function(yaMapSettings){
         var loaded = false;
         var callbacks = [];
@@ -92,6 +91,7 @@ angular.module('yaMap',[]).
             }
         };
     }]).
+
     controller('YaMapCtrl',['$scope','mapApiLoad',function($scope,mapApiLoad){
         var self = this;
         mapApiLoad(function(){
@@ -100,6 +100,9 @@ angular.module('yaMap',[]).
             };
             self.addControl = function(name, options){
                 $scope.map.controls.add(name,options);
+            };
+            self.getMap = function(){
+                return $scope.map;
             };
         });
     }]).
@@ -151,12 +154,18 @@ angular.module('yaMap',[]).
                             type:attrs.type || 'yandex#map',
                             behaviors:behaviors
                         });
+
                         element.append(childNodes);
                         scope.$apply(function() {
                             $compile(childNodes)(scope.$parent);
                         });
                     };
 
+                    scope.$on('$destroy',function(){
+                        if(scope.map){
+                            scope.map.destroy();
+                        }
+                    });
                     setCenter();
                 };
             },
@@ -226,8 +235,17 @@ angular.module('yaMap',[]).
                 $scope.collection.remove(geoObject);
             }
         };
+        this.changeCoordinates = function(backObj, coordinates){
+            if($scope.cluster && backObj.geometry.getType()===GEOMETRY_TYPES.POINT){
+                this.remove(backObj);
+                return null;
+            }else{
+                backObj.geometry.setCoordinates(coordinates);
+                return backObj;
+            }
+        }
     }]).
-    directive('geoObjects',['$compile','yaMapSettings',function($compile,yaMapSettings){
+    directive('geoObjects',['$compile','yaMapSettings','$timeout',function($compile,yaMapSettings,$timeout){
         return {
             require:'^yaMap',
             restrict:'E',
@@ -240,8 +258,28 @@ angular.module('yaMap',[]).
                     var settingOptions = yaMapSettings.displayOptions && yaMapSettings.displayOptions.general
                         ? yaMapSettings.displayOptions.general : {};
                     var collectionOptions = angular.extend({}, settingOptions, options);
-                    var isCluster = angular.isDefined(attrs.isCluster) && attrs.isCluster!='false';
 
+                    //отобразить все элементы на карте. будет срабатывать при любом добавлении объекта на карту.
+                    var showAll = angular.isDefined(attrs.showAll) && attrs.showAll!='false';
+                    if(showAll){
+                        var map = yaMap.getMap();
+                        var timeout;
+                        var addEventHandler = function(){
+                            if(timeout){
+                                $timeout.cancel(timeout);
+                            }
+                            timeout = $timeout(function(){
+                                map.geoObjects.events.remove('add',addEventHandler);
+                                var bounds = map.geoObjects.getBounds();
+                                if(bounds){
+                                    map.setBounds(bounds);
+                                }
+                            }, 300);
+                        };
+                        map.geoObjects.events.add('add',addEventHandler);
+                    }
+                    //включение кластеризации
+                    var isCluster = angular.isDefined(attrs.isCluster) && attrs.isCluster!='false';
                     if(isCluster){
                         scope.cluster = new ymaps.Clusterer(collectionOptions);
                         yaMap.addCollection(scope.cluster);
@@ -267,22 +305,29 @@ angular.module('yaMap',[]).
             link:function(scope,elm,attrs,geoObjects){
                 var obj;
                 var options = attrs.options ? scope.$eval(attrs.options) : undefined;
+                var createGeoObject = function(from, options){
+                    obj = new ymaps.GeoObject(from, options);
+                    geoObjects.add(obj);
+                };
                 scope.$watch('source',function(newValue){
                     if(newValue){
                         if(obj){
-                            obj.geometry.setCoordinates(newValue.geometry.coordinates);
-                            if (obj.geometry.getType() === GEOMETRY_TYPES.CIRCLE) {
-                                obj.geometry.setRadius(newValue.geometry.radius);
-                            }
-                            var properties = newValue.properties;
-                            for(var key in properties){
-                                if(properties.hasOwnProperty(key)){
-                                    obj.properties.set(key, properties[key]);
+                            var result = geoObjects.changeCoordinates(obj, newValue.geometry.coordinates);
+                            if(result){
+                                if (obj.geometry.getType() === GEOMETRY_TYPES.CIRCLE) {
+                                    obj.geometry.setRadius(newValue.geometry.radius);
                                 }
+                                var properties = newValue.properties;
+                                for(var key in properties){
+                                    if(properties.hasOwnProperty(key)){
+                                        obj.properties.set(key, properties[key]);
+                                    }
+                                }
+                            }else{
+                                createGeoObject(newValue,options);
                             }
                         }else{
-                            obj = new ymaps.GeoObject(newValue, options);
-                            geoObjects.add(obj);
+                            createGeoObject(newValue,options);
                         }
                     }
                 },function(){return true;});
