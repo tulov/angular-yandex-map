@@ -44,14 +44,29 @@
     name - обязательный. Задает имя контролла для отображения. Доступные значения: 'zoomControl','typeSelector','mapTools',
         'scaleLine','miniMap' и 'smallZoomControl'.
     options - выражение, которое должно возвращать объект с настройками для контрола. По умолчанию не установлено.
+
+    ==================================================================================
+    элемент geo-objects
+    ----------------------------------------------------------------------------------
+    представляет коллекцию гео.объектов. Атрибуты:
+    options - задает настройки отображения объектов для всей карты. По умолчанию {}. Если не заданны, используются
+        настройки по умолчанию из yaMapSettings.displayOptions.general
+
+    ==================================================================================
+    элемент geo-object
+    ----------------------------------------------------------------------------------
+    представляет гео. объект карты. Атрибуты:
+    source - задает источник данных для гео. объекта.
+    options - задает настройки отображения для конкретного гео. объекта. Если не задан, используются стандартные настройки
+        из коллекции объектов.
 -->
-<ya-map zoom="8" type="yandex#map" behaviors="default" style="width: 600px;height: 400px;display: block">
+<ya-map zoom="8" center="[37.8,55.85]" type="yandex#map" behaviors="default" style="width: 600px;height: 400px;display: block">
     <map-controls>
         <!--<map-control name="zoomControl"></map-control>
         <map-control name="smallZoomControl" options="{right: 5, top: 75}"></map-control>-->
     </map-controls>
     <geo-objects>
-        <geo-object ng-repeat="o in geoObjects" source="o"></geo-object>
+        <geo-object ng-repeat="o in geoObjects" source="o" options="{draggable:true}"></geo-object>
     </geo-objects>
 </ya-map>
 <button ng-click="change()">change</button>

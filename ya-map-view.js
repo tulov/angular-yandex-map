@@ -19,6 +19,25 @@ angular.module('yaMap',[]).
             scaleLine:null,
             miniMap:null,
             smallZoomControl:{right: 5, top: 75}
+        },
+        //параметры отображения различных объектов на карте
+        displayOptions:{
+            //параметры отображения объектов в обычном состоянии
+            //какие опции устанавливаются для каких фигур, смотрите в документации по API
+            general:{
+                //возможность перетаскивания мышью
+                draggable: false,
+                //ширина границы
+                strokeWidth: 3,
+                //цвет границы
+                strokeColor: "#FFFF00",
+                // Цвет и прозрачность заливки
+                fillColor: '#ffff0022',
+                // Иконка метки будет растягиваться под ее контент
+                preset: 'twirl#pinkStretchyIcon',
+                // Стиль линии
+                strokeStyle: 'shortdash'
+            }
         }
     }).
     factory('mapApiLoad',['yaMapSettings',function(yaMapSettings){
@@ -200,7 +219,7 @@ angular.module('yaMap',[]).
             $scope.collection.remove(geoObject);
         };
     }]).
-    directive('geoObjects',['$compile','mapApiLoad',function($compile,mapApiLoad){
+    directive('geoObjects',['$compile','yaMapSettings',function($compile,yaMapSettings){
         return {
             require:'^yaMap',
             restrict:'E',
@@ -209,7 +228,11 @@ angular.module('yaMap',[]).
                 var childNodes = tElement.contents();
                 tElement.html('');
                 return function(scope, element,attrs,yaMap) {
-                    scope.collection = new ymaps.GeoObjectCollection();
+                    var options = attrs.options ? scope.$eval(attrs.options) : {};
+                    var settingOptions = yaMapSettings.displayOptions && yaMapSettings.displayOptions.general
+                        ? yaMapSettings.displayOptions.general : {};
+                    var collectionOptions = angular.extend({}, settingOptions, options);
+                    scope.collection = new ymaps.GeoObjectCollection({},collectionOptions);
                     yaMap.addCollection(scope.collection);
                     element.append(childNodes);
                     $compile(childNodes)(scope.$parent);
@@ -228,6 +251,7 @@ angular.module('yaMap',[]).
             },
             link:function(scope,elm,attrs,geoObjects){
                 var obj;
+                var options = attrs.options ? scope.$eval(attrs.options) : undefined;
                 scope.$watch('source',function(newValue){
                     if(newValue){
                         if(obj){
@@ -242,7 +266,7 @@ angular.module('yaMap',[]).
                                 }
                             }
                         }else{
-                            obj = new ymaps.GeoObject(newValue);
+                            obj = new ymaps.GeoObject(newValue, options);
                             geoObjects.add(obj);
                         }
                     }
