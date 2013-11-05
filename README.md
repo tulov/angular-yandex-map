@@ -3,6 +3,10 @@ yaMap
 
 **yaMap** This is an easy way to add a Yandex map to your page AngularJS
 
+Alert
+-----
+The component is in active development and is likely to completely change. Actual examples in the new folder.
+
 Using
 -----
 1. Add api support yandex map and yaMap module:
