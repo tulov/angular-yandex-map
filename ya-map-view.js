@@ -114,12 +114,19 @@ angular.module('yaMap',[]).
                 var childNodes = tElement.contents();
                 tElement.html('');
                 return function(scope, element,attrs) {
-                    var center = attrs.center ? scope.$eval(attrs.center) : null,
+                    var getEvalOrValue = function(value){
+                        try{
+                            return scope.$eval(value);
+                        }catch(e){
+                            return value;
+                        }
+                    };
+                    var center = getEvalOrValue(attrs.center),
                         zoom = Number(attrs.zoom),
                         behaviors = attrs.behaviors ? attrs.behaviors.split(' ') : ['default'];
                     zoom = zoom <0 ? 0 : zoom;
                     zoom = zoom>23 ? 23 : zoom;
-                    var setCenter = function(){
+                    var setCenter = function(callback){
                         if(!center){
                             //устанавливаем в качестве центра местоположение пользователя
                             mapApiLoad(function(){
@@ -128,17 +135,21 @@ angular.module('yaMap',[]).
                                 }else{
                                     center =  [ymaps.geolocation.latitude, ymaps.geolocation.longitude];
                                 }
-                                mapInit();
+                                if(callback){
+                                    callback();
+                                }
                             });
                         }else if(angular.isArray(center)){
-                            mapApiLoad(mapInit);
+                            mapApiLoad(callback);
                         }else if(angular.isString(center)){
                             //проводим обратное геокодирование
                             mapApiLoad(function(){
                                 ymaps.geocode(center, { results: 1 }).then(function (res) {
                                     var firstGeoObject = res.geoObjects.get(0);
                                     center = firstGeoObject.geometry.getCoordinates();
-                                    mapInit();
+                                    if(callback){
+                                        callback();
+                                    }
                                 }, function (err) {
                                     // Если геокодирование не удалось, сообщаем об ошибке
                                     $window.alert(err.message);
@@ -161,12 +172,20 @@ angular.module('yaMap',[]).
                         });
                     };
 
+                    attrs.$observe('center',function(newValue){
+                        center = getEvalOrValue(newValue);
+
+                        setCenter(function(){
+                            scope.map.setCenter(center);
+                        });
+                    });
                     scope.$on('$destroy',function(){
                         if(scope.map){
                             scope.map.destroy();
                         }
                     });
-                    setCenter();
+
+                    setCenter(mapInit);
                 };
             },
             controller: 'YaMapCtrl'

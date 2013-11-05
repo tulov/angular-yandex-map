@@ -3,6 +3,7 @@
  */
 var app = angular.module('myApp', ['yaMap']).
     controller('MapCtrl', ['$scope',function($scope){
+        $scope.center = [37.8,55.85];
         $scope.geoObjects=[
             {
                 // Геометрия = тип объекта + географические координаты объекта
@@ -180,4 +181,10 @@ var app = angular.module('myApp', ['yaMap']).
                 }
             });
         };
+        var i= 0,
+            //так как внутри используется $eval, строки нужно брать в двойные кавычки
+            centers = [[37.8,55.85],'Казахстан, город астана',undefined];
+        $scope.changeCenter = function(){
+            $scope.center = centers[++i%3];
+        }
     }]);

@@ -64,7 +64,7 @@
     options - задает настройки отображения для конкретного гео. объекта. Если не задан, используются стандартные настройки
         из коллекции объектов.
 -->
-<ya-map zoom="8" center="[37.8,55.85]" type="yandex#map" behaviors="default" style="width: 600px;height: 400px;display: block">
+<ya-map zoom="8" center="{{ center }}" type="yandex#map" behaviors="default" style="width: 600px;height: 400px;display: block">
     <map-controls>
         <!--<map-control name="zoomControl"></map-control>
         <map-control name="smallZoomControl" options="{right: 5, top: 75}"></map-control>-->
@@ -75,14 +75,9 @@
 </ya-map>
 <button ng-click="change()">change</button>
 <button ng-click="del()">delete</button>
-<button ng-click="add()">add</button><br>
+<button ng-click="add()">add</button>
+<button ng-click="changeCenter()">change center</button><br>
 {{ geoObjects | json }}
-<!--<div id="map"
-     ya-map="{maxCount:7,mode:'add',geoTypes:'circle point',cluster:true,showAll:true}"
-     ya-properties="mapProperties"
-     ng-model="geoObjects"
-     ya-select-index="selectIndex"
-     style="width: 600px;height: 400px;"></div>-->
 <script src="../lib/angular/angular.js"></script>
 <script src="js/app.js"></script>
 <script src="../../../ya-map-view.js"></script>
