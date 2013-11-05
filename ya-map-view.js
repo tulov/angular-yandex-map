@@ -11,7 +11,15 @@ angular.module('yaMap',[]).
     }).
     value('yaMapSettings',{
         lang:'ru-RU',
-        order:'longlat'
+        order:'longlat',
+        controls:{
+            zoomControl:null,
+            typeSelector:null,
+            mapTools:null,
+            scaleLine:null,
+            miniMap:null,
+            smallZoomControl:{right: 5, top: 75}
+        }
     }).
     factory('mapApiLoad',['yaMapSettings',function(yaMapSettings){
         var loaded = false;
@@ -71,32 +79,117 @@ angular.module('yaMap',[]).
             self.addCollection = function(collection){
                 $scope.map.geoObjects.add(collection);
             };
+            self.addControl = function(name, options){
+                $scope.map.controls.add(name,options);
+            };
         });
     }]).
-    directive('yaMap',['$compile','$q','mapApiLoad',function($compile,$q, mapApiLoad){
+    directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window',function($compile, mapApiLoad,yaMapSettings,$window){
         return {
             restrict:'E',
             scope: true,
             compile: function(tElement) {
                 var childNodes = tElement.contents();
                 tElement.html('');
-                return function(scope, element,attrs,ctrl) {
-                    var center = scope.$eval(attrs.center),
-                        zoom = Number(attrs.zoom);
-                    mapApiLoad(function(){
+                return function(scope, element,attrs) {
+                    var center = attrs.center ? scope.$eval(attrs.center) : null,
+                        zoom = Number(attrs.zoom),
+                        behaviors = attrs.behaviors ? attrs.behaviors.split(' ') : ['default'];
+                    zoom = zoom <0 ? 0 : zoom;
+                    zoom = zoom>23 ? 23 : zoom;
+                    var setCenter = function(){
+                        if(!center){
+                            //устанавливаем в качестве центра местоположение пользователя
+                            mapApiLoad(function(){
+                                if(yaMapSettings.order==='longlat'){
+                                    center =  [ymaps.geolocation.longitude, ymaps.geolocation.latitude];
+                                }else{
+                                    center =  [ymaps.geolocation.latitude, ymaps.geolocation.longitude];
+                                }
+                                mapInit();
+                            });
+                        }else if(angular.isArray(center)){
+                            mapApiLoad(mapInit);
+                        }else if(angular.isString(center)){
+                            //проводим обратное геокодирование
+                            mapApiLoad(function(){
+                                ymaps.geocode(center, { results: 1 }).then(function (res) {
+                                    var firstGeoObject = res.geoObjects.get(0);
+                                    center = firstGeoObject.geometry.getCoordinates();
+                                    mapInit();
+                                }, function (err) {
+                                    // Если геокодирование не удалось, сообщаем об ошибке
+                                    $window.alert(err.message);
+                                })
+                            });
+                        }
+                    };
+
+                    var mapInit = function(){
                         scope.map = new ymaps.Map(element[0],{
                             center: center,
-                            zoom:zoom
+                            zoom:zoom,
+                            type:attrs.type || 'yandex#map',
+                            behaviors:behaviors
                         });
                         element.append(childNodes);
                         scope.$apply(function() {
                             $compile(childNodes)(scope.$parent);
                         });
-                    });
+                    };
+
+                    setCenter();
                 };
             },
             controller: 'YaMapCtrl'
         };
+    }]).
+
+    controller('MapControlsCtrl',['$scope',function($scope){
+        this.add = function(name, options){
+            $scope.yaMap.addControl(name,options);
+        };
+    }]).
+    directive('mapControls',['$compile','yaMapSettings',function($compile,yaMapSettings){
+        return {
+            restrict:'E',
+            require:'^yaMap',
+            scope:true,
+            compile:function(tElement){
+                var childNodes = tElement.contents();
+                var hasControls = tElement.find('map-control').length > 0;
+                tElement.html('');
+                return function(scope, element,attrs,yaMap) {
+                    scope.yaMap = yaMap;
+                    if(!hasControls){
+                        var controls = yaMapSettings.controls;
+                        if(controls){
+                            for(var key in controls){
+                                yaMap.addControl(key, controls[key] || undefined);
+                            }
+                        }
+                    }
+                    element.append(childNodes);
+                    $compile(childNodes)(scope.$parent);
+                };
+            },
+            controller:'MapControlsCtrl'
+        }
+    }]).
+
+    directive('mapControl',[function(){
+        return{
+            require:'^mapControls',
+            restrict:'E',
+            scope:true,
+            link:function(scope,elm,attrs,mapControls){
+                if(!attrs.name){
+                    throw new Error('not pass attribute "name"');
+                }
+                var options = attrs.options ? scope.$eval(attrs.options) : undefined;
+                mapControls.add(attrs.name, options);
+            }
+        }
     }]).
 
     controller('GeoObjectsCtrl',['$scope','mapApiLoad',function($scope,mapApiLoad){
@@ -120,9 +213,6 @@ angular.module('yaMap',[]).
                     yaMap.addCollection(scope.collection);
                     element.append(childNodes);
                     $compile(childNodes)(scope.$parent);
-                   /* mapApiLoad(function(){
-
-                    });*/
                 };
             },
             controller:'GeoObjectsCtrl'
