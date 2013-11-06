@@ -181,10 +181,15 @@ var app = angular.module('myApp', ['yaMap']).
                 }
             });
         };
+
         var i= 0,
             //так как внутри используется $eval, строки нужно брать в двойные кавычки
             centers = [[37.8,55.85],'Казахстан, город астана',undefined];
         $scope.changeCenter = function(){
             $scope.center = centers[++i%3];
+        };
+
+        $scope.test = function(event, obj){
+            console.log(arguments);
         }
     }]);

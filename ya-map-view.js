@@ -1,3 +1,4 @@
+"use strict";
 angular.module('yaMap',[]).
     constant('GEOMETRY_TYPES', {
         POINT:'Point',
@@ -5,6 +6,105 @@ angular.module('yaMap',[]).
         RECTANGLE: 'Rectangle',
         POLYGON: 'Polygon',
         CIRCLE: 'Circle'
+    }).
+
+    value('yaMapEvents',{
+        geoObject:[
+            'balloonclose',
+            'balloonopen',
+            'beforedrag',
+            'click',
+            'contextmenu',
+            'dblclick',
+            'drag',
+            'dragend',
+            'dragstart',
+            'editorstatechange',
+            'geometrychange',
+            'mapchange',
+            'mousedown',
+            'mouseenter',
+            'mouseleave',
+            'mousemove',
+            'mouseup',
+            'multitouchend',
+            'multitouchmove',
+            'multitouchstart',
+            'optionschange',
+            'overlaychange',
+            'parentchange',
+            'pixelgeometrychange',
+            'propertieschange',
+            'wheel'
+        ],
+        geoObjectCollections:[
+            'add',
+            'boundschange',
+            'click',
+            'contextmenu',
+            'dblclick',
+            'geometrychange',
+            'mapchange',
+            'mousedown',
+            'mouseenter',
+            'mouseleave',
+            'mousemove',
+            'mouseup',
+            'multitouchend',
+            'multitouchmove',
+            'multitouchstart',
+            'optionschange',
+            'overlaychange',
+            'parentchange',
+            'pixelboundschange',
+            'pixelgeometrychange',
+            'propertieschange',
+            'remove',
+            'wheel'
+        ],
+        clusterCollections:[
+            'add',
+            'objectsaddtomap',
+            'remove'
+        ],
+        /*control:[
+            'click',
+            'deselect',
+            'disable',
+            'enable',
+            'mapchange',
+            'optionschange',
+            'parentchange',
+            'select'
+        ],*/
+        map:[
+            'actionbegin',
+            'actionbreak',
+            'actionend',
+            'actiontick',
+            'actiontickcomplete',
+            'balloonclose',
+            'balloonopen',
+            'boundchange',
+            'click',
+            'contextmenu',
+            'dblclick',
+            'destroy',
+            'hinthide',
+            'hintshow',
+            'mousedown',
+            'mouseenter',
+            'mouseleave',
+            'mousemove',
+            'mouseup',
+            'multitouchend',
+            'multitouchmove',
+            'multitouchstart',
+            'optionschange',
+            'sizechange',
+            'typechange',
+            'wheel'
+        ]
     }).
 
     value('yaMapSettings',{
@@ -35,6 +135,19 @@ angular.module('yaMap',[]).
                 preset: 'twirl#pinkStretchyIcon',
                 // Стиль линии
                 strokeStyle: 'shortdash'
+            },
+            //параметры отображения выбранных объектов
+            selected:{
+                //ширина границы
+                strokeWidth: 7,
+                //цвет границы
+                strokeColor: "#000000",
+                // Цвет и прозрачность заливки
+                fillColor: '#00ffff10',
+                //стиль границы
+                strokeStyle: 'solid',
+                //представление для точки на карте
+                preset: 'twirl#blackStretchyIcon'
             }
         }
     }).
@@ -92,6 +205,36 @@ angular.module('yaMap',[]).
         };
     }]).
 
+    service('yaSubscriber',function(){
+        var subscribeEvent = function(eventName, attrName, obj,scope){
+            obj.events.add(eventName,function(event){
+                setTimeout(function(){
+                    scope.$apply(function(){
+                        scope[attrName]({$event:event});
+                    });
+                });
+            });
+        };
+        var getAttributeName = function(eventName){
+            return 'ya' + eventName[0].toUpperCase() + eventName.substring(1);
+        };
+        this.subscribeEvents = function(obj, attrs, scope, events){
+            var eventName, attrName;
+            for (var i = 0, ii = events.length; i < ii; i++) {
+                eventName = events[i];
+                attrName = getAttributeName(eventName);
+                if(angular.isDefined(attrs[attrName])){
+                    subscribeEvent(eventName,attrName,obj,scope);
+                }
+            }
+        };
+        this.addEventProperty = function(directiveObj, events){
+            for (var i = 0, ii = events.length;i < ii;i++) {
+                directiveObj.scope[getAttributeName(events[i])]='&';
+            }
+        };
+    }).
+
     controller('YaMapCtrl',['$scope','mapApiLoad',function($scope,mapApiLoad){
         var self = this;
         mapApiLoad(function(){
@@ -106,10 +249,10 @@ angular.module('yaMap',[]).
             };
         });
     }]).
-    directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window',function($compile, mapApiLoad,yaMapSettings,$window){
-        return {
+    directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window','yaSubscriber','yaMapEvents',function($compile, mapApiLoad,yaMapSettings,$window,yaSubscriber,yaMapEvents){
+        var directiveObject = {
             restrict:'E',
-            scope: true,
+            scope: {},
             compile: function(tElement) {
                 var childNodes = tElement.contents();
                 tElement.html('');
@@ -166,6 +309,8 @@ angular.module('yaMap',[]).
                             behaviors:behaviors
                         });
 
+                        yaSubscriber.subscribeEvents(scope.map, attrs,scope,yaMapEvents.map);
+
                         element.append(childNodes);
                         scope.$apply(function() {
                             $compile(childNodes)(scope.$parent);
@@ -190,6 +335,8 @@ angular.module('yaMap',[]).
             },
             controller: 'YaMapCtrl'
         };
+        yaSubscriber.addEventProperty(directiveObject,yaMapEvents.map);
+        return directiveObject;
     }]).
 
     controller('MapControlsCtrl',['$scope',function($scope){
@@ -262,13 +409,14 @@ angular.module('yaMap',[]).
                 backObj.geometry.setCoordinates(coordinates);
                 return backObj;
             }
-        }
+        };
     }]).
-    directive('geoObjects',['$compile','yaMapSettings','$timeout',function($compile,yaMapSettings,$timeout){
-        return {
+    directive('geoObjects',['$compile','yaMapSettings','$timeout','yaMapEvents','yaSubscriber',
+        function($compile,yaMapSettings,$timeout,yaMapEvents,yaSubscriber){
+        var directiveObject = {
             require:'^yaMap',
             restrict:'E',
-            scope:true,
+            scope:{},
             compile:function(tElement){
                 var childNodes = tElement.contents();
                 tElement.html('');
@@ -301,10 +449,12 @@ angular.module('yaMap',[]).
                     var isCluster = angular.isDefined(attrs.isCluster) && attrs.isCluster!='false';
                     if(isCluster){
                         scope.cluster = new ymaps.Clusterer(collectionOptions);
+                        yaSubscriber.subscribeEvents(scope.cluster, attrs, scope, yaMapEvents.clusterCollections);
                         yaMap.addCollection(scope.cluster);
                     }
 
                     scope.collection = new ymaps.GeoObjectCollection({},collectionOptions);
+                    yaSubscriber.subscribeEvents(scope.collection, attrs,scope,yaMapEvents.geoObjectCollections);
                     yaMap.addCollection(scope.collection);
                     element.append(childNodes);
                     $compile(childNodes)(scope.$parent);
@@ -312,10 +462,20 @@ angular.module('yaMap',[]).
             },
             controller:'GeoObjectsCtrl'
         };
+        var events = angular.copy(yaMapEvents.geoObjectCollections);
+        for(var i = 0, ii=yaMapEvents.clusterCollections.length;i<ii;i++){
+            var e = yaMapEvents.clusterCollections[i];
+            if(events.indexOf(e)<0){
+                events.push(e);
+            }
+        }
+        yaSubscriber.addEventProperty(directiveObject,events);
+        return directiveObject;
     }]).
 
-    directive('geoObject',['GEOMETRY_TYPES',function(GEOMETRY_TYPES){
-        return {
+    directive('geoObject',['GEOMETRY_TYPES','yaMapEvents','yaSubscriber',function(GEOMETRY_TYPES, yaMapEvents,yaSubscriber){
+
+        var directiveObject = {
             require:'^geoObjects',
             restrict:'E',
             scope:{
@@ -326,6 +486,7 @@ angular.module('yaMap',[]).
                 var options = attrs.options ? scope.$eval(attrs.options) : undefined;
                 var createGeoObject = function(from, options){
                     obj = new ymaps.GeoObject(from, options);
+                    yaSubscriber.subscribeEvents(obj,attrs,scope,yaMapEvents.geoObject);
                     geoObjects.add(obj);
                 };
                 scope.$watch('source',function(newValue){
@@ -357,4 +518,7 @@ angular.module('yaMap',[]).
                 });
             }
         };
+        yaSubscriber.addEventProperty(directiveObject, yaMapEvents.geoObject);
+
+        return directiveObject;
     }]);

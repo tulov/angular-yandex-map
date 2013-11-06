@@ -36,6 +36,7 @@
     ---------------------------------------------------------------------------------
     Представляет коллекцию контроллов на карте. Может стоять только внутри ya-map.
     Если внутри него нет ни одного элемента, будут установленны контроллы по умолчанию, настроенные через yaMapSettings
+    Если его нет, тогда ни какие контролы добавленны не будут.
 
     ==================================================================================
     элемент map-control
@@ -63,14 +64,27 @@
     source - задает источник данных для гео. объекта.
     options - задает настройки отображения для конкретного гео. объекта. Если не задан, используются стандартные настройки
         из коллекции объектов.
+
+    ===================================================================================
+    Поддержка событий
+    -----------------------------------------------------------------------------------
+    Реализована поддержка для всех событий map, clusterer, geoObjectCollection и geoObject. Чтобы подписаться на любое
+        событие нужно определить атрибут с ya-[event], где вместо event нужно подставить имя события. Например ya-click.
+        Работать с ними нужно так же, как и с встроенными директивами событий, такими как ng-click. Чтобы получить родной
+        объект события используйте $event.
+        Получить объект, породивший событие можно через $event.get('target')
+        Пример:
+        <geo-object ya-click="test($event)" >
+        Соответственно события карты нужно определять в ya-map, события кластера и коллекции гео. объектов в geo-objects,
+            а события гео. объекта в geo-object.
 -->
-<ya-map zoom="8" center="{{ center }}" type="yandex#map" behaviors="default" style="width: 600px;height: 400px;display: block">
+<ya-map zoom="8" center="{{ center }}" type="yandex#map" behaviors="default" style="width: 600px;height: 400px;display: block" ya-click="test()">
     <map-controls>
         <!--<map-control name="zoomControl"></map-control>
         <map-control name="smallZoomControl" options="{right: 5, top: 75}"></map-control>-->
     </map-controls>
-    <geo-objects is-cluster show-all>
-        <geo-object ng-repeat="o in geoObjects" source="o" options="{draggable:true}"></geo-object>
+    <geo-objects is-cluster show-all ya-add="test($event)">
+        <geo-object ng-repeat="o in geoObjects" source="o" options="{draggable:true}" ya-click="test($event, $index)"></geo-object>
     </geo-objects>
 </ya-map>
 <button ng-click="change()">change</button>
