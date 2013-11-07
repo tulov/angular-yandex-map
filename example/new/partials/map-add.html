@@ -1,0 +1,25 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-map id="map" zoom="8" center="[37.64,55.76]"&gt;&lt;/ya-map&gt;
+&lt;button ng-click="del()"&gt;Удалить&lt;/button&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js">
+$scope.del=function(){
+    angular.element(document.getElementById('map')).
+        data('map').destroy();
+};</pre>
+</div>
+<div class="right">
+    <ya-map id="map" zoom="8" center="[37.64,55.76]">
+        <!--<map-controls>
+            <map-control name="zoomControl"></map-control>
+            <map-control name="smallZoomControl" options="{right: 5, top: 75}"></map-control>
+        </map-controls>
+        <geo-objects is-cluster show-all ya-add="test($event)">
+            <geo-object ng-repeat="o in geoObjects" source="o" options="{draggable:true}" ya-click="test($event, $index)"></geo-object>
+        </geo-objects>-->
+    </ya-map>
+    <button ng-click="del()">Удалить</button>
+</div>

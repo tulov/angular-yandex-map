@@ -1,0 +1,15 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;div ng-show="show"&gt;
+    &lt;ya-map id="map" zoom="8" center="[37.64,55.76]"&gt;&lt;/ya-map&gt;
+&lt;/div&gt;
+&lt;button ng-click="show=!show"&gt;Показать/Скрыть карту&lt;/button&gt;
+    </pre>
+</div>
+<div class="right">
+    <div ng-show="show">
+        <ya-map id="map" zoom="8" center="[37.64,55.76]"></ya-map>
+    </div>
+    <button ng-click="show=!show">Показать/Скрыть карту</button>
+</div>

@@ -1,0 +1,37 @@
+.container{
+    width: 90%;
+    margin:auto;
+}
+.content{
+    width: 88%;
+    float: left;
+    margin-left: 2%;
+}
+.left{
+    width: 10%;
+    float: left;
+}
+.center{
+    width: 60%;
+    float: left;
+    max-width: 60%;
+}
+.right{
+    width: 38%;
+    float: left;
+    max-width: 40%;
+    margin-left: 2%;
+}
+ya-map{
+    width: 100%;
+    height: 400px;
+    display: block
+}
+.html,.js{
+    overflow: auto;
+}
+.left>ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}

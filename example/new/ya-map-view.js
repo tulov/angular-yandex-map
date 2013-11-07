@@ -252,7 +252,11 @@ angular.module('yaMap',[]).
     directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window','yaSubscriber','yaMapEvents',function($compile, mapApiLoad,yaMapSettings,$window,yaSubscriber,yaMapEvents){
         var directiveObject = {
             restrict:'E',
-            scope: {},
+            scope: {
+                center:'@',
+                type:'@',
+                beforeInit:'&'
+            },
             compile: function(tElement) {
                 var childNodes = tElement.contents();
                 tElement.html('');
@@ -302,28 +306,40 @@ angular.module('yaMap',[]).
                     };
 
                     var mapInit = function(){
+                        scope.beforeInit();
+                        var options = attrs.options ? scope.$eval(attrs.options) : undefined;
+                        if(options && options.projection){
+                            options.projection = new ymaps.projection[options.projection.type](options.projection.bounds);
+                        }
                         scope.map = new ymaps.Map(element[0],{
                             center: center,
                             zoom:zoom,
                             type:attrs.type || 'yandex#map',
                             behaviors:behaviors
-                        });
-
+                        }, options);
+                        element.data('map',scope.map);
                         yaSubscriber.subscribeEvents(scope.map, attrs,scope,yaMapEvents.map);
-
+                        scope.$emit('mapinit', {map:scope.map});
                         element.append(childNodes);
-                        scope.$apply(function() {
-                            $compile(childNodes)(scope.$parent);
+                        setTimeout(function(){
+                            scope.$apply(function() {
+                                $compile(childNodes)(scope.$parent);
+                            });
                         });
                     };
 
-                    attrs.$observe('center',function(newValue){
+                    scope.$watch('center',function(newValue){
                         center = getEvalOrValue(newValue);
-
                         setCenter(function(){
                             scope.map.setCenter(center);
                         });
                     });
+                    scope.$watch('type',function(newValue){
+                        if(newValue){
+                            scope.map.setType(newValue);
+                        }
+                    });
+
                     scope.$on('$destroy',function(){
                         if(scope.map){
                             scope.map.destroy();
@@ -381,7 +397,14 @@ angular.module('yaMap',[]).
                     throw new Error('not pass attribute "name"');
                 }
                 var options = attrs.options ? scope.$eval(attrs.options) : undefined;
-                mapControls.add(attrs.name, options);
+                var params = attrs.params ? scope.$eval(attrs.params) : undefined;
+                if(params){
+                    var className = attrs.name[0].toUpperCase() + attrs.name.substring(1);
+                    var control = new ymaps.control[className](params);
+                    mapControls.add(control,options);
+                }else{
+                    mapControls.add(attrs.name, options);
+                }
             }
         }
     }]).
