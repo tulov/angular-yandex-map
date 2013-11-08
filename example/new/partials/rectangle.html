@@ -1,0 +1,49 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-map zoom="11" center="[37.601,55.674]"&gt;
+    &lt;geo-objects&gt;
+        &lt;geo-object source="geoObjects[0]" options="{draggable: true,fillColor: '#ffff0022',strokeColor: '#3caa3c88',strokeWidth: 7}"&gt;&lt;/geo-object&gt;
+        &lt;geo-object source="geoObjects[1]" options="{fillColor: '#7df9ff33',fillOpacity: 0.5,strokeColor: '#0000FF',strokeOpacity: 0.5,strokeWidth: 2,borderRadius: 6}"&gt;&lt;/geo-object&gt;
+    &lt;/geo-objects&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js">
+$scope.geoObjects=[
+    {
+        geometry: {
+            type: 'Rectangle',
+            coordinates: [
+                [37.66,55.665],
+                [37.53,55.64]
+            ]
+        },
+        properties: {
+            hintContent: 'Перетащи меня!',
+            balloonContent: 'Прямоугольник 2'
+        }
+    },
+    {
+        geometry: {
+            type: 'Rectangle',
+            coordinates: [
+                [37.60,55.66],
+                [37.69,55.71]
+            ]
+        },
+        properties: {
+            hintContent: 'Меня перетаскивать нельзя!',
+            balloonContent: 'Прямоугольник 1'
+        }
+    }
+];</pre>
+</div>
+<div class="right">
+    <ya-map zoom="11" center="[37.601,55.674]">
+        <geo-objects>
+            <geo-object source="geoObjects[0]" options="{draggable: true,fillColor: '#ffff0022',strokeColor: '#3caa3c88',strokeWidth: 7}"></geo-object>
+            <geo-object source="geoObjects[1]" options="{fillColor: '#7df9ff33',fillOpacity: 0.5,strokeColor: '#0000FF',strokeOpacity: 0.5,strokeWidth: 2,borderRadius: 6}"></geo-object>
+        </geo-objects>
+    </ya-map>
+</div>

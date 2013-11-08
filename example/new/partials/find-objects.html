@@ -1,0 +1,61 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-map zoom="12" center="[37.75,55.73]" after-init="afterInit($map)" ya-click="mapClick($event)"&gt;&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js">
+function findClosestObjects () {
+    // Найдем в выборке кафе, ближайшее к найденной станции метро,
+    // и откроем его балун.
+    cafe.getClosestTo(metro.get(0)).balloon.open();
+}
+var cafe, metro;
+$scope.afterInit=function(map){
+    cafe = ymaps.geoQuery({
+        type: 'FeatureCollection',
+        features: [{
+            type: 'Feature',
+            properties: {
+                balloonContent: 'Кофейня "Дарт Вейдер" - у нас есть печеньки!'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [37.545849,55.724166]
+            }
+        }, {
+            type: 'Feature',
+            properties: {
+                balloonContent: 'Кафе "Горлум" - пирожные прелесть.'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [37.567886,55.717495]
+            }
+        }, {
+            type: 'Feature',
+            properties: {
+                balloonContent: 'Кафе "Кирпич" - крепкий кофе для крепких парней.'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [37.631057,55.7210180]
+            }
+        }
+        ]
+        // Сразу добавим точки на карту.
+    }).addToMap(map);
+    // Координаты станции метро получим через геокодер.
+    metro = ymaps.geoQuery(ymaps.geocode('Москва, Кропоткинская', {kind: 'metro'}))
+        // Нужно дождаться ответа от сервера и только потом обрабатывать полученные результаты.
+        .then(findClosestObjects);
+};
+$scope.mapClick=function(event){
+    cafe.getClosestTo(event.get('coordPosition')).balloon.open();
+};
+</pre>
+</div>
+<div class="right">
+    <p>При клике на карту будет открываться балун ближайшей к месту клика метки</p>
+    <ya-map zoom="12" center="[37.75,55.73]" after-init="afterInit($map)" ya-click="mapClick($event)"></ya-map>
+</div>

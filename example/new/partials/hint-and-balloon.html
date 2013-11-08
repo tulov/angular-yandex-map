@@ -1,7 +1,7 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;ya-map id="map" zoom="5" center="[37.11,54.83]"&gt;
+&lt;ya-map zoom="5" center="[37.11,54.83]" after-init="afterMapInit($map)"&gt;
     &lt;geo-objects&gt;
         &lt;geo-object source="geoObjects[0]"&gt;&lt;/geo-object&gt;
     &lt;/geo-objects&gt;
@@ -27,8 +27,7 @@ $scope.geoObjects=[
         }
     }
 ];
-$scope.$on('mapinit',function(event, args){
-    var map = args.map;
+$scope.afterMapInit=function(map){
     $timeout(function(){
         map.hint.show(map.getCenter(), "Содержимое хинта", {
             // Опция: задержка перед открытием.
@@ -39,11 +38,11 @@ $scope.$on('mapinit',function(event, args){
         // Опция: не показываем кнопку закрытия.
         closeButton: false
     });
-});
-    </pre>
+};
+</pre>
 </div>
 <div class="right">
-    <ya-map id="map" zoom="5" center="[37.11,54.83]">
+    <ya-map zoom="5" center="[37.11,54.83]" after-init="afterMapInit($map)">
         <geo-objects>
             <geo-object source="geoObjects[0]"></geo-object>
         </geo-objects>

@@ -1,0 +1,57 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-map zoom="10" center="[37.64,55.76]"&gt;
+    &lt;geo-objects&gt;
+        &lt;geo-object source="geoObjects[0]" options="{preset:'twirl#redStretchyIcon',draggable:true}"&gt;&lt;/geo-object&gt;
+        &lt;geo-object source="geoObjects[1]" options="{preset:'twirl#violetIcon'}"&gt;&lt;/geo-object&gt;
+        &lt;geo-object source="geoObjects[2]"
+                    options="{iconImageHref:'img/myIcon.gif',iconImageSize:[30, 42],iconImageOffset: [-3, -42]}"&gt;&lt;/geo-object&gt;
+    &lt;/geo-objects&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js">
+$scope.geoObjects=[
+    {
+        geometry: {
+            type: 'Point',
+            coordinates: [37.8,55.8]
+        },
+        properties: {
+            iconContent: 'Метка',
+            balloonContent: 'Меня можно перемещать'
+        }
+    },
+    {
+        geometry: {
+            type: 'Point',
+            coordinates: [37.6,55.8]
+        },
+        properties: {
+            iconContent: '1',
+            balloonContent: 'Балун',
+            hintContent: 'Стандартный значок метки'
+        }
+    },
+    {
+        geometry: {
+            type: 'Point',
+            coordinates: [37.56,55.76]
+        },
+        properties: {
+            hintContent: 'Собственный значок метки'
+        }
+    }
+];</pre>
+</div>
+<div class="right">
+    <ya-map zoom="10" center="[37.64,55.76]">
+        <geo-objects>
+            <geo-object source="geoObjects[0]" options="{preset:'twirl#redStretchyIcon',draggable:true}"></geo-object>
+            <geo-object source="geoObjects[1]" options="{preset:'twirl#violetIcon'}"></geo-object>
+            <geo-object source="geoObjects[2]"
+                        options="{iconImageHref:'img/myIcon.gif',iconImageSize:[30, 42],iconImageOffset: [-3, -42]}"></geo-object>
+        </geo-objects>
+    </ya-map>
+</div>

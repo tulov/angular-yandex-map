@@ -1,21 +1,23 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;ya-map id="map" zoom="8" center="[37.64,55.76]"&gt;&lt;/ya-map&gt;<br>
+&lt;ya-map zoom="8" center="[37.64,55.76]" after-init="afterMapInit($map)"&gt;&lt;/ya-map&gt;<br>
 &lt;label&gt; Отслеживать размер
     &lt;input ng-model="sizeChecked" type="checkbox"&gt;
 &lt;/label&gt;
     </pre>
     <p>javascript:</p>
     <pre class="js">
+var map;
+$scope.afterMapInit=function(nMap){
+    map = nMap;
+};
 var timeout;
 var resize = function(){
     if(timeout){
         $timeout.cancel(timeout);
     }
     timeout = $timeout(function(){
-        var map = angular.element(document.getElementById('map'))
-            .data('map');
         map.container.fitToViewport();
     },500);
 };
@@ -28,7 +30,7 @@ $scope.$watch('sizeChecked',function(newValue,oldValue){
 });</pre>
 </div>
 <div class="right">
-    <ya-map id="map" zoom="8" center="[37.64,55.76]"></ya-map>
+    <ya-map zoom="8" center="[37.64,55.76]" after-init="afterMapInit($map)"></ya-map>
     <label> Отслеживать размер
         <input ng-model="sizeChecked" type="checkbox">
     </label>

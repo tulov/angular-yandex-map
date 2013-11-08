@@ -1,0 +1,38 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-map zoom="8" center="[37.75,55.73]" after-init="afterInit($map)" ya-boundschange="mapBoundschange($event)"&gt;&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js">
+var objects;
+$scope.afterInit=function(map){
+    objects = ymaps.geoQuery([{
+        type: 'Point',
+        coordinates: [37.75,55.73]
+    }, {
+        type: 'Point',
+        coordinates: [37.45,55.10]
+    }, {
+        type: 'Point',
+        coordinates: [37.35,55.25]
+    }, {
+        type: 'Point',
+        coordinates: [67.35,55.25]
+    }]);
+    objects.searchInside(map)
+        // И затем добавим найденные объекты на карту.
+        .addToMap(map);
+};
+$scope.mapBoundschange=function(event){
+    var myMap = event.get('target');
+    var visibleObjects = objects.searchInside(myMap).addToMap(myMap);
+    // Оставшиеся объекты будем удалять с карты.
+    objects.remove(visibleObjects).removeFromMap(myMap);
+};
+</pre>
+</div>
+<div class="right">
+    <p>На карту добавляются только метки, попадающие в видимую область</p>
+    <ya-map zoom="8" center="[37.75,55.73]" after-init="afterInit($map)" ya-boundschange="mapBoundschange($event)"></ya-map>
+</div>

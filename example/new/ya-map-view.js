@@ -85,7 +85,7 @@ angular.module('yaMap',[]).
             'actiontickcomplete',
             'balloonclose',
             'balloonopen',
-            'boundchange',
+            'boundschange',
             'click',
             'contextmenu',
             'dblclick',
@@ -123,7 +123,7 @@ angular.module('yaMap',[]).
             //параметры отображения объектов в обычном состоянии
             //какие опции устанавливаются для каких фигур, смотрите в документации по API
             general:{
-                //возможность перетаскивания мышью
+                /*//возможность перетаскивания мышью
                 draggable: false,
                 //ширина границы
                 strokeWidth: 3,
@@ -134,7 +134,7 @@ angular.module('yaMap',[]).
                 // Иконка метки будет растягиваться под ее контент
                 preset: 'twirl#pinkStretchyIcon',
                 // Стиль линии
-                strokeStyle: 'shortdash'
+                strokeStyle: 'shortdash'*/
             },
             //параметры отображения выбранных объектов
             selected:{
@@ -247,6 +247,16 @@ angular.module('yaMap',[]).
             self.getMap = function(){
                 return $scope.map;
             };
+            self.addImageLayer = function(urlTemplate, options){
+                var imgLayer = new ymaps.Layer(urlTemplate, options);
+                $scope.map.layers.add(imgLayer);
+            };
+            self.addHotspotLayer = function(urlTemplate, keyTemplate, options){
+                // Создадим источник данных слоя активных областей.
+                var objSource = new ymaps.hotspot.ObjectSource(urlTemplate,keyTemplate);
+                var hotspotLayer = new ymaps.hotspot.Layer(objSource, options);
+                $scope.map.layers.add(hotspotLayer);
+            };
         });
     }]).
     directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window','yaSubscriber','yaMapEvents',function($compile, mapApiLoad,yaMapSettings,$window,yaSubscriber,yaMapEvents){
@@ -255,7 +265,8 @@ angular.module('yaMap',[]).
             scope: {
                 center:'@',
                 type:'@',
-                beforeInit:'&'
+                beforeInit:'&',
+                afterInit:'&'
             },
             compile: function(tElement) {
                 var childNodes = tElement.contents();
@@ -317,9 +328,8 @@ angular.module('yaMap',[]).
                             type:attrs.type || 'yandex#map',
                             behaviors:behaviors
                         }, options);
-                        element.data('map',scope.map);
                         yaSubscriber.subscribeEvents(scope.map, attrs,scope,yaMapEvents.map);
-                        scope.$emit('mapinit', {map:scope.map});
+                        scope.afterInit({$map:scope.map});
                         element.append(childNodes);
                         setTimeout(function(){
                             scope.$apply(function() {
@@ -409,29 +419,12 @@ angular.module('yaMap',[]).
         }
     }]).
 
-    controller('GeoObjectsCtrl',['$scope','GEOMETRY_TYPES',function($scope,GEOMETRY_TYPES){
+    controller('GeoObjectsCtrl',['$scope',function($scope){
         this.add = function(geoObject){
-            if($scope.cluster && geoObject.geometry.getType()===GEOMETRY_TYPES.POINT){
-                $scope.cluster.add(geoObject);
-            }else{
-                $scope.collection.add(geoObject);
-            }
+            $scope.collection.add(geoObject);
         };
         this.remove = function(geoObject){
-            if($scope.cluster && geoObject.geometry.getType()===GEOMETRY_TYPES.POINT){
-                $scope.cluster.remove(geoObject);
-            }else{
-                $scope.collection.remove(geoObject);
-            }
-        };
-        this.changeCoordinates = function(backObj, coordinates){
-            if($scope.cluster && backObj.geometry.getType()===GEOMETRY_TYPES.POINT){
-                this.remove(backObj);
-                return null;
-            }else{
-                backObj.geometry.setCoordinates(coordinates);
-                return backObj;
-            }
+            $scope.collection.remove(geoObject);
         };
     }]).
     directive('geoObjects',['$compile','yaMapSettings','$timeout','yaMapEvents','yaSubscriber',
@@ -469,12 +462,12 @@ angular.module('yaMap',[]).
                         map.geoObjects.events.add('add',addEventHandler);
                     }
                     //включение кластеризации
-                    var isCluster = angular.isDefined(attrs.isCluster) && attrs.isCluster!='false';
+                    /*var isCluster = angular.isDefined(attrs.isCluster) && attrs.isCluster!='false';
                     if(isCluster){
                         scope.cluster = new ymaps.Clusterer(collectionOptions);
                         yaSubscriber.subscribeEvents(scope.cluster, attrs, scope, yaMapEvents.clusterCollections);
                         yaMap.addCollection(scope.cluster);
-                    }
+                    }*/
 
                     scope.collection = new ymaps.GeoObjectCollection({},collectionOptions);
                     yaSubscriber.subscribeEvents(scope.collection, attrs,scope,yaMapEvents.geoObjectCollections);
@@ -485,55 +478,187 @@ angular.module('yaMap',[]).
             },
             controller:'GeoObjectsCtrl'
         };
-        var events = angular.copy(yaMapEvents.geoObjectCollections);
-        for(var i = 0, ii=yaMapEvents.clusterCollections.length;i<ii;i++){
-            var e = yaMapEvents.clusterCollections[i];
-            if(events.indexOf(e)<0){
-                events.push(e);
-            }
-        }
-        yaSubscriber.addEventProperty(directiveObject,events);
+        yaSubscriber.addEventProperty(directiveObject,yaMapEvents.geoObjectCollections);
         return directiveObject;
     }]).
 
-    directive('geoObject',['GEOMETRY_TYPES','yaMapEvents','yaSubscriber',function(GEOMETRY_TYPES, yaMapEvents,yaSubscriber){
-
+    controller('MapClusterCtrl',['$scope',function($scope){
+        this.add = function(geoObject){
+            $scope.cluster.add(geoObject);
+        };
+        this.remove = function(geoObject){
+            $scope.cluster.remove(geoObject);
+        };
+    }]).
+    directive('mapCluster',['yaMapSettings','yaSubscriber','yaMapEvents','$compile',function(yaMapSettings,yaSubscriber,yaMapEvents,$compile){
         var directiveObject = {
-            require:'^geoObjects',
+            require:'^yaMap',
+            restrict:'E',
+            scope:{},
+            compile:function(tElement){
+                var childNodes = tElement.contents();
+                tElement.html('');
+                return function(scope, element,attrs,yaMap) {
+                    var options = attrs.options ? scope.$eval(attrs.options) : {};
+                    var settingOptions = yaMapSettings.displayOptions && yaMapSettings.displayOptions.general
+                        ? yaMapSettings.displayOptions.general : {};
+                    var collectionOptions = angular.extend({}, settingOptions, options);
+
+                    //включение кластеризации
+                    scope.cluster = new ymaps.Clusterer(collectionOptions);
+                    yaSubscriber.subscribeEvents(scope.cluster, attrs, scope, yaMapEvents.clusterCollections);
+                    yaMap.addCollection(scope.cluster);
+                    element.append(childNodes);
+                    $compile(childNodes)(scope.$parent);
+                };
+            },
+            controller:'MapClusterCtrl'
+        };
+        yaSubscriber.addEventProperty(directiveObject,yaMapEvents.geoObjectCollections);
+        return directiveObject;
+    }]).
+
+    directive('mapMarker',['yaSubscriber','yaMapEvents',function(yaSubscriber,yaMapEvents){
+        var directiveObject = {
+            require:'^mapCluster',
             restrict:'E',
             scope:{
-                source:'='
+                source:'=',
+                showBalloon:'=yaShowBalloon'
             },
-            link:function(scope,elm,attrs,geoObjects){
+            link:function(scope,elm,attrs,mapCluster){
                 var obj;
                 var options = attrs.options ? scope.$eval(attrs.options) : undefined;
                 var createGeoObject = function(from, options){
-                    obj = new ymaps.GeoObject(from, options);
+                    obj = new  ymaps.GeoObject(from, options);
                     yaSubscriber.subscribeEvents(obj,attrs,scope,yaMapEvents.geoObject);
-                    geoObjects.add(obj);
+                    mapCluster.add(obj);
+                    checkShowBalloon(scope.showBalloon);
                 };
                 scope.$watch('source',function(newValue){
                     if(newValue){
                         if(obj){
-                            var result = geoObjects.changeCoordinates(obj, newValue.geometry.coordinates);
-                            if(result){
-                                if (obj.geometry.getType() === GEOMETRY_TYPES.CIRCLE) {
-                                    obj.geometry.setRadius(newValue.geometry.radius);
+                            obj.geometry.setCoordinates(newValue.geometry.coordinates);
+                            var properties = newValue.properties;
+                            for(var key in properties){
+                                if(properties.hasOwnProperty(key)){
+                                    obj.properties.set(key, properties[key]);
                                 }
-                                var properties = newValue.properties;
-                                for(var key in properties){
-                                    if(properties.hasOwnProperty(key)){
-                                        obj.properties.set(key, properties[key]);
-                                    }
-                                }
-                            }else{
-                                createGeoObject(newValue,options);
                             }
                         }else{
                             createGeoObject(newValue,options);
                         }
+                    }else{
+                        mapCluster.remove(obj);
                     }
                 },function(){return true;});
+                var checkShowBalloon = function(newValue){
+                    if(newValue){
+                        if(obj){
+                            obj.balloon.open();
+                        }
+                    }else{
+                        if(obj){
+                            obj.balloon.close();
+                        }
+                    }
+                };
+                scope.$watch('showBalloon',checkShowBalloon);
+                scope.$on('$destroy', function () {
+                    if (obj) {
+                        mapCluster.remove(obj);
+                    }
+                });
+            }
+        };
+        yaSubscriber.addEventProperty(directiveObject, yaMapEvents.geoObject);
+
+        return directiveObject;
+    }]).
+
+    directive('geoObject',['GEOMETRY_TYPES','yaMapEvents','yaSubscriber',function(GEOMETRY_TYPES, yaMapEvents,yaSubscriber){
+        var directiveObject = {
+            require:'^geoObjects',
+            restrict:'E',
+            scope:{
+                source:'=',
+                editor:'=editorMenuManager',
+                showBalloon:'=yaShowBalloon'
+            },
+            link:function(scope,elm,attrs,geoObjects){
+                var obj;
+                var options = attrs.options ? scope.$eval(attrs.options) : undefined;
+                if(scope.editor){
+                    if(!options){
+                        options={};
+                    }
+                    options.editorMenuManager = scope.editor;
+                    //console.log(scope.editor);
+                }
+                var createGeoObject = function(from, options){
+                    obj = new ymaps.GeoObject(from, options);
+                    yaSubscriber.subscribeEvents(obj,attrs,scope,yaMapEvents.geoObject);
+                    geoObjects.add(obj);
+                    checkEditing(attrs.yaEdit);
+                    checkDrawing(attrs.yaDraw);
+                    checkShowBalloon(scope.showBalloon);
+                };
+                scope.$watch('source',function(newValue){
+                    if(newValue){
+                        if(obj){
+                            obj.geometry.setCoordinates(newValue.geometry.coordinates);
+                            if (obj.geometry.getType() === GEOMETRY_TYPES.CIRCLE) {
+                                obj.geometry.setRadius(newValue.geometry.radius);
+                            }
+                            var properties = newValue.properties;
+                            for(var key in properties){
+                                if(properties.hasOwnProperty(key)){
+                                    obj.properties.set(key, properties[key]);
+                                }
+                            }
+                        }else{
+                            createGeoObject(newValue,options);
+                        }
+                    }else{
+                        geoObjects.remove(obj);
+                    }
+                },function(){return true;});
+                var checkEditing = function(editAttr){
+                    if(angular.isDefined(editAttr) && editAttr!=='false'){
+                        if(obj){
+                            obj.editor.startEditing()
+                        }
+                    }else if(angular.isDefined(editAttr)){
+                        if(obj){
+                            obj.editor.stopEditing();
+                        }
+                    }
+                };
+                var checkDrawing = function(drawAttr){
+                    if(angular.isDefined(drawAttr) && drawAttr!=='false'){
+                        if(obj){
+                            obj.editor.startDrawing()
+                        }
+                    }else if(angular.isDefined(drawAttr)){
+                        if(obj){
+                            obj.editor.stopDrawing();
+                        }
+                    }
+                };
+                var checkShowBalloon = function(newValue){
+                    if(newValue){
+                        if(obj){
+                            obj.balloon.open();
+                        }
+                    }else{
+                        if(obj){
+                            obj.balloon.close();
+                        }
+                    }
+                };
+                attrs.$observe('yaEdit',checkEditing);
+                attrs.$observe('yaDraw',checkDrawing);
+                scope.$watch('showBalloon',checkShowBalloon);
                 scope.$on('$destroy', function () {
                     if (obj) {
                         geoObjects.remove(obj);
@@ -544,4 +669,33 @@ angular.module('yaMap',[]).
         yaSubscriber.addEventProperty(directiveObject, yaMapEvents.geoObject);
 
         return directiveObject;
+    }]).
+    directive('hotspotLayer',[function(){
+        return {
+            restrict:'E',
+            require:'^yaMap',
+            link:function(scope,elm,attrs,yaMap){
+                if(!attrs.urlTemplate){
+                    throw new Error('not exists required attribute "url-template"');
+                }
+                if(!attrs.keyTemplate){
+                    throw new Error('not exists required attribute "key-template"');
+                }
+                var options = attrs.options ? scope.$eval(attrs.options) : undefined;
+                yaMap.addHotspotLayer(attrs.urlTemplate, attrs.keyTemplate, options);
+            }
+        }
+    }]).
+    directive('imageLayer',[function(){
+        return {
+            restrict:'E',
+            require:'^yaMap',
+            link:function(scope,elm,attrs,yaMap){
+                if(!attrs.urlTemplate){
+                    throw new Error('not exists required attribute "url-template"');
+                }
+                var options = attrs.options ? scope.$eval(attrs.options) : undefined;
+                yaMap.addImageLayer(attrs.urlTemplate, options);
+            }
+        }
     }]);
