@@ -1,0 +1,109 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-map zoom="1" center="[2.341198,48.856929]" after-init="afterInit($map)"&gt;
+    &lt;map-toolbars&gt;
+        &lt;map-toolbar name="toolBar"&gt;
+            &lt;control type="button" params="Свойство: balloonHeader"
+                     ya-select="balloonHeader($event)"
+                     ya-deselect="balloonHeader($event)"&gt;&lt;/control&gt;
+            &lt;control type="button" params="Опция: geodesic"
+                     ya-select="geodes($event)"
+                     ya-deselect="geodes($event)"&gt;&lt;/control&gt;
+            &lt;control type="button" params="Изменить радиус"
+                     ya-select="changeRadius($event)"
+                     ya-deselect="changeRadius($event)"&gt;&lt;/control&gt;
+        &lt;/map-toolbar&gt;
+    &lt;/map-toolbars&gt;
+    &lt;geo-objects&gt;
+        &lt;geo-object
+                after-init="setObject($geoObject)"
+                source="circle"
+                options="{draggable: true}"
+                ya-mapchange="run($event)"
+                ya-geometrychange="run($event)"
+                ya-pixelgeometrychange="run($event)"
+                ya-optionschange="run($event)"
+                ya-propertieschange="run($event)"
+                ya-balloonopen="run($event)"
+                ya-balloonclose="run($event)"
+                hintshow="run($event)"
+                ya-hinthide="run($event)"
+                ya-dragstart="run($event)"
+                ya-dragend="run($event)"
+                &gt;&lt;/geo-object&gt;
+    &lt;/geo-objects&gt;
+&lt;/ya-map&gt;
+&lt;span ng-repeat="l in log"&gt;{{ l }}&lt;br&gt;&lt;/span&gt;
+    </pre>
+    <p>javascript</p>
+    <pre class="js">
+var circle = {
+    geometry:{
+        type:'Circle',
+        radius:1000000
+    },
+    properties:{
+        balloonContentBody: 'Балун',
+        hintContent: 'Хинт'
+    }
+};
+$scope.log = [];
+$scope.afterInit=function(map){
+    circle.geometry.coordinates = map.getCenter();
+    $scope.circle = circle;
+};
+$scope.run = function(event){
+    $scope.log.push('@' + event.get('type'));
+};
+var geoObj;
+$scope.setObject = function(geoObject){
+    geoObj = geoObject;
+}
+$scope.balloonHeader = function(e){
+    geoObj.properties.set('balloonContentHeader', e.get('type') == 'select' ? 'Заголовок' : undefined);
+};
+$scope.geodes = function(e){
+    geoObj.options.set('geodesic', e.get('type') == 'select');
+};
+$scope.changeRadius = function(e){
+    geoObj.geometry.setRadius(e.get('type') == 'select' ? 2000000 : 1000000);
+};
+    </pre>
+</div>
+<div class="right">
+    <ya-map zoom="1" center="[2.341198,48.856929]" after-init="afterInit($map)">
+        <map-toolbars>
+            <map-toolbar name="toolBar">
+                <control type="button" params="Свойство: balloonHeader"
+                        ya-select="balloonHeader($event)"
+                        ya-deselect="balloonHeader($event)"></control>
+                <control type="button" params="Опция: geodesic"
+                         ya-select="geodes($event)"
+                         ya-deselect="geodes($event)"></control>
+                <control type="button" params="Изменить радиус"
+                         ya-select="changeRadius($event)"
+                         ya-deselect="changeRadius($event)"></control>
+            </map-toolbar>
+        </map-toolbars>
+        <geo-objects>
+            <geo-object
+                    after-init="setObject($geoObject)"
+                    source="circle"
+                    options="{draggable: true}"
+                    ya-mapchange="run($event)"
+                    ya-geometrychange="run($event)"
+                    ya-pixelgeometrychange="run($event)"
+                    ya-optionschange="run($event)"
+                    ya-propertieschange="run($event)"
+                    ya-balloonopen="run($event)"
+                    ya-balloonclose="run($event)"
+                    hintshow="run($event)"
+                    ya-hinthide="run($event)"
+                    ya-dragstart="run($event)"
+                    ya-dragend="run($event)"
+                    ></geo-object>
+        </geo-objects>
+    </ya-map>
+    <span ng-repeat="l in log">{{ l }}<br></span>
+</div>

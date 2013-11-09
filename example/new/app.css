@@ -27,11 +27,28 @@ ya-map{
     height: 400px;
     display: block
 }
-.html,.js{
+pre.html,pre.js,pre.css{
     overflow: auto;
 }
 .left>ul{
     list-style: none;
     margin: 0;
     padding: 0;
+}
+#menu {
+    position: absolute;
+    width: 12em;
+    background: #FFFFCC;
+    border: 3px solid #006600;
+    border-radius: 12px;
+    padding-bottom: 10px;
+    z-index: 2
+}
+#menu ul {
+    list-style-type: none;
+    padding: 20px;
+    margin: 0;
+}
+#menu input {
+    width: 10em;
 }

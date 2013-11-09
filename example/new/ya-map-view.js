@@ -104,6 +104,16 @@ angular.module('yaMap',[]).
             'sizechange',
             'typechange',
             'wheel'
+        ],
+        control:[
+            'click',
+            'deselect',
+            'disable',
+            'enable',
+            'mapchange',
+            'optionschange',
+            'parentchange',
+            'select'
         ]
     }).
 
@@ -205,6 +215,46 @@ angular.module('yaMap',[]).
         };
     }]).
 
+    service('yaLayer',[function(){
+        this.create = function(tileZoomFn){
+            return new ymaps.Layer(tileZoomFn);
+        };
+    }]).
+
+    service('yaMapType',[function(){
+        this.create = function(name, layers){
+            return new ymaps.MapType(name,layers);
+        };
+    }]).
+
+    service('layerStorage',['mapApiLoad',function(mapApiLoad){
+        this.get = function(callback){
+            if(this._storage){
+                callback(this._storage);
+            }else{
+                var self = this;
+                mapApiLoad(function(){
+                    self._storage = ymaps.layer.storage;
+                    callback(self._storage);
+                });
+            }
+        };
+    }]).
+
+    service('mapTypeStorage',['mapApiLoad',function(mapApiLoad){
+        this.get = function(callback){
+            if(this._storage){
+                callback(this._storage);
+            }else{
+                var self = this;
+                mapApiLoad(function(){
+                    self._storage = ymaps.mapType.storage;
+                    callback(self._storage);
+                });
+            }
+        };
+    }]).
+
     service('yaSubscriber',function(){
         var subscribeEvent = function(eventName, attrName, obj,scope){
             obj.events.add(eventName,function(event){
@@ -235,6 +285,39 @@ angular.module('yaMap',[]).
         };
     }).
 
+    service('templateLayoutFactory',[function(){
+        this._cache = {};
+        this.get=function(key){
+            return this._cache[key];
+        };
+        this.create = function(key, template, overadice){
+            if(this._cache[key]){
+                return;
+            }
+            this._cache[key] = ymaps.templateLayoutFactory.createClass(template,overadice);
+        };
+    }]).
+
+    directive('templateLayout',['templateLayoutFactory',function(templateLayoutFactory){
+        return{
+            restrict:'E',
+            scope:{
+                overrides:'='
+            },
+            compile: function(tElement) {
+                var html = tElement.html();
+                tElement.html('');
+                return function(scope,elm,attrs){
+                    if(!attrs.key){
+                        throw new Error('not require attribute "key"');
+                    }
+                    var key = attrs.key;
+                    templateLayoutFactory.create(key, html, scope.overrides);
+                };
+            }
+        };
+    }]).
+
     controller('YaMapCtrl',['$scope','mapApiLoad',function($scope,mapApiLoad){
         var self = this;
         mapApiLoad(function(){
@@ -257,6 +340,9 @@ angular.module('yaMap',[]).
                 var hotspotLayer = new ymaps.hotspot.Layer(objSource, options);
                 $scope.map.layers.add(hotspotLayer);
             };
+            self.addToolbar = function(toolbar){
+                $scope.map.controls.add(toolbar);
+            }
         });
     }]).
     directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window','yaSubscriber','yaMapEvents',function($compile, mapApiLoad,yaMapSettings,$window,yaSubscriber,yaMapEvents){
@@ -282,6 +368,16 @@ angular.module('yaMap',[]).
                     var center = getEvalOrValue(attrs.center),
                         zoom = Number(attrs.zoom),
                         behaviors = attrs.behaviors ? attrs.behaviors.split(' ') : ['default'];
+                    var disableBehaviors=[], enableBehaviors=[], behavior;
+                    for (var i = 0, ii = behaviors.length; i < ii; i++) {
+                        behavior = behaviors[i];
+                        if(behavior[0]==='-'){
+                            disableBehaviors.push(behavior.substring(1));
+                        }else{
+                            enableBehaviors.push(behavior);
+                        }
+                    }
+
                     zoom = zoom <0 ? 0 : zoom;
                     zoom = zoom>23 ? 23 : zoom;
                     var setCenter = function(callback){
@@ -326,8 +422,9 @@ angular.module('yaMap',[]).
                             center: center,
                             zoom:zoom,
                             type:attrs.type || 'yandex#map',
-                            behaviors:behaviors
+                            behaviors:enableBehaviors
                         }, options);
+                        scope.map.behaviors.disable(disableBehaviors);
                         yaSubscriber.subscribeEvents(scope.map, attrs,scope,yaMapEvents.map);
                         scope.afterInit({$map:scope.map});
                         element.append(childNodes);
@@ -365,19 +462,19 @@ angular.module('yaMap',[]).
         return directiveObject;
     }]).
 
-    controller('MapControlsCtrl',['$scope',function($scope){
+    controller('mapToolbarsCtrl',['$scope',function($scope){
         this.add = function(name, options){
             $scope.yaMap.addControl(name,options);
         };
     }]).
-    directive('mapControls',['$compile','yaMapSettings',function($compile,yaMapSettings){
+    directive('mapToolbars',['$compile','yaMapSettings',function($compile,yaMapSettings){
         return {
             restrict:'E',
             require:'^yaMap',
             scope:true,
             compile:function(tElement){
                 var childNodes = tElement.contents();
-                var hasControls = tElement.find('map-control').length > 0;
+                var hasControls = tElement.find('map-toolbar').length > 0 || tElement.find('custom-toolbar').length>0;
                 tElement.html('');
                 return function(scope, element,attrs,yaMap) {
                     scope.yaMap = yaMap;
@@ -393,30 +490,63 @@ angular.module('yaMap',[]).
                     $compile(childNodes)(scope.$parent);
                 };
             },
-            controller:'MapControlsCtrl'
+            controller:'mapToolbarsCtrl'
         }
     }]).
 
-    directive('mapControl',[function(){
+    controller('MapToolbarCtrl',['$scope',function($scope){
+        this.add = function(control){
+            $scope.toolbar.add(control);
+        };
+    }]).
+    directive('mapToolbar',['$compile',function($compile){
         return{
-            require:'^mapControls',
+            require:'^mapToolbars',
             restrict:'E',
             scope:true,
-            link:function(scope,elm,attrs,mapControls){
-                if(!attrs.name){
-                    throw new Error('not pass attribute "name"');
-                }
-                var options = attrs.options ? scope.$eval(attrs.options) : undefined;
-                var params = attrs.params ? scope.$eval(attrs.params) : undefined;
-                if(params){
+            compile:function(tElement){
+                var childNodes = tElement.contents();
+                tElement.html('');
+                return function(scope, element,attrs,mapToolbars) {
+                    if(!attrs.name){
+                        throw new Error('not pass attribute "name"');
+                    }
+                    var options = attrs.options ? scope.$eval(attrs.options) : undefined;
+                    var params = attrs.params ? scope.$eval(attrs.params) : undefined;
                     var className = attrs.name[0].toUpperCase() + attrs.name.substring(1);
-                    var control = new ymaps.control[className](params);
-                    mapControls.add(control,options);
-                }else{
-                    mapControls.add(attrs.name, options);
-                }
-            }
+                    scope.toolbar = new ymaps.control[className](params);
+                    mapToolbars.add(scope.toolbar,options);
+                    element.append(childNodes);
+                    $compile(childNodes)(scope.$parent);
+                };
+            },
+            controller:'MapToolbarCtrl'
         }
+    }]).
+
+    directive('control',['yaSubscriber','yaMapEvents',function(yaSubscriber,yaMapEvents){
+        var directiveObject = {
+            restrict:'E',
+            require:'^mapToolbar',
+            scope:{},
+            link:function(scope,elm,attrs,mapToolbar){
+                var className = attrs.type[0].toUpperCase() + attrs.type.substring(1);
+                var getEvalOrValue = function(value){
+                    try{
+                        return scope.$eval(value);
+                    }catch(e){
+                        return value;
+                    }
+                };
+                var params = getEvalOrValue(attrs.params);
+                var options = attrs.options ? scope.$eval(attrs.options) : undefined;
+                var obj = new ymaps.control[className](params,options);
+                yaSubscriber.subscribeEvents(obj,attrs,scope,yaMapEvents.control);
+                mapToolbar.add(obj);
+            }
+        };
+        yaSubscriber.addEventProperty(directiveObject, yaMapEvents.control);
+        return directiveObject;
     }]).
 
     controller('GeoObjectsCtrl',['$scope',function($scope){
@@ -518,21 +648,26 @@ angular.module('yaMap',[]).
         return directiveObject;
     }]).
 
-    directive('mapMarker',['yaSubscriber','yaMapEvents',function(yaSubscriber,yaMapEvents){
+    directive('mapMarker',['yaSubscriber','yaMapEvents','templateLayoutFactory',function(yaSubscriber,yaMapEvents,templateLayoutFactory){
         var directiveObject = {
             require:'^mapCluster',
             restrict:'E',
             scope:{
                 source:'=',
-                showBalloon:'=yaShowBalloon'
+                showBalloon:'=yaShowBalloon',
+                afterInit:'&'
             },
             link:function(scope,elm,attrs,mapCluster){
                 var obj;
                 var options = attrs.options ? scope.$eval(attrs.options) : undefined;
+                if(options && options.balloonContentLayout){
+                    options.balloonContentLayout = templateLayoutFactory.get(options.balloonContentLayout);
+                }
                 var createGeoObject = function(from, options){
                     obj = new  ymaps.GeoObject(from, options);
                     yaSubscriber.subscribeEvents(obj,attrs,scope,yaMapEvents.geoObject);
                     mapCluster.add(obj);
+                    scope.afterInit({$geoObject:obj});
                     checkShowBalloon(scope.showBalloon);
                 };
                 scope.$watch('source',function(newValue){
@@ -548,7 +683,7 @@ angular.module('yaMap',[]).
                         }else{
                             createGeoObject(newValue,options);
                         }
-                    }else{
+                    }else if(obj){
                         mapCluster.remove(obj);
                     }
                 },function(){return true;});
@@ -576,18 +711,23 @@ angular.module('yaMap',[]).
         return directiveObject;
     }]).
 
-    directive('geoObject',['GEOMETRY_TYPES','yaMapEvents','yaSubscriber',function(GEOMETRY_TYPES, yaMapEvents,yaSubscriber){
+    directive('geoObject',['GEOMETRY_TYPES','yaMapEvents','yaSubscriber','templateLayoutFactory',function(GEOMETRY_TYPES, yaMapEvents,yaSubscriber,templateLayoutFactory){
         var directiveObject = {
             require:'^geoObjects',
             restrict:'E',
             scope:{
                 source:'=',
                 editor:'=editorMenuManager',
-                showBalloon:'=yaShowBalloon'
+                showBalloon:'=yaShowBalloon',
+                afterInit:'&'
             },
             link:function(scope,elm,attrs,geoObjects){
                 var obj;
                 var options = attrs.options ? scope.$eval(attrs.options) : undefined;
+                if(options && options.balloonContentLayout){
+                    options.balloonContentLayout = templateLayoutFactory.get(options.balloonContentLayout);
+                }
+
                 if(scope.editor){
                     if(!options){
                         options={};
@@ -599,6 +739,7 @@ angular.module('yaMap',[]).
                     obj = new ymaps.GeoObject(from, options);
                     yaSubscriber.subscribeEvents(obj,attrs,scope,yaMapEvents.geoObject);
                     geoObjects.add(obj);
+                    scope.afterInit({$geoObject:obj});
                     checkEditing(attrs.yaEdit);
                     checkDrawing(attrs.yaDraw);
                     checkShowBalloon(scope.showBalloon);
@@ -619,7 +760,7 @@ angular.module('yaMap',[]).
                         }else{
                             createGeoObject(newValue,options);
                         }
-                    }else{
+                    }else if(obj){
                         geoObjects.remove(obj);
                     }
                 },function(){return true;});

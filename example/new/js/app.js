@@ -282,6 +282,38 @@ angular.module('myApp', ['yaMap'], function($routeProvider, $locationProvider) {
             templateUrl:'partials/add-bounds-objects.html',
             controller:AddBoundsObjectsCtrl
         })
+        .when('/geoquery/route-mkad',{
+            templateUrl:'partials/route-mkad.html',
+            controller:RouteMKADCtrl
+        })
+        .when('/geoquery/geocode-result-view',{
+            templateUrl:'partials/geocode-result-view.html',
+            controller:GeocodeResultViewCtrl
+        })
+        .when('/behaviors/map',{
+            templateUrl:'partials/behaviors.html',
+            controller:EmptyCtrl
+        })
+        .when('/events/geoobect',{
+            templateUrl:'partials/geoobject-events.html',
+            controller:GeoObjectEventsCtrl
+        })
+        .when('/events/coordinate-click',{
+            templateUrl:'partials/click-coordinate.html',
+            controller:ClickCoordinateCtrl
+        })
+        .when('/events/edit-geoobject',{
+            templateUrl:'partials/edit-geoobject.html',
+            controller:EditGeoobjectCtrl
+        })
+        .when('/events/change-color',{
+            templateUrl:'partials/change-color.html',
+            controller:ChangeColorCtrl
+        })
+        .when('/template/balloon',{
+            templateUrl:'partials/balloon-template.html',
+            controller:BalloonTemplateCtrl
+        })
     ;
 
     // configure html5 to get links working on jsfiddle
@@ -407,42 +439,46 @@ function DynamicBalloonCtrl($scope, $timeout){
 
         // Имитация задержки при загрузке данных (для демонстрации примера).
         $timeout(function () {
-            ymaps.geocode(obj.geometry.getCoordinates(), {
-                results: 1
-            }).then(function (res) {
-                    var newContent = res.geoObjects.get(0) ?
-                        res.geoObjects.get(0).properties.get('name') :
-                        'Не удалось определить адрес.';
+                ymaps.geocode(obj.geometry.getCoordinates(), {
+                    results: 1
+                }).then(
+                    function (res) {
+                         var newContent = res.geoObjects.get(0) ?
+                         res.geoObjects.get(0).properties.get('name') :
+                         'Не удалось определить адрес.';
 
-                    // Задаем новое содержимое балуна в соответствующее свойство метки.
-                    obj.properties.set('balloonContent', newContent);
-                });
-        }, 1500);
+                         // Задаем новое содержимое балуна в соответствующее свойство метки.
+                         obj.properties.set('balloonContent', newContent);
+                    }, function(err){
+                        console.log(err);
+                    });
+            }, 1500
+        );
     };
 }
 
-function OwnMapCtrl($scope){
+function OwnMapCtrl($scope, yaLayer, layerStorage,mapTypeStorage,yaMapType){
     $scope.mapInit = function() {
         // Создадим собственный слой карты:
         var MyLayer = function () {
-            return new ymaps.Layer(
-                // Зададим функцию, преобразующую номер тайла
-                // и уровень масштабировая в URL тайла на сервере.
-                function (tile, zoom) {
-                    return "http://mt.gmapuploader.com/tiles/FVSH1JsvdT/tile-" + zoom + "-" +
-                        (tile[1] * Math.pow(2, zoom) + tile[0]) + ".jpg";
-                }
-            );
+            return yaLayer.create(function (tile, zoom) {
+                return "http://mt.gmapuploader.com/tiles/FVSH1JsvdT/tile-" + zoom + "-" +
+                    (tile[1] * Math.pow(2, zoom) + tile[0]) + ".jpg";
+            });
         };
 
         // Добавим конструктор слоя в хранилище слоёв под ключом my#layer.
-        ymaps.layer.storage.add('my#layer', MyLayer);
+        layerStorage.get(function(storage){
+            storage.add('my#layer', MyLayer);
+        });
         // Создадим новый тип карты, состоящий только из нашего слоя тайлов,
         // и добавим его в хранилище типов карты под ключом my#type.
-        ymaps.mapType.storage.add('my#type', new ymaps.MapType(
-            'Схема',
-            ['my#layer']
-        ));
+        mapTypeStorage.get(function(storage){
+            storage.add('my#type', yaMapType.create(
+                'Схема',
+                ['my#layer']
+            ));
+        });
     };
 }
 
@@ -907,5 +943,226 @@ function AddBoundsObjectsCtrl($scope){
         var visibleObjects = objects.searchInside(myMap).addToMap(myMap);
         // Оставшиеся объекты будем удалять с карты.
         objects.remove(visibleObjects).removeFromMap(myMap);
+    };
+}
+
+function RouteMKADCtrl($scope, $http){
+    $http.get('/json/moscow.json').success(
+        function(moscow){
+            $scope.moscow= {geometry:moscow};
+        }
+    );
+    $scope.added = function(event){
+        var child = event.get('child');
+        if(child.geometry.getType()==='Polygon'){
+            var map = child.getMap();
+            ymaps.route([[37.527034,55.654884], [37.976100,55.767305]]).then(
+                function (res) {
+                    // Объединим в выборку все сегменты маршрута.
+                    var pathsObjects = ymaps.geoQuery(res.getPaths()),
+                        edges = [];
+
+                    // Переберем все сегменты и разобьем их на отрезки.
+                    pathsObjects.each(function (path) {
+                        var coordinates = path.geometry.getCoordinates();
+                        for (var i = 1, l = coordinates.length; i < l; i++) {
+                            edges.push({
+                                type: 'LineString',
+                                coordinates: [coordinates[i], coordinates[i - 1]]
+                            });
+                        }
+                    });
+
+                    // Создадим новую выборку, содержащую:
+                    // - отрезки, описываюшие маршрут;
+                    // - начальную и конечную точки;
+                    // - промежуточные точки.
+                    var routeObjects = ymaps.geoQuery(edges)
+                            .add(res.getWayPoints())
+                            .add(res.getViaPoints())
+                            .setOptions('strokeWidth', 3)
+                            .addToMap(map),
+                    // Найдем все объекты, попадающие внутрь МКАД.
+                        objectsInMoscow = routeObjects.searchInside(child),
+                    // Найдем объекты, пересекающие МКАД.
+                        boundaryObjects = routeObjects.searchIntersect(child);
+                    // Раскрасим в разные цвета объекты внутри, снаружи и пересекающие МКАД.
+                    boundaryObjects.setOptions({
+                        strokeColor: '#06ff00',
+                        preset: 'twirl#greenIcon'
+                    });
+                    objectsInMoscow.setOptions({
+                        strokeColor: '#ff0005',
+                        preset: 'twirl#redIcon'
+                    });
+                    // Объекты за пределами МКАД получим исключением полученных выборок из
+                    // исходной.
+                    routeObjects.remove(objectsInMoscow).remove(boundaryObjects).setOptions({
+                        strokeColor: '#0010ff',
+                        preset: 'twirl#blueIcon'
+                    });
+                }
+            );
+        }
+    };
+}
+
+function GeocodeResultViewCtrl($scope){
+    $scope.afterInit = function(map){
+        var result = ymaps.geoQuery(ymaps.geocode('Арбат')).applyBoundsToMap(map);
+        // Откластеризуем полученные объекты и добавим кластеризатор на карту.
+        // Обратите внимание, что кластеризатор будет создан сразу, а объекты добавлены в него
+        // только после того, как будет получен ответ от сервера.
+        map.geoObjects.add(result.clusterize());
+    }
+}
+
+function GeoObjectEventsCtrl($scope){
+    var circle = {
+        geometry:{
+            type:'Circle',
+            radius:1000000
+        },
+        properties:{
+            balloonContentBody: 'Балун',
+            hintContent: 'Хинт'
+        }
+    };
+    $scope.log = [];
+    $scope.afterInit=function(map){
+        circle.geometry.coordinates = map.getCenter();
+        $scope.circle = circle;
+    };
+    $scope.run = function(event){
+        $scope.log.push('@' + event.get('type'));
+    };
+    var geoObj;
+    $scope.setObject = function(geoObject){
+        geoObj = geoObject;
+    };
+    $scope.balloonHeader = function(e){
+        geoObj.properties.set('balloonContentHeader', e.get('type') == 'select' ? 'Заголовок' : undefined);
+    };
+    $scope.geodes = function(e){
+        geoObj.options.set('geodesic', e.get('type') == 'select');
+    };
+    $scope.changeRadius = function(e){
+        geoObj.geometry.setRadius(e.get('type') == 'select' ? 2000000 : 1000000);
+    };
+}
+
+function ClickCoordinateCtrl($scope){
+    var map;
+    $scope.afterInit = function($map){
+        map = $map;
+    };
+    $scope.mapClick = function(e){
+        if (!map.balloon.isOpen()) {
+            var coords = e.get('coordPosition');
+            map.balloon.open(coords, {
+                contentHeader:'Событие!',
+                contentBody:'<p>Кто-то щелкнул по карте.</p>' +
+                    '<p>Координаты щелчка: ' + [
+                    coords[0].toPrecision(6),
+                    coords[1].toPrecision(6)
+                ].join(', ') + '</p>',
+                contentFooter:'<sup>Щелкните еще раз</sup>'
+            });
+        }
+        else {
+            map.balloon.close();
+        }
+    };
+    $scope.handleContext = function(e){
+        map.hint.show(e.get('coordPosition'), 'Кто-то щелкнул правой кнопкой');
+    };
+}
+
+function EditGeoobjectCtrl($scope){
+    var geoObj;
+    $scope.afterInit=function(geoObject){
+        geoObj = geoObject;
+        $scope.params ={
+            iconContent:geoObject.properties.get('iconContent'),
+            hintContent:geoObject.properties.get('hintContent'),
+            balloonContent:geoObject.properties.get('balloonContent')
+        };
+    };
+    $scope.save = function(){
+        $scope.show = false;
+        geoObj.properties.set($scope.params);
+    };
+    $scope.point = {
+        geometry:{
+            type:'Point',
+            coordinates:[42.10,47.60]
+        },
+        properties:{
+            hintContent: 'Щелкни по мне правой кнопкой мыши!'
+        }
+    };
+    $scope.contextmenu = function(e){
+        $scope.show = !$scope.show;
+        if($scope.show){
+            $scope.clickCoords = e.get('position');
+        }
+    };
+}
+
+function ChangeColorCtrl($scope){
+    $scope.point = {
+        geometry:{
+            type:'Point',
+            coordinates:[37.617761,55.755773]
+        }
+    };
+    $scope.mouseenter=function(e){
+        e.get('target').options.set('preset', 'twirl#greenIcon');
+    };
+    $scope.mouseleave=function(e){
+        e.get('target').options.unset('preset');
+    };
+}
+
+function BalloonTemplateCtrl($scope,templateLayoutFactory){
+    var counter=0;
+    $scope.overrides={
+        build: function () {
+            // Сначала вызываем метод build родительского класса.
+            console.log('build');
+            var BalloonContentLayout = templateLayoutFactory.get('templateOne');
+            BalloonContentLayout.superclass.build.call(this);
+            // А затем выполняем дополнительные действия.
+            angular.element(document.getElementById('counter-button')).bind('click', this.onCounterClick);
+            angular.element(document.getElementById('count')).html(counter);
+        },
+
+        // Аналогично переопределяем функцию clear, чтобы снять
+        // прослушивание клика при удалении макета с карты.
+        clear: function () {
+            // Выполняем действия в обратном порядке - сначала снимаем слушателя,
+            // а потом вызываем метод clear родительского класса.
+            angular.element(document.getElementById('counter-button')).unbind('click', this.onCounterClick);
+            var BalloonContentLayout = templateLayoutFactory.get('templateOne');
+            BalloonContentLayout.superclass.clear.call(this);
+        },
+
+        onCounterClick: function () {
+            angular.element(document.getElementById('count')).html(++counter);
+            if (counter == 5) {
+                alert('Вы славно потрудились.');
+                counter = 0;
+                angular.element(document.getElementById('count')).html(counter);
+            }
+        }
+    };
+    $scope.point = {
+        geometry:{
+            type:'Point',
+            coordinates:[37.62708,55.650625]
+        },
+        properties: {
+            name: 'Считаем'
+        }
     };
 }

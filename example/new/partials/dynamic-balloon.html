@@ -34,17 +34,21 @@ $scope.balloonOpen = function($event){
 
     // Имитация задержки при загрузке данных (для демонстрации примера).
     $timeout(function () {
-        ymaps.geocode(obj.geometry.getCoordinates(), {
-            results: 1
-        }).then(function (res) {
-                var newContent = res.geoObjects.get(0) ?
-                    res.geoObjects.get(0).properties.get('name') :
-                    'Не удалось определить адрес.';
+            ymaps.geocode(obj.geometry.getCoordinates(), {
+                results: 1
+            }).then(
+                function (res) {
+                     var newContent = res.geoObjects.get(0) ?
+                     res.geoObjects.get(0).properties.get('name') :
+                     'Не удалось определить адрес.';
 
-                // Задаем новое содержимое балуна в соответствующее свойство метки.
-                obj.properties.set('balloonContent', newContent);
-            });
-    }, 1500);
+                     // Задаем новое содержимое балуна в соответствующее свойство метки.
+                     obj.properties.set('balloonContent', newContent);
+                }, function(err){
+                    console.log(err);
+                });
+        }, 1500
+    );
 };
     </pre>
 </div>

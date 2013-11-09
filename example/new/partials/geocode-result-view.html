@@ -1,0 +1,26 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-map zoom="8" center="[37.721587,55.30954]" after-init="afterInit($map)"&gt;
+    &lt;geo-objects&gt;
+        &lt;geo-object&gt;&lt;/geo-object&gt;
+    &lt;/geo-objects&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js">
+$scope.afterInit = function(map){
+    var result = ymaps.geoQuery(ymaps.geocode('Арбат')).applyBoundsToMap(map);
+    // Откластеризуем полученные объекты и добавим кластеризатор на карту.
+    // Обратите внимание, что кластеризатор будет создан сразу, а объекты добавлены в него
+    // только после того, как будет получен ответ от сервера.
+    map.geoObjects.add(result.clusterize());
+}</pre>
+</div>
+<div class="right">
+    <ya-map zoom="8" center="[37.721587,55.30954]" after-init="afterInit($map)">
+        <geo-objects>
+            <geo-object></geo-object>
+        </geo-objects>
+    </ya-map>
+</div>

@@ -2,9 +2,9 @@
     <p>HTML:</p>
     <pre class="html">
 &lt;ya-map zoom="9" center="[37.500737,55.709243]" options="{minZoom:9,maxZoom:10}"&gt;
-    &lt;map-controls&gt;
-        &lt;map-control name="smallZoomControl" options="{top:5}"&gt;&lt;/map-control&gt;
-    &lt;/map-controls&gt;
+    &lt;map-toolbars&gt;
+        &lt;map-toolbar name="smallZoomControl" options="{top:5}"&gt;&lt;/map-toolbar&gt;
+    &lt;/map-toolbars&gt;
     &lt;image-layer url-template="examples/maps/ru/hotspot_layer/images/%z/tile_x=%x&y=%y.png"
                  options="{tileTransparent:true}"&gt;&lt;/image-layer&gt;
     &lt;hotspot-layer url-template="examples/maps/ru/hotspot_layer/hotspot_data/%z/tile_x=%x&y=%y"
@@ -15,9 +15,9 @@
 </div>
 <div class="right">
     <ya-map zoom="9" center="[37.500737,55.709243]" options="{minZoom:9,maxZoom:10}">
-        <map-controls>
-            <map-control name="smallZoomControl" options="{top:5}"></map-control>
-        </map-controls>
+        <map-toolbars>
+            <map-toolbar name="smallZoomControl" options="{top:5}"></map-toolbar>
+        </map-toolbars>
         <image-layer url-template="img/%z/tile_x=%x&y=%y.png"
                 options="{tileTransparent:true}"></image-layer>
         <hotspot-layer

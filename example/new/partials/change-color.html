@@ -1,0 +1,38 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-map zoom="9" center="[37.617761,55.755773]"&gt;
+    &lt;geo-objects&gt;
+        &lt;geo-object source="point"
+                    ya-mouseenter="mouseenter($event)"
+                    ya-mouseleave="mouseleave($event)"
+                &gt;&lt;/geo-object&gt;
+    &lt;/geo-objects&gt;
+&lt;/ya-map>
+    </pre>
+    <p>javascript:</p>
+    <pre class="js">
+$scope.point = {
+    geometry:{
+        type:'Point',
+        coordinates:[37.617761,55.755773]
+    }
+};
+$scope.mouseenter=function(e){
+    e.get('target').options.set('preset', 'twirl#greenIcon');
+};
+$scope.mouseleave=function(e){
+    e.get('target').options.unset('preset');
+};
+</pre>
+</div>
+<div class="right">
+    <ya-map zoom="9" center="[37.617761,55.755773]">
+        <geo-objects>
+            <geo-object source="point"
+                        ya-mouseenter="mouseenter($event)"
+                        ya-mouseleave="mouseleave($event)"
+                    ></geo-object>
+        </geo-objects>
+    </ya-map>
+</div>
