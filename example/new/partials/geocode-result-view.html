@@ -2,25 +2,52 @@
     <p>HTML:</p>
     <pre class="html">
 &lt;ya-map zoom="8" center="[37.721587,55.30954]" after-init="afterInit($map)"&gt;
-    &lt;geo-objects&gt;
-        &lt;geo-object&gt;&lt;/geo-object&gt;
-    &lt;/geo-objects&gt;
+    &lt;map-cluster&gt;
+        &lt;map-marker source="o" ng-repeat="o in res" after-init="ifLast($last)"&gt;&lt;/map-marker&gt;
+    &lt;/map-cluster&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
     <pre class="js">
+var _map;
+$scope.ifLast = function(last){
+    if(!last){
+        return;
+    }
+    _map.geoObjects.each(function(obj){
+        _map.setBounds(obj.getBounds());
+        return false;
+    });
+};
 $scope.afterInit = function(map){
-    var result = ymaps.geoQuery(ymaps.geocode('Арбат')).applyBoundsToMap(map);
-    // Откластеризуем полученные объекты и добавим кластеризатор на карту.
-    // Обратите внимание, что кластеризатор будет создан сразу, а объекты добавлены в него
-    // только после того, как будет получен ответ от сервера.
-    map.geoObjects.add(result.clusterize());
+    _map=map;
+    ymaps.geocode('Арбат').then(
+        function(res){
+            var geos = [];
+            res.geoObjects.each(function(obj){
+                //console.log(obj);
+                geos.push({
+                    geometry:{
+                        type:obj.geometry.getType(),
+                        coordinates:obj.geometry.getCoordinates()
+                    },
+                    properties:{
+                        balloonContentBody:obj.properties.get('balloonContentBody')
+                    }
+                });
+            });
+            $scope.$apply(function(){
+                $scope.res = geos;
+            });
+        }
+    );
+}
 }</pre>
 </div>
 <div class="right">
     <ya-map zoom="8" center="[37.721587,55.30954]" after-init="afterInit($map)">
-        <geo-objects>
-            <geo-object></geo-object>
-        </geo-objects>
+        <map-cluster>
+            <map-marker source="o" ng-repeat="o in res" after-init="ifLast($last)"></map-marker>
+        </map-cluster>
     </ya-map>
 </div>

@@ -52,3 +52,26 @@ pre.html,pre.js,pre.css{
 #menu input {
     width: 10em;
 }
+.my-button-selected {
+    color: #333333;
+    background-color: #e6e6e6;
+    outline: 2px dashed #333;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+}
+
+.my-button {
+    display: inline-block;
+    padding: 4px 14px;
+    margin-bottom: 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: #333333;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #f5f5f5;
+    border: 1px solid #bbbbbb;
+    border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+    font-family: Arial;
+}

@@ -314,6 +314,18 @@ angular.module('myApp', ['yaMap'], function($routeProvider, $locationProvider) {
             templateUrl:'partials/balloon-template.html',
             controller:BalloonTemplateCtrl
         })
+        .when('/template/batton',{
+            templateUrl:'partials/batton-template.html',
+            controller:EmptyCtrl
+        })
+        .when('/template/zoom',{
+            templateUrl:'partials/zoom-template.html',
+            controller:ZoomTemplateCtrl
+        })
+        .when('/template/list-box',{
+            templateUrl:'partials/list-box-template.html',
+            controller:ListBoxTemplateCtrl
+        })
     ;
 
     // configure html5 to get links working on jsfiddle
@@ -835,22 +847,6 @@ function CreateClusterCtrl($scope){
 
 function PointInsideCircleCtrl($scope){
     var objects;
-    $scope.afterInit=function(map){
-        objects = ymaps.geoQuery([
-            {
-                type: 'Point',
-                coordinates: [37.75,55.73]
-            },
-            {
-                type: 'Point',
-                coordinates: [37.45,55.10]
-            },
-            {
-                type: 'Point',
-                coordinates: [37.35,55.25]
-            }
-        ]).addToMap(map);
-    };
     $scope.circle = {
         geometry:{
             type:'Circle',
@@ -858,7 +854,30 @@ function PointInsideCircleCtrl($scope){
             radius:10000
         }
     };
-    $scope.drag = function(event){
+    $scope.geoQuerySource = [
+        {
+            geometry:{
+                type: 'Point',
+                coordinates: [37.75,55.73]
+            }
+        },
+        {
+            geometry:{
+                type: 'Point',
+                coordinates: [37.45,55.10]
+            }
+        },
+        {
+            geometry:{
+                type: 'Point',
+                coordinates: [37.35,55.25]
+            }
+        }
+    ];
+    $scope.drag = function(event, collection){
+        if(!objects){
+            objects = ymaps.geoQuery(collection);
+        }
         var circle = event.get('target');
         var objectsInsideCircle = objects.searchInside(circle);
         objectsInsideCircle.setOptions('preset', 'twirl#redIcon');
@@ -868,81 +887,76 @@ function PointInsideCircleCtrl($scope){
 }
 
 function FindObjectsCtrl($scope){
-    function findClosestObjects () {
-        // Найдем в выборке кафе, ближайшее к найденной станции метро,
-        // и откроем его балун.
-        cafe.getClosestTo(metro.get(0)).balloon.open();
-    }
-    var cafe, metro;
-    $scope.afterInit=function(map){
-        cafe = ymaps.geoQuery({
-            type: 'FeatureCollection',
-            features: [{
-                type: 'Feature',
-                properties: {
-                    balloonContent: 'Кофейня "Дарт Вейдер" - у нас есть печеньки!'
-                },
-                geometry: {
-                    type: 'Point',
-                    coordinates: [37.545849,55.724166]
-                }
-            }, {
-                type: 'Feature',
-                properties: {
-                    balloonContent: 'Кафе "Горлум" - пирожные прелесть.'
-                },
-                geometry: {
-                    type: 'Point',
-                    coordinates: [37.567886,55.717495]
-                }
-            }, {
-                type: 'Feature',
-                properties: {
-                    balloonContent: 'Кафе "Кирпич" - крепкий кофе для крепких парней.'
-                },
-                geometry: {
-                    type: 'Point',
-                    coordinates: [37.631057,55.7210180]
-                }
+    var cafe;
+    $scope.cafes = [
+        {
+            properties: {
+                balloonContent: 'Кофейня "Дарт Вейдер" - у нас есть печеньки!'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [37.545849,55.724166]
             }
-            ]
-            // Сразу добавим точки на карту.
-        }).addToMap(map);
-        // Координаты станции метро получим через геокодер.
-        metro = ymaps.geoQuery(ymaps.geocode('Москва, Кропоткинская', {kind: 'metro'}))
-            // Нужно дождаться ответа от сервера и только потом обрабатывать полученные результаты.
-            .then(findClosestObjects);
-    };
-    $scope.mapClick=function(event){
+        }, {
+            properties: {
+                balloonContent: 'Кафе "Горлум" - пирожные прелесть.'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [37.567886,55.717495]
+            }
+        }, {
+            properties: {
+                balloonContent: 'Кафе "Кирпич" - крепкий кофе для крепких парней.'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [37.631057,55.7210180]
+            }
+        }
+    ];
+    $scope.mapClick=function(event, geoQueryCollection){
+        if(!cafe){
+            cafe = ymaps.geoQuery(geoQueryCollection);
+        }
         cafe.getClosestTo(event.get('coordPosition')).balloon.open();
     };
 }
 
 function AddBoundsObjectsCtrl($scope){
-    var objects;
-    $scope.afterInit=function(map){
-        objects = ymaps.geoQuery([{
+    var searchInside = function(geoObjects, bounds){
+        var coord, results = [];
+        for (var i = 0, ii = geoObjects.length; i < ii; i++) {
+            coord = geoObjects[i].geometry.coordinates;
+            if(coord[0]>bounds[0][0]
+                && coord[0]<bounds[1][0]
+                && coord[1]>bounds[0][1]
+                && coord[1]<bounds[1][1]){
+                results.push(geoObjects[i]);
+            }
+        }
+        return results;
+    };
+    var points = [
+        {geometry:{
             type: 'Point',
             coordinates: [37.75,55.73]
-        }, {
+        }},{geometry:{
             type: 'Point',
             coordinates: [37.45,55.10]
-        }, {
+        }},{geometry:{
             type: 'Point',
             coordinates: [37.35,55.25]
-        }, {
+        }},{geometry:{
             type: 'Point',
             coordinates: [67.35,55.25]
-        }]);
-        objects.searchInside(map)
-            // И затем добавим найденные объекты на карту.
-            .addToMap(map);
+        }}];
+    $scope.afterInit=function(map){
+        $scope.onMap = searchInside(points, map.getBounds());
     };
     $scope.mapBoundschange=function(event){
         var myMap = event.get('target');
-        var visibleObjects = objects.searchInside(myMap).addToMap(myMap);
-        // Оставшиеся объекты будем удалять с карты.
-        objects.remove(visibleObjects).removeFromMap(myMap);
+        $scope.onMap = searchInside(points, myMap.getBounds());
     };
 }
 
@@ -952,69 +966,109 @@ function RouteMKADCtrl($scope, $http){
             $scope.moscow= {geometry:moscow};
         }
     );
+    $scope.afterInit = function(geoObject, collection, last){
+        if(!last){
+            return;
+        }
+        var routeObjects = ymaps.geoQuery(collection);
+        var objectsInMoscow = routeObjects.searchInside(moscow);
+        objectsInMoscow.setOptions(
+            {
+                strokeColor: '#ff0005',
+                preset: 'twirl#redIcon'
+            }
+        );
+        routeObjects.remove(objectsInMoscow).setOptions({
+            strokeColor: '#0010ff',
+            preset: 'twirl#blueIcon'
+        });
+    };
+    var moscow;
     $scope.added = function(event){
-        var child = event.get('child');
-        if(child.geometry.getType()==='Polygon'){
-            var map = child.getMap();
-            ymaps.route([[37.527034,55.654884], [37.976100,55.767305]]).then(
-                function (res) {
-                    // Объединим в выборку все сегменты маршрута.
-                    var pathsObjects = ymaps.geoQuery(res.getPaths()),
-                        edges = [];
+        moscow = event.get('child');
+        ymaps.route([[37.527034,55.654884], [37.976100,55.767305]]).then(
+            function (res) {
+                // Объединим в выборку все сегменты маршрута.
+                var pathsObjects = ymaps.geoQuery(res.getPaths()),
+                    edges = [];
 
-                    // Переберем все сегменты и разобьем их на отрезки.
-                    pathsObjects.each(function (path) {
-                        var coordinates = path.geometry.getCoordinates();
-                        for (var i = 1, l = coordinates.length; i < l; i++) {
-                            edges.push({
-                                type: 'LineString',
-                                coordinates: [coordinates[i], coordinates[i - 1]]
-                            });
+                // Переберем все сегменты и разобьем их на отрезки.
+                pathsObjects.each(function (path) {
+                    var coordinates = path.geometry.getCoordinates();
+                    for (var i = 1, l = coordinates.length; i < l; i++) {
+                        edges.push({geometry:{
+                            type: 'LineString',
+                            coordinates: [coordinates[i], coordinates[i - 1]]
+                        }});
+                    }
+                });
+                res.getWayPoints().each(function(obj){
+                    var g = obj.geometry;
+                    edges.push({
+                        geometry:{
+                            type: g.getType(),
+                            coordinates: g.getCoordinates()
+                        },
+                        properties:{
+                            iconContent:obj.properties.get('iconContent')
                         }
                     });
-
-                    // Создадим новую выборку, содержащую:
-                    // - отрезки, описываюшие маршрут;
-                    // - начальную и конечную точки;
-                    // - промежуточные точки.
-                    var routeObjects = ymaps.geoQuery(edges)
-                            .add(res.getWayPoints())
-                            .add(res.getViaPoints())
-                            .setOptions('strokeWidth', 3)
-                            .addToMap(map),
-                    // Найдем все объекты, попадающие внутрь МКАД.
-                        objectsInMoscow = routeObjects.searchInside(child),
-                    // Найдем объекты, пересекающие МКАД.
-                        boundaryObjects = routeObjects.searchIntersect(child);
-                    // Раскрасим в разные цвета объекты внутри, снаружи и пересекающие МКАД.
-                    boundaryObjects.setOptions({
-                        strokeColor: '#06ff00',
-                        preset: 'twirl#greenIcon'
+                });
+                res.getViaPoints().each(function(obj){
+                    console.log(obj);
+                    var g = obj.geometry;
+                    edges.push({
+                        geometry:{
+                            type: g.getType(),
+                            coordinates: g.getCoordinates()
+                        },
+                        properties:{
+                            iconContent:obj.properties.get('iconContent')
+                        }
                     });
-                    objectsInMoscow.setOptions({
-                        strokeColor: '#ff0005',
-                        preset: 'twirl#redIcon'
-                    });
-                    // Объекты за пределами МКАД получим исключением полученных выборок из
-                    // исходной.
-                    routeObjects.remove(objectsInMoscow).remove(boundaryObjects).setOptions({
-                        strokeColor: '#0010ff',
-                        preset: 'twirl#blueIcon'
-                    });
-                }
-            );
-        }
+                });
+                $scope.$apply(function(){
+                    $scope.edges = edges;
+                });
+            }
+        );
     };
 }
 
 function GeocodeResultViewCtrl($scope){
+    var _map;
+    $scope.ifLast = function(last){
+        if(!last){
+            return;
+        }
+        _map.geoObjects.each(function(obj){
+            _map.setBounds(obj.getBounds());
+            return false;
+        });
+    };
     $scope.afterInit = function(map){
-        var result = ymaps.geoQuery(ymaps.geocode('Арбат')).applyBoundsToMap(map);
-        // Откластеризуем полученные объекты и добавим кластеризатор на карту.
-        // Обратите внимание, что кластеризатор будет создан сразу, а объекты добавлены в него
-        // только после того, как будет получен ответ от сервера.
-        map.geoObjects.add(result.clusterize());
-    }
+        _map=map;
+        ymaps.geocode('Арбат').then(
+            function(res){
+                var geos = [];
+                res.geoObjects.each(function(obj){
+                    //console.log(obj);
+                    geos.push({
+                        geometry:{
+                            type:obj.geometry.getType(),
+                            coordinates:obj.geometry.getCoordinates()
+                        },
+                        properties:{
+                            balloonContentBody:obj.properties.get('balloonContentBody')
+                        }
+                    });
+                });
+                $scope.$apply(function(){
+                    $scope.res = geos;
+                });
+            }
+        );
+    };
 }
 
 function GeoObjectEventsCtrl($scope){
@@ -1129,7 +1183,6 @@ function BalloonTemplateCtrl($scope,templateLayoutFactory){
     $scope.overrides={
         build: function () {
             // Сначала вызываем метод build родительского класса.
-            console.log('build');
             var BalloonContentLayout = templateLayoutFactory.get('templateOne');
             BalloonContentLayout.superclass.build.call(this);
             // А затем выполняем дополнительные действия.
@@ -1166,3 +1219,102 @@ function BalloonTemplateCtrl($scope,templateLayoutFactory){
         }
     };
 }
+
+function ZoomTemplateCtrl($scope,templateLayoutFactory){
+    $scope.over={
+        build: function () {
+            // Вызываем родительский метод build.
+            var ZoomLayout = templateLayoutFactory.get('zoomTemplate');
+            ZoomLayout.superclass.build.call(this);
+
+            // Привязываем функции-обработчики к контексту и сохраняем ссылки
+            // на них, чтобы потом отписаться от событий.
+            this.zoomInCallback = ymaps.util.bind(this.zoomIn, this);
+            this.zoomOutCallback = ymaps.util.bind(this.zoomOut, this);
+
+            // Начинаем слушать клики на кнопках макета.
+            angular.element(document.getElementById('zoom-in')).bind('click', this.zoomInCallback);
+            angular.element(document.getElementById('zoom-out')).bind('click', this.zoomOutCallback);
+        },
+
+        clear: function () {
+            // Снимаем обработчики кликов.
+            angular.element(document.getElementById('zoom-in')).unbind('click', this.zoomInCallback);
+            angular.element(document.getElementById('zoom-out')).unbind('click', this.zoomOutCallback);
+
+            // Вызываем родительский метод clear.
+            var ZoomLayout = templateLayoutFactory.get('zoomTemplate');
+            ZoomLayout.superclass.clear.call(this);
+        },
+
+        zoomIn: function () {
+            var map = this.getData().control.getMap();
+            // Генерируем событие, в ответ на которое
+            // элемент управления изменит коэффициент масштабирования карты.
+            this.events.fire('zoomchange', {
+                oldZoom: map.getZoom(),
+                newZoom: map.getZoom() + 1
+            });
+        },
+
+        zoomOut: function () {
+            var map = this.getData().control.getMap();
+            this.events.fire('zoomchange', {
+                oldZoom: map.getZoom(),
+                newZoom: map.getZoom() - 1
+            });
+        }
+    };
+}
+
+function ListBoxTemplateCtrl($scope,templateLayoutFactory){
+    $scope.overList={
+        build: function() {
+            // Вызываем метод build родительского класса перед выполнением
+            // дополнительных действий.
+            var ListBoxLayout = templateLayoutFactory.get('listBoxTemplate');
+            ListBoxLayout.superclass.build.call(this);
+
+            this.childContainerElement = angular.element(document.getElementById('my-listbox'))[0];
+            // Генерируем специальное событие, оповещающее элемент управления
+            // о смене контейнера дочерних элементов.
+            this.events.fire('childcontainerchange', {
+                newChildContainerElement: this.childContainerElement,
+                oldChildContainerElement: null
+            });
+        },
+
+        // Переопределяем интерфейсный метод, возвращающий ссылку на
+        // контейнер дочерних элементов.
+        getChildContainerElement: function () {
+            return this.childContainerElement;
+        },
+
+        clear: function () {
+            // Заставим элемент управления перед очисткой макета
+            // откреплять дочерние элементы от родительского.
+            // Это защитит нас от неожиданных ошибок,
+            // связанных с уничтожением dom-элементов в ранних версиях ie.
+            this.events.fire('childcontainerchange', {
+                newChildContainerElement: null,
+                oldChildContainerElement: this.childContainerElement
+            });
+            this.childContainerElement = null;
+            // Вызываем метод clear родительского класса после выполнения
+            // дополнительных действий.
+            var ListBoxLayout = templateLayoutFactory.get('listBoxTemplate');
+            ListBoxLayout.superclass.clear.call(this);
+        }
+    };
+    $scope.click = function(e){
+        var item = e.get('target');
+        if (item.data.get('title') != 'Выберите пункт') {
+            var myMap = item.getMap();
+            myMap.setCenter(
+                item.data.get('center'),
+                item.data.get('zoom')
+            );
+        }
+    };
+}
+

@@ -260,7 +260,10 @@ angular.module('yaMap',[]).
             obj.events.add(eventName,function(event){
                 setTimeout(function(){
                     scope.$apply(function(){
-                        scope[attrName]({$event:event});
+                        scope[attrName]({
+                            $event:event,
+                            $geoQueryCollection: scope.getGeoQueryCollection ? scope.getGeoQueryCollection() : undefined
+                        });
                     });
                 });
             });
@@ -301,6 +304,7 @@ angular.module('yaMap',[]).
     directive('templateLayout',['templateLayoutFactory',function(templateLayoutFactory){
         return{
             restrict:'E',
+            priority:1001,
             scope:{
                 overrides:'='
             },
@@ -321,9 +325,17 @@ angular.module('yaMap',[]).
     controller('YaMapCtrl',['$scope','mapApiLoad',function($scope,mapApiLoad){
         var self = this;
         mapApiLoad(function(){
-            self.addCollection = function(collection){
+            var geoQueryCollection;
+            self.addCollection = function(collection, isGeoQuery){
                 $scope.map.geoObjects.add(collection);
+                if(isGeoQuery){
+                    geoQueryCollection = collection;
+                }
             };
+            self.getGeoQueryCollection = function(){
+                return geoQueryCollection;
+            };
+            $scope.getGeoQueryCollection = self.getGeoQueryCollection;
             self.addControl = function(name, options){
                 $scope.map.controls.add(name,options);
             };
@@ -524,7 +536,7 @@ angular.module('yaMap',[]).
         }
     }]).
 
-    directive('control',['yaSubscriber','yaMapEvents',function(yaSubscriber,yaMapEvents){
+    directive('control',['yaSubscriber','yaMapEvents','templateLayoutFactory',function(yaSubscriber,yaMapEvents,templateLayoutFactory){
         var directiveObject = {
             restrict:'E',
             require:'^mapToolbar',
@@ -540,7 +552,29 @@ angular.module('yaMap',[]).
                 };
                 var params = getEvalOrValue(attrs.params);
                 var options = attrs.options ? scope.$eval(attrs.options) : undefined;
-                var obj = new ymaps.control[className](params,options);
+                if(options && options.layout){
+                    options.layout = templateLayoutFactory.get(options.layout);
+                }
+                if(options && options.itemLayout){
+                    options.itemLayout = templateLayoutFactory.get(options.itemLayout);
+                }
+                var withoutParams = ['SearchControl','SmallZoomControl','ScaleLine','ZoomControl'];
+                var obj;
+                if(withoutParams.indexOf(className)>-1){
+                    obj = new ymaps.control[className](options);
+                }else{
+                    if(params && params.items){
+                        var items = [];
+                        var item;
+                        for (var i = 0, ii = params.items.length; i < ii; i++) {
+                            item = params.items[i];
+                            items.push(new ymaps.control.ListBoxItem(item));
+                        }
+                        params.items=items;
+                    }
+                    obj = new ymaps.control[className](params,options);
+                }
+                //todo: нужно сделать подписку на события в зависимости от типа контрола.
                 yaSubscriber.subscribeEvents(obj,attrs,scope,yaMapEvents.control);
                 mapToolbar.add(obj);
             }
@@ -555,6 +589,9 @@ angular.module('yaMap',[]).
         };
         this.remove = function(geoObject){
             $scope.collection.remove(geoObject);
+        };
+        this.getGeoQueryCollection = function(){
+            return $scope.getGeoQueryCollection();
         };
     }]).
     directive('geoObjects',['$compile','yaMapSettings','$timeout','yaMapEvents','yaSubscriber',
@@ -571,6 +608,7 @@ angular.module('yaMap',[]).
                     var settingOptions = yaMapSettings.displayOptions && yaMapSettings.displayOptions.general
                         ? yaMapSettings.displayOptions.general : {};
                     var collectionOptions = angular.extend({}, settingOptions, options);
+                    var isGeoQuery = angular.isDefined(attrs.yaGeoQuery) && attrs.yaGeoQuery!=='false';
 
                     //отобразить все элементы на карте. будет срабатывать при любом добавлении объекта на карту.
                     var showAll = angular.isDefined(attrs.showAll) && attrs.showAll!='false';
@@ -591,17 +629,10 @@ angular.module('yaMap',[]).
                         };
                         map.geoObjects.events.add('add',addEventHandler);
                     }
-                    //включение кластеризации
-                    /*var isCluster = angular.isDefined(attrs.isCluster) && attrs.isCluster!='false';
-                    if(isCluster){
-                        scope.cluster = new ymaps.Clusterer(collectionOptions);
-                        yaSubscriber.subscribeEvents(scope.cluster, attrs, scope, yaMapEvents.clusterCollections);
-                        yaMap.addCollection(scope.cluster);
-                    }*/
-
                     scope.collection = new ymaps.GeoObjectCollection({},collectionOptions);
                     yaSubscriber.subscribeEvents(scope.collection, attrs,scope,yaMapEvents.geoObjectCollections);
-                    yaMap.addCollection(scope.collection);
+                    yaMap.addCollection(scope.collection, isGeoQuery);
+                    scope.getGeoQueryCollection = yaMap.getGeoQueryCollection;
                     element.append(childNodes);
                     $compile(childNodes)(scope.$parent);
                 };
@@ -727,7 +758,7 @@ angular.module('yaMap',[]).
                 if(options && options.balloonContentLayout){
                     options.balloonContentLayout = templateLayoutFactory.get(options.balloonContentLayout);
                 }
-
+                scope.getGeoQueryCollection = geoObjects.getGeoQueryCollection;
                 if(scope.editor){
                     if(!options){
                         options={};
@@ -739,7 +770,7 @@ angular.module('yaMap',[]).
                     obj = new ymaps.GeoObject(from, options);
                     yaSubscriber.subscribeEvents(obj,attrs,scope,yaMapEvents.geoObject);
                     geoObjects.add(obj);
-                    scope.afterInit({$geoObject:obj});
+                    scope.afterInit({$geoObject:obj,$geoQueryCollection:scope.getGeoQueryCollection()});
                     checkEditing(attrs.yaEdit);
                     checkDrawing(attrs.yaDraw);
                     checkShowBalloon(scope.showBalloon);

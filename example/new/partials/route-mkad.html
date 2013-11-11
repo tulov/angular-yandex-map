@@ -3,7 +3,8 @@
     <pre class="html">
 &lt;ya-map zoom="9" center="[37.75,55.73]"&gt;
     &lt;geo-objects ya-add="added($event)"&gt;
-        &lt;geo-object source="moscow" options="{visible:false}"&gt;&lt;/geo-object&gt;
+        &lt;geo-object source="moscow" options="{visible:false}"
+            after-init="afterInit($geoObject,$geoQueryCollection, $last)"&gt;&lt;/geo-object&gt;
     &lt;/geo-objects&gt;
 &lt;/ya-map&gt;
     </pre>
@@ -14,66 +15,82 @@ $http.get('/json/moscow.json').success(
         $scope.moscow= {geometry:moscow};
     }
 );
+$scope.afterInit = function(geoObject, collection, last){
+    if(!last){
+        return;
+    }
+    var routeObjects = ymaps.geoQuery(collection);
+    var objectsInMoscow = routeObjects.searchInside(moscow);
+    objectsInMoscow.setOptions(
+        {
+            strokeColor: '#ff0005',
+            preset: 'twirl#redIcon'
+        }
+    );
+    routeObjects.remove(objectsInMoscow).setOptions({
+        strokeColor: '#0010ff',
+        preset: 'twirl#blueIcon'
+    });
+};
+var moscow;
 $scope.added = function(event){
-    var child = event.get('child');
-    if(child.geometry.getType()==='Polygon'){
-        var map = child.getMap();
-        ymaps.route([[37.527034,55.654884], [37.976100,55.767305]]).then(
-            function (res) {
-                // Объединим в выборку все сегменты маршрута.
-                var pathsObjects = ymaps.geoQuery(res.getPaths()),
-                    edges = [];
+    moscow = event.get('child');
+    ymaps.route([[37.527034,55.654884], [37.976100,55.767305]]).then(
+        function (res) {
+            // Объединим в выборку все сегменты маршрута.
+            var pathsObjects = ymaps.geoQuery(res.getPaths()),
+                edges = [];
 
-                // Переберем все сегменты и разобьем их на отрезки.
-                pathsObjects.each(function (path) {
-                    var coordinates = path.geometry.getCoordinates();
-                    for (var i = 1, l = coordinates.length; i < l; i++) {
-                        edges.push({
-                            type: 'LineString',
-                            coordinates: [coordinates[i], coordinates[i - 1]]
-                        });
+            // Переберем все сегменты и разобьем их на отрезки.
+            pathsObjects.each(function (path) {
+                var coordinates = path.geometry.getCoordinates();
+                for (var i = 1, l = coordinates.length; i < l; i++) {
+                    edges.push({geometry:{
+                        type: 'LineString',
+                        coordinates: [coordinates[i], coordinates[i - 1]]
+                    }});
+                }
+            });
+            res.getWayPoints().each(function(obj){
+                var g = obj.geometry;
+                edges.push({
+                    geometry:{
+                        type: g.getType(),
+                        coordinates: g.getCoordinates()
+                    },
+                    properties:{
+                        iconContent:obj.properties.get('iconContent')
                     }
                 });
-
-                // Создадим новую выборку, содержащую:
-                // - отрезки, описываюшие маршрут;
-                // - начальную и конечную точки;
-                // - промежуточные точки.
-                var routeObjects = ymaps.geoQuery(edges)
-                        .add(res.getWayPoints())
-                        .add(res.getViaPoints())
-                        .setOptions('strokeWidth', 3)
-                        .addToMap(map),
-                // Найдем все объекты, попадающие внутрь МКАД.
-                    objectsInMoscow = routeObjects.searchInside(child),
-                // Найдем объекты, пересекающие МКАД.
-                    boundaryObjects = routeObjects.searchIntersect(child);
-                // Раскрасим в разные цвета объекты внутри, снаружи и пересекающие МКАД.
-                boundaryObjects.setOptions({
-                    strokeColor: '#06ff00',
-                    preset: 'twirl#greenIcon'
+            });
+            res.getViaPoints().each(function(obj){
+                console.log(obj);
+                var g = obj.geometry;
+                edges.push({
+                    geometry:{
+                        type: g.getType(),
+                        coordinates: g.getCoordinates()
+                    },
+                    properties:{
+                        iconContent:obj.properties.get('iconContent')
+                    }
                 });
-                objectsInMoscow.setOptions({
-                    strokeColor: '#ff0005',
-                    preset: 'twirl#redIcon'
-                });
-                // Объекты за пределами МКАД получим исключением полученных выборок из
-                // исходной.
-                routeObjects.remove(objectsInMoscow).remove(boundaryObjects).setOptions({
-                    strokeColor: '#0010ff',
-                    preset: 'twirl#blueIcon'
-                });
-            }
-        );
-    }
-};
-</pre>
+            });
+            $scope.$apply(function(){
+                $scope.edges = edges;
+            });
+        }
+    );
+};</pre>
 </div>
 <div class="right">
     <p>Маршрут внутри МКАД помечен красным, снаружи - синим</p>
     <ya-map zoom="9" center="[37.75,55.73]">
         <geo-objects ya-add="added($event)">
             <geo-object source="moscow" options="{visible:false}"></geo-object>
+        </geo-objects>
+        <geo-objects options="{strokeWidth:3}" ya-geo-query>
+            <geo-object ng-repeat="o in edges" source="o" after-init="afterInit($geoObject,$geoQueryCollection, $last)"></geo-object>
         </geo-objects>
     </ya-map>
 </div>

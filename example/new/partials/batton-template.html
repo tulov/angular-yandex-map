@@ -1,0 +1,57 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;template-layout key="buttonTemplate"&gt;
+    &lt;div class='my-button [if state.selected]my-button-selected[endif]'&gt;
+        $[data.content]
+    &lt;/div&gt;
+&lt;/template-layout&gt;
+&lt;ya-map zoom="10" center="[37.62708,55.650625]"&gt;
+    &lt;map-toolbars&gt;
+        &lt;map-toolbar name="toolBar" options="{right:5,top:5}"&gt;
+            &lt;control type="button" params="Жмак-жмак" options="{layout:'buttonTemplate'}"&gt;&lt;/control&gt;
+        &lt;/map-toolbar&gt;
+    &lt;/map-toolbars&gt;
+&lt;/ya-map&gt;
+</pre>
+    <p>CSS</p>
+    <pre class="css">
+.my-button-selected {
+    color: #333333;
+    background-color: #e6e6e6;
+    outline: 2px dashed #333;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+}
+
+.my-button {
+    display: inline-block;
+    padding: 4px 14px;
+    margin-bottom: 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: #333333;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #f5f5f5;
+    border: 1px solid #bbbbbb;
+    border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+    font-family: Arial;
+}
+    </pre>
+</div>
+<div class="right">
+    <template-layout key="buttonTemplate">
+        <div class='my-button [if state.selected]my-button-selected[endif]'>
+            $[data.content]
+        </div>
+    </template-layout>
+    <ya-map zoom="10" center="[37.62708,55.650625]">
+        <map-toolbars>
+            <map-toolbar name="toolBar" options="{right:5,top:5}">
+                <control type="button" params="Жмак-жмак" options="{layout:'buttonTemplate'}"></control>
+            </map-toolbar>
+        </map-toolbars>
+    </ya-map>
+</div>
