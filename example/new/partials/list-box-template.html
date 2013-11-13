@@ -14,12 +14,10 @@
     &lt;li&gt;&lt;a&gt;$[data.content]&lt;/a&gt;&lt;/li&gt;
 &lt;/ya-template-layout&gt;
 &lt;ya-map ya-zoom="9" ya-center="[37.573856,55.751574]"&gt;
-    &lt;ya-toolbars&gt;
-        &lt;ya-toolbar ya-name="toolBar" ya-options="{left:5,top:5}"&gt;
-            &lt;ya-control ya-type="ListBox" ya-params="{data:{title: 'Выберите пункт'},items:[{data: {content: 'Москва',center: [37.573856,55.751574],zoom: 9}},{data: {content: 'Омск',center: [73.365535,54.990215],zoom: 9}}]}" ya-options="{layout:'listBoxTemplate',itemLayout:'listBoxItemTemplate'}"
-                        ya-event-click="click($event)"&gt;&lt;/ya-control&gt;
-        &lt;/ya-toolbar&gt;
-    &lt;/ya-toolbars&gt;
+    &lt;ya-toolbar ya-name="toolBar" ya-options="{left:5,top:5}"&gt;
+        &lt;ya-control ya-type="ListBox" ya-params="{data:{title: 'Выберите пункт'},items:[{data: {content: 'Москва',center: [37.573856,55.751574],zoom: 9}},{data: {content: 'Омск',center: [73.365535,54.990215],zoom: 9}}]}" ya-options="{layout:'listBoxTemplate',itemLayout:'listBoxItemTemplate'}"
+                    ya-event-click="click($event)"&gt;&lt;/ya-control&gt;
+    &lt;/ya-toolbar&gt;
 &lt;/ya-map&gt;
 </pre>
     <p>javascript</p>
@@ -87,11 +85,9 @@ $scope.click = function(e){
         <li><a>$[data.content]</a></li>
     </ya-template-layout>
     <ya-map ya-zoom="9" ya-center="[37.573856,55.751574]">
-        <ya-toolbars>
-            <ya-toolbar ya-name="toolBar" ya-options="{left:5,top:5}">
-                <ya-control ya-type="ListBox" ya-params="{data:{title: 'Выберите пункт'},items:[{data: {content: 'Москва',center: [37.573856,55.751574],zoom: 9}},{data: {content: 'Омск',center: [73.365535,54.990215],zoom: 9}}]}" ya-options="{layout:'listBoxTemplate',itemLayout:'listBoxItemTemplate'}"
-                        ya-event-click="click($event)"></ya-control>
-            </ya-toolbar>
-        </ya-toolbars>
+        <ya-toolbar ya-name="toolBar" ya-options="{left:5,top:5}">
+            <ya-control ya-type="ListBox" ya-params="{data:{title: 'Выберите пункт'},items:[{data: {content: 'Москва',center: [37.573856,55.751574],zoom: 9}},{data: {content: 'Омск',center: [73.365535,54.990215],zoom: 9}}]}" ya-options="{layout:'listBoxTemplate',itemLayout:'listBoxItemTemplate'}"
+                    ya-event-click="click($event)"></ya-control>
+        </ya-toolbar>
     </ya-map>
 </div>

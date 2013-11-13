@@ -3,10 +3,8 @@
     <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="2" ya-center="[0,0]" ya-type="my#type" ya-before-init="mapInit()"
         ya-options="{maxZoom:4,minZoom:2,projection:{type:'Cartesian', bounds:[[-1, -1],[1, 1]]}}"&gt;
-    &lt;ya-toolbars&gt;
-        &lt;ya-toolbar ya-name="miniMap" ya-params="{type:'my#type'}"&gt;&lt;/ya-toolbar&gt;
-        &lt;ya-toolbar ya-name="smallZoomControl" ya-options="{ right:5, top:5 }"&gt;&lt;/ya-toolbar&gt;
-    &lt;/ya-toolbars&gt;
+    &lt;ya-toolbar ya-name="miniMap" ya-params="{type:'my#type'}"&gt;&lt;/ya-toolbar&gt;
+    &lt;ya-toolbar ya-name="smallZoomControl" ya-options="{ right:5, top:5 }"&gt;&lt;/ya-toolbar&gt;
 &lt;/ya-map&gt;
 </pre>
     <p>javascript</p>
@@ -38,9 +36,7 @@ $scope.mapInit = function() {
 <div class="right">
     <ya-map ya-zoom="2" ya-center="[0,0]" ya-type="my#type" ya-before-init="mapInit()"
             ya-options="{maxZoom:4,minZoom:2,projection:{type:'Cartesian', bounds:[[-1, -1],[1, 1]]}}">
-        <ya-toolbars>
-            <ya-toolbar ya-name="miniMap" ya-params="{type:'my#type'}"></ya-toolbar>
-            <ya-toolbar ya-name="smallZoomControl" ya-options="{ right:5, top:5 }"></ya-toolbar>
-        </ya-toolbars>
+        <ya-toolbar ya-name="miniMap" ya-params="{type:'my#type'}"></ya-toolbar>
+        <ya-toolbar ya-name="smallZoomControl" ya-options="{ right:5, top:5 }"></ya-toolbar>
     </ya-map>
 </div>

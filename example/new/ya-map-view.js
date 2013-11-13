@@ -15,14 +15,6 @@ angular.module('yaMap',[]).
     value('yaMapSettings',{
         lang:'ru-RU',
         order:'longlat',
-        controls:{
-            zoomControl:null,
-            typeSelector:null,
-            mapTools:null,
-            scaleLine:null,
-            miniMap:null,
-            smallZoomControl:{right: 5, top: 75}
-        },
         //параметры отображения различных объектов на карте
         displayOptions:{
             //параметры отображения объектов в обычном состоянии
@@ -323,6 +315,7 @@ angular.module('yaMap',[]).
                                 yaSubscriber.subscribe(scope.map, parentGet,key,scope);
                             }
                         }
+
                         scope.yaAfterInit({$target:scope.map});
                         element.append(childNodes);
                         setTimeout(function(){
@@ -357,38 +350,6 @@ angular.module('yaMap',[]).
         };
     }]).
 
-    controller('mapToolbarsCtrl',['$scope',function($scope){
-        this.add = function(name, options){
-            $scope.yaMap.addControl(name,options);
-        };
-    }]).
-    directive('yaToolbars',['$compile','yaMapSettings',function($compile,yaMapSettings){
-        return {
-            restrict:'E',
-            require:'^yaMap',
-            scope:true,
-            compile:function(tElement){
-                var childNodes = tElement.contents();
-                var hasControls = tElement.find('ya-toolbar').length > 0;
-                tElement.html('');
-                return function(scope, element,attrs,yaMap) {
-                    scope.yaMap = yaMap;
-                    if(!hasControls){
-                        var controls = yaMapSettings.controls;
-                        if(controls){
-                            for(var key in controls){
-                                yaMap.addControl(key, controls[key] || undefined);
-                            }
-                        }
-                    }
-                    element.append(childNodes);
-                    $compile(childNodes)(scope.$parent);
-                };
-            },
-            controller:'mapToolbarsCtrl'
-        }
-    }]).
-
     controller('MapToolbarCtrl',['$scope',function($scope){
         this.add = function(control){
             $scope.toolbar.add(control);
@@ -396,7 +357,7 @@ angular.module('yaMap',[]).
     }]).
     directive('yaToolbar',['$compile','$parse','yaSubscriber',function($compile,$parse,yaSubscriber){
         return {
-            require:'^yaToolbars',
+            require:'^yaMap',
             restrict:'E',
             scope:{
                 yaAfterInit:'&'
@@ -404,7 +365,7 @@ angular.module('yaMap',[]).
             compile:function(tElement){
                 var childNodes = tElement.contents();
                 tElement.html('');
-                return function(scope, element,attrs,mapToolbars) {
+                return function(scope, element,attrs,yaMap) {
                     if(!attrs.yaName){
                         throw new Error('not pass attribute "name"');
                     }
@@ -419,7 +380,7 @@ angular.module('yaMap',[]).
                             yaSubscriber.subscribe(scope.toolbar, parentGet,key,scope);
                         }
                     }
-                    mapToolbars.add(scope.toolbar,options);
+                    yaMap.addControl(scope.toolbar,options);
                     scope.yaAfterInit({$target:scope.toolbar});
                     element.append(childNodes);
                     $compile(childNodes)(scope.$parent);

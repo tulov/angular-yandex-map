@@ -2,19 +2,17 @@
     <p>HTML:</p>
     <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="1" ya-center="[2.341198,48.856929]" ya-after-init="afterInit($target)"&gt;
-    &lt;ya-toolbars&gt;
-        &lt;ya-toolbar ya-name="toolBar"&gt;
-            &lt;ya-control ya-type="button" ya-params="Свойство: balloonHeader"
-                        ya-event-select="balloonHeader($event)"
-                        ya-event-deselect="balloonHeader($event)"&gt;&lt;/ya-control&gt;
-            &lt;ya-control ya-type="button" ya-params="Опция: geodesic"
-                        ya-event-select="geodes($event)"
-                        ya-event-deselect="geodes($event)"&gt;&lt;/ya-control&gt;
-            &lt;ya-control ya-type="button" ya-params="Изменить радиус"
-                        ya-event-select="changeRadius($event)"
-                        ya-event-deselect="changeRadius($event)"&gt;&lt;/ya-control&gt;
-        &lt;/ya-toolbar&gt;
-    &lt;/ya-toolbars&gt;
+    &lt;ya-toolbar ya-name="toolBar"&gt;
+        &lt;ya-control ya-type="button" ya-params="Свойство: balloonHeader"
+                    ya-event-select="balloonHeader($event)"
+                    ya-event-deselect="balloonHeader($event)"&gt;&lt;/ya-control&gt;
+        &lt;ya-control ya-type="button" ya-params="Опция: geodesic"
+                    ya-event-select="geodes($event)"
+                    ya-event-deselect="geodes($event)"&gt;&lt;/ya-control&gt;
+        &lt;ya-control ya-type="button" ya-params="Изменить радиус"
+                    ya-event-select="changeRadius($event)"
+                    ya-event-deselect="changeRadius($event)"&gt;&lt;/ya-control&gt;
+    &lt;/ya-toolbar&gt;
     &lt;ya-collection&gt;
         &lt;ya-geo-object
                 ya-after-init="setObject($target)"
@@ -73,19 +71,17 @@ $scope.changeRadius = function(e){
 </div>
 <div class="right">
     <ya-map ya-zoom="1" ya-center="[2.341198,48.856929]" ya-after-init="afterInit($target)">
-        <ya-toolbars>
-            <ya-toolbar ya-name="toolBar">
-                <ya-control ya-type="button" ya-params="Свойство: balloonHeader"
-                        ya-event-select="balloonHeader($event)"
-                        ya-event-deselect="balloonHeader($event)"></ya-control>
-                <ya-control ya-type="button" ya-params="Опция: geodesic"
-                         ya-event-select="geodes($event)"
-                         ya-event-deselect="geodes($event)"></ya-control>
-                <ya-control ya-type="button" ya-params="Изменить радиус"
-                         ya-event-select="changeRadius($event)"
-                         ya-event-deselect="changeRadius($event)"></ya-control>
-            </ya-toolbar>
-        </ya-toolbars>
+        <ya-toolbar ya-name="toolBar">
+            <ya-control ya-type="button" ya-params="Свойство: balloonHeader"
+                    ya-event-select="balloonHeader($event)"
+                    ya-event-deselect="balloonHeader($event)"></ya-control>
+            <ya-control ya-type="button" ya-params="Опция: geodesic"
+                     ya-event-select="geodes($event)"
+                     ya-event-deselect="geodes($event)"></ya-control>
+            <ya-control ya-type="button" ya-params="Изменить радиус"
+                     ya-event-select="changeRadius($event)"
+                     ya-event-deselect="changeRadius($event)"></ya-control>
+        </ya-toolbar>
         <ya-collection>
             <ya-geo-object
                     ya-after-init="setObject($target)"

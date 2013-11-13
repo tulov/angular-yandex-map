@@ -2,10 +2,8 @@
     <p>HTML:</p>
     <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="9" ya-center="[30.067233,60.906882]" ya-behaviors="scrollZoom drag" ya-after-init="afterInit($target)"&gt;
-    &lt;ya-toolbars&gt;
-        &lt;ya-toolbar ya-name="searchControl" ya-params="{useMapBounds: true,noCentering: true,noPlacemark: true}"
-                    ya-event-resultselect="resultSelect($event)"&gt;&lt;/ya-toolbar&gt;
-    &lt;/ya-toolbars&gt;
+    &lt;ya-toolbar ya-name="searchControl" ya-params="{useMapBounds: true,noCentering: true,noPlacemark: true}"
+                ya-event-resultselect="resultSelect($event)"&gt;&lt;/ya-toolbar&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
@@ -94,9 +92,7 @@ $scope.resultSelect = function(e){
 </div>
 <div class="right">
     <ya-map ya-zoom="9" ya-center="[30.067233,60.906882]" ya-behaviors="scrollZoom drag" ya-after-init="afterInit($target)">
-        <ya-toolbars>
-            <ya-toolbar ya-name="searchControl" ya-params="{useMapBounds: true,noCentering: true,noPlacemark: true}"
-                         ya-event-resultselect="resultSelect($event)"></ya-toolbar>
-        </ya-toolbars>
+        <ya-toolbar ya-name="searchControl" ya-params="{useMapBounds: true,noCentering: true,noPlacemark: true}"
+                     ya-event-resultselect="resultSelect($event)"></ya-toolbar>
     </ya-map>
 </div>
