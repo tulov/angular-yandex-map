@@ -3,12 +3,12 @@
     <pre class="html">
 &lt;ya-map ya-zoom="11" ya-center="{{ center }}" ya-before-init="beforeInit()" ya-after-init="afterInit($target)"
         ya-event-click="mapClick($event)"&gt;
-    &lt;ya-geo-objects ya-options="{preset: 'twirl#metroMoscowIcon'}"&gt;
+    &lt;ya-collection ya-options="{preset: 'twirl#metroMoscowIcon'}"&gt;
         &lt;ya-geo-object ng-repeat="m in metros" ya-source="m"&gt;&lt;/ya-geo-object&gt;
-    &lt;/ya-geo-objects&gt;
-    &lt;ya-geo-objects ya-options="{preset:'twirl#redStretchyIcon',balloonMaxWidth:250}"&gt;
+    &lt;/ya-collection&gt;
+    &lt;ya-collection ya-options="{preset:'twirl#redStretchyIcon',balloonMaxWidth:250}"&gt;
         &lt;ya-geo-object ng-repeat="o in geoObjects" ya-source="o"&gt;&lt;/ya-geo-object&gt;
-    &lt;/ya-geo-objects&gt;
+    &lt;/ya-collection&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
@@ -97,11 +97,11 @@ $scope.mapClick=function(e){
 <div class="right">
     <ya-map ya-zoom="11" ya-center="{{ center }}" ya-before-init="beforeInit()" ya-after-init="afterInit($target)"
             ya-event-click="mapClick($event)">
-        <ya-geo-objects ya-options="{preset: 'twirl#metroMoscowIcon'}">
+        <ya-collection ya-options="{preset: 'twirl#metroMoscowIcon'}">
             <ya-geo-object ng-repeat="m in metros" ya-source="m"></ya-geo-object>
-        </ya-geo-objects>
-        <ya-geo-objects ya-options="{preset:'twirl#redStretchyIcon',balloonMaxWidth:250}">
+        </ya-collection>
+        <ya-collection ya-options="{preset:'twirl#redStretchyIcon',balloonMaxWidth:250}">
             <ya-geo-object ng-repeat="o in geoObjects" ya-source="o"></ya-geo-object>
-        </ya-geo-objects>
+        </ya-collection>
     </ya-map>
 </div>

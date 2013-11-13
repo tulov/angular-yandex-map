@@ -2,9 +2,9 @@
     <p>HTML:</p>
     <pre class="html">
 &lt;ya-map ya-zoom="10" ya-center="{{ center }}" ya-before-init="beforeInit()"&gt;
-    &lt;ya-geo-objects&gt;
+    &lt;ya-collection&gt;
         &lt;ya-geo-object ya-source="geoObject"&gt;&lt;/ya-geo-object&gt;
-    &lt;/ya-geo-objects&gt;
+    &lt;/ya-collection&gt;
 &lt;/ya-map&gt;
 </pre>
     <p>javascript:</p>
@@ -31,8 +31,8 @@ $scope.beforeInit = function(){
 </div>
 <div class="right">
     <ya-map ya-zoom="10" ya-center="{{ center }}" ya-before-init="beforeInit()">
-        <ya-geo-objects>
+        <ya-collection>
             <ya-geo-object ya-source="geoObject"></ya-geo-object>
-        </ya-geo-objects>
+        </ya-collection>
     </ya-map>
 </div>

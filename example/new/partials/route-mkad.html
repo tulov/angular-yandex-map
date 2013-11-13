@@ -3,9 +3,9 @@
     <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="9" ya-center="[37.75,55.73]" ya-before-init="beforeInit()"&gt;
     &lt;ya-geo-object ya-source="moscow" ya-options="{visible:false}" ya-after-init="added($target)"&gt;&lt;/ya-geo-object&gt;
-    &lt;ya-geo-objects ya-options="{strokeWidth:3}" ya-after-init="initCollection($target)"&gt;
+    &lt;ya-collection ya-options="{strokeWidth:3}" ya-after-init="initCollection($target)"&gt;
         &lt;ya-geo-object ng-repeat="o in edges" ya-source="o" ya-after-init="afterInit($target, $last)"&gt;&lt;/ya-geo-object&gt;
-    &lt;/ya-geo-objects&gt;
+    &lt;/ya-collection&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
@@ -106,8 +106,8 @@ $scope.initCollection = function(col){
     <p>Маршрут внутри МКАД помечен красным, снаружи - синим</p>
     <ya-map ya-zoom="9" ya-center="[37.75,55.73]" ya-before-init="beforeInit()">
         <ya-geo-object ya-source="moscow" ya-options="{visible:false}" ya-after-init="added($target)"></ya-geo-object>
-        <ya-geo-objects ya-options="{strokeWidth:3}" ya-after-init="initCollection($target)">
+        <ya-collection ya-options="{strokeWidth:3}" ya-after-init="initCollection($target)">
             <ya-geo-object ng-repeat="o in edges" ya-source="o" ya-after-init="afterInit($target, $last)"></ya-geo-object>
-        </ya-geo-objects>
+        </ya-collection>
     </ya-map>
 </div>

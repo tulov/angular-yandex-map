@@ -1,7 +1,6 @@
 "use strict";
 //todo: директивы представляющие объекты на карте можно располагать как в ya-map, так и в соответствующих коллекциях
 //todo: реализовать директивы, которые представляют упрощенные классы для работы с гео. объектами.
-//todo: заменить директиву yaGeoObjects на yaCollection
 //todo: написать документацию
 //todo: выложить на сервер
 angular.module('yaMap',[]).
@@ -491,7 +490,7 @@ angular.module('yaMap',[]).
             $scope.collection.remove(geoObject);
         };
     }]).
-    directive('yaGeoObjects',['$compile','yaMapSettings','$timeout','yaSubscriber','$parse',
+    directive('yaCollection',['$compile','yaMapSettings','$timeout','yaSubscriber','$parse',
         function($compile,yaMapSettings,$timeout,yaSubscriber,$parse){
         return {
             require:'^yaMap',
