@@ -1,0 +1,100 @@
+.container{
+    width: 90%;
+    margin: 20px auto 0;
+}
+.content{
+    width: 78%;
+    float: left;
+    margin-left: 2%;
+}
+.left{
+    width: 20%;
+    float: left;
+}
+.center{
+    width: 60%;
+    float: left;
+    max-width: 60%;
+}
+.right{
+    width: 38%;
+    float: left;
+    max-width: 40%;
+    margin-left: 2%;
+}
+ya-map{
+    width: 100%;
+    height: 400px;
+    display: block
+}
+pre.html,pre.js,pre.css{
+    overflow: auto;
+}
+.left>ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+#menu {
+    position: absolute;
+    width: 12em;
+    background: #FFFFCC;
+    border: 3px solid #006600;
+    border-radius: 12px;
+    padding-bottom: 10px;
+    z-index: 2
+}
+#menu ul {
+    list-style-type: none;
+    padding: 20px;
+    margin: 0;
+}
+#menu input {
+    width: 10em;
+}
+.my-button-selected {
+    color: #333333;
+    background-color: #e6e6e6;
+    outline: 2px dashed #333;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+}
+
+.my-button {
+    display: inline-block;
+    padding: 4px 14px;
+    margin-bottom: 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: #333333;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #f5f5f5;
+    border: 1px solid #bbbbbb;
+    border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+    font-family: Arial;
+}
+.cluster-balloon-item {
+    margin: 10px;
+    cursor: pointer;
+}
+.entry {
+    padding: 10px 20px 10px 15px;
+}
+
+.entry > * {
+    margin-top: 6px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.author {
+    text-align: right;
+    font-style: italic;
+    font-size: .8em;
+    line-height: .8em;
+    margin-right: 5px;
+}
