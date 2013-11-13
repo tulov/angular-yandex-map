@@ -13,24 +13,22 @@
                     ya-event-select="changeRadius($event)"
                     ya-event-deselect="changeRadius($event)"&gt;&lt;/ya-control&gt;
     &lt;/ya-toolbar&gt;
-    &lt;ya-collection&gt;
-        &lt;ya-geo-object
-                ya-after-init="setObject($target)"
-                ya-source="circle"
-                ya-options="{draggable: true}"
-                ya-event-mapchange="run($event)"
-                ya-event-geometrychange="run($event)"
-                ya-event-pixelgeometrychange="run($event)"
-                ya-event-optionschange="run($event)"
-                ya-event-propertieschange="run($event)"
-                ya-event-balloonopen="run($event)"
-                ya-event-balloonclose="run($event)"
-                ya-event-hintshow="run($event)"
-                ya-event-hinthide="run($event)"
-                ya-event-dragstart="run($event)"
-                ya-event-dragend="run($event)"
-                &gt;&lt;/ya-geo-object&gt;
-    &lt;/ya-collection&gt;
+    &lt;ya-geo-object
+            ya-after-init="setObject($target)"
+            ya-source="circle"
+            ya-options="{draggable: true}"
+            ya-event-mapchange="run($event)"
+            ya-event-geometrychange="run($event)"
+            ya-event-pixelgeometrychange="run($event)"
+            ya-event-optionschange="run($event)"
+            ya-event-propertieschange="run($event)"
+            ya-event-balloonopen="run($event)"
+            ya-event-balloonclose="run($event)"
+            ya-event-hintshow="run($event)"
+            ya-event-hinthide="run($event)"
+            ya-event-dragstart="run($event)"
+            ya-event-dragend="run($event)"
+            &gt;&lt;/ya-geo-object&gt;
 &lt;/ya-map&gt;
 &lt;span ng-repeat="l in log"&gt;{{ l }}&lt;br&gt;&lt;/span&gt;
     </pre>
@@ -82,24 +80,22 @@ $scope.changeRadius = function(e){
                      ya-event-select="changeRadius($event)"
                      ya-event-deselect="changeRadius($event)"></ya-control>
         </ya-toolbar>
-        <ya-collection>
-            <ya-geo-object
-                    ya-after-init="setObject($target)"
-                    ya-source="circle"
-                    ya-options="{draggable: true}"
-                    ya-event-mapchange="run($event)"
-                    ya-event-geometrychange="run($event)"
-                    ya-event-pixelgeometrychange="run($event)"
-                    ya-event-optionschange="run($event)"
-                    ya-event-propertieschange="run($event)"
-                    ya-event-balloonopen="run($event)"
-                    ya-event-balloonclose="run($event)"
-                    ya-event-hintshow="run($event)"
-                    ya-event-hinthide="run($event)"
-                    ya-event-dragstart="run($event)"
-                    ya-event-dragend="run($event)"
-                    ></ya-geo-object>
-        </ya-collection>
+        <ya-geo-object
+                ya-after-init="setObject($target)"
+                ya-source="circle"
+                ya-options="{draggable: true}"
+                ya-event-mapchange="run($event)"
+                ya-event-geometrychange="run($event)"
+                ya-event-pixelgeometrychange="run($event)"
+                ya-event-optionschange="run($event)"
+                ya-event-propertieschange="run($event)"
+                ya-event-balloonopen="run($event)"
+                ya-event-balloonclose="run($event)"
+                ya-event-hintshow="run($event)"
+                ya-event-hinthide="run($event)"
+                ya-event-dragstart="run($event)"
+                ya-event-dragend="run($event)"
+                ></ya-geo-object>
     </ya-map>
     <span ng-repeat="l in log">{{ l }}<br></span>
 </div>

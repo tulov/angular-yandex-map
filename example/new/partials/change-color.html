@@ -2,12 +2,10 @@
     <p>HTML:</p>
     <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="9" ya-center="[37.617761,55.755773]"&gt;
-    &lt;ya-collection&gt;
-        &lt;ya-geo-object ya-source="point"
-                       ya-event-mouseenter="mouseenter($event)"
-                       ya-event-mouseleave="mouseleave($event)"
-                &gt;&lt;/ya-geo-object&gt;
-    &lt;/ya-collection&gt;
+    &lt;ya-geo-object ya-source="point"
+                   ya-event-mouseenter="mouseenter($event)"
+                   ya-event-mouseleave="mouseleave($event)"
+            &gt;&lt;/ya-geo-object&gt;
 &lt;/ya-map>
     </pre>
     <p>javascript:</p>
@@ -28,11 +26,9 @@ $scope.mouseleave=function(e){
 </div>
 <div class="right">
     <ya-map ya-zoom="9" ya-center="[37.617761,55.755773]">
-        <ya-collection>
-            <ya-geo-object ya-source="point"
-                        ya-event-mouseenter="mouseenter($event)"
-                        ya-event-mouseleave="mouseleave($event)"
-                    ></ya-geo-object>
-        </ya-collection>
+        <ya-geo-object ya-source="point"
+                    ya-event-mouseenter="mouseenter($event)"
+                    ya-event-mouseleave="mouseleave($event)"
+                ></ya-geo-object>
     </ya-map>
 </div>
