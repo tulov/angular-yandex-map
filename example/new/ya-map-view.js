@@ -172,7 +172,6 @@ angular.module('yaMap',[]).
             });
         };
     }).
-    //todo: удалить атрибут geoQuery
     service('templateLayoutFactory',[function(){
         this._cache = {};
         this.get=function(key){
@@ -484,7 +483,7 @@ angular.module('yaMap',[]).
         };
     }]).
 
-    controller('GeoObjectsCtrl',['$scope',function($scope){
+    controller('CollectionCtrl',['$scope',function($scope){
         this.addGeoObjects = function(geoObject){
             $scope.collection.add(geoObject);
         };
@@ -548,18 +547,10 @@ angular.module('yaMap',[]).
                     $compile(childNodes)(scope.$parent);
                 };
             },
-            controller:'GeoObjectsCtrl'
+            controller:'CollectionCtrl'
         };
     }]).
 
-    controller('MapClusterCtrl',['$scope',function($scope){
-        this.addGeoObjects = function(geoObject){
-            $scope.cluster.add(geoObject);
-        };
-        this.removeGeoObjects = function(geoObject){
-            $scope.cluster.remove(geoObject);
-        };
-    }]).
     directive('yaCluster',['yaMapSettings','yaSubscriber','$compile','templateLayoutFactory','$parse',function(yaMapSettings,yaSubscriber,$compile,templateLayoutFactory,$parse){
         return {
             require:'^yaMap',
@@ -592,94 +583,27 @@ angular.module('yaMap',[]).
                             templateLayoutFactory.get(collectionOptions.clusterBalloonAccordionItemContentLayout);
                     }
                     //включение кластеризации
-                    scope.cluster = new ymaps.Clusterer(collectionOptions);
+                    scope.collection = new ymaps.Clusterer(collectionOptions);
                     //подписка на события
                     for(var key in attrs){
                         if(key.indexOf('yaEvent')===0){
                             var parentGet=$parse(attrs[key]);
-                            yaSubscriber.subscribe(scope.cluster, parentGet,key,scope);
+                            yaSubscriber.subscribe(scope.collection, parentGet,key,scope);
                         }
                     }
 
-                    yaMap.addGeoObjects(scope.cluster);
-                    scope.yaAfterInit({$target:scope.cluster});
+                    yaMap.addGeoObjects(scope.collection);
+                    scope.yaAfterInit({$target:scope.collection});
                     scope.$on('$destroy', function () {
-                        if (scope.cluster) {
-                            yaMap.removeGeoObjects(scope.cluster);
+                        if (scope.collection) {
+                            yaMap.removeGeoObjects(scope.collection);
                         }
                     });
                     element.append(childNodes);
                     $compile(childNodes)(scope.$parent);
                 };
             },
-            controller:'MapClusterCtrl'
-        };
-    }]).
-
-    //todo: delete yaMarker
-    directive('yaMarker',['yaSubscriber','templateLayoutFactory','$parse',function(yaSubscriber,templateLayoutFactory,$parse){
-        return {
-            require:'^yaCluster',
-            restrict:'E',
-            scope:{
-                yaSource:'=',
-                yaShowBalloon:'=',
-                yaAfterInit:'&'
-            },
-            link:function(scope,elm,attrs,mapCluster){
-                var obj;
-                var options = attrs.yaOptions ? scope.$eval(attrs.yaOptions) : undefined;
-                if(options && options.balloonContentLayout){
-                    options.balloonContentLayout = templateLayoutFactory.get(options.balloonContentLayout);
-                }
-                var createGeoObject = function(from, options){
-                    obj = new  ymaps.GeoObject(from, options);
-                    //подписка на события
-                    for(var key in attrs){
-                        if(key.indexOf('yaEvent')===0){
-                            var parentGet=$parse(attrs[key]);
-                            yaSubscriber.subscribe(obj, parentGet,key,scope);
-                        }
-                    }
-                    mapCluster.add(obj);
-                    scope.yaAfterInit({$target:obj});
-                    checkShowBalloon(scope.yaShowBalloon);
-                };
-                scope.$watch('yaSource',function(newValue){
-                    if(newValue){
-                        if(obj){
-                            obj.geometry.setCoordinates(newValue.geometry.coordinates);
-                            var properties = newValue.properties;
-                            for(var key in properties){
-                                if(properties.hasOwnProperty(key)){
-                                    obj.properties.set(key, properties[key]);
-                                }
-                            }
-                        }else{
-                            createGeoObject(newValue,options);
-                        }
-                    }else if(obj){
-                        mapCluster.remove(obj);
-                    }
-                },function(){return true;});
-                var checkShowBalloon = function(newValue){
-                    if(newValue){
-                        if(obj){
-                            obj.balloon.open();
-                        }
-                    }else{
-                        if(obj){
-                            obj.balloon.close();
-                        }
-                    }
-                };
-                scope.$watch('yaShowBalloon',checkShowBalloon);
-                scope.$on('$destroy', function () {
-                    if (obj) {
-                        mapCluster.remove(obj);
-                    }
-                });
-            }
+            controller:'CollectionCtrl'
         };
     }]).
 

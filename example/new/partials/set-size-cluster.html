@@ -1,16 +1,16 @@
 <div class="center">
     Установка размера кластера происходит через опцию кластере gridSize. В примере "создание кластеризатора" используется значение 80, посмотрите как измениться вывод карты при значении 150.
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="9" ya-center="[37.573856,55.751574]" ya-behaviors="default scrollZoom"&gt;
     &lt;ya-cluster
             ya-options="{preset:'twirl#invertedVioletClusterIcons',groupByCoordinates:false,clusterDisableClickZoom: true,gridSize:150}"&gt;
-        &lt;ya-marker ya-options="{preset: 'twirl#violetIcon'}" ng-repeat="o in geoObjects" ya-source="o"&gt;&lt;/ya-marker&gt;
+        &lt;ya-geo-object ya-options="{preset: 'twirl#violetIcon'}" ng-repeat="o in geoObjects" ya-source="o"&gt;&lt;/ya-geo-object&gt;
     &lt;/ya-cluster&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
-    <pre class="js">
+    <pre class="js" ng-non-bindable>
 var points = [
     [37.411961,55.831903],[37.565466,55.763338],[37.565466,55.763338],[37.616378,55.744522],[37.642889,55.780898],
     [37.435983,55.793559],[37.675638,55.800584],[37.589988,55.716733],[37.56084,55.775724],[37.433781,55.822144],
@@ -48,7 +48,7 @@ createGeoObjects();
     <ya-map ya-zoom="9" ya-center="[37.573856,55.751574]" ya-behaviors="default scrollZoom">
         <ya-cluster
                 ya-options="{preset:'twirl#invertedVioletClusterIcons',groupByCoordinates:false,clusterDisableClickZoom: true,gridSize:150}">
-            <ya-marker ya-options="{preset: 'twirl#violetIcon'}" ng-repeat="o in geoObjects" ya-source="o"></ya-marker>
+            <ya-geo-object ya-options="{preset: 'twirl#violetIcon'}" ng-repeat="o in geoObjects" ya-source="o"></ya-geo-object>
         </ya-cluster>
     </ya-map>
 </div>

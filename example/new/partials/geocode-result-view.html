@@ -1,14 +1,14 @@
 <div class="center">
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="8" ya-center="[37.721587,55.30954]" ya-after-init="afterInit($target)"&gt;
     &lt;ya-cluster&gt;
-        &lt;ya-marker ya-source="o" ng-repeat="o in res" ya-after-init="ifLast($target)"&gt;&lt;/ya-marker&gt;
+        &lt;ya-geo-object ya-source="o" ng-repeat="o in res" ya-after-init="ifLast($target)"&gt;&lt;/ya-geo-object&gt;
     &lt;/ya-cluster&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
-    <pre class="js">
+    <pre class="js" ng-non-bindable>
 var _map;
 $scope.ifLast = function(last){
     if(!last){
@@ -47,7 +47,7 @@ $scope.afterInit = function(map){
 <div class="right">
     <ya-map ya-zoom="8" ya-center="[37.721587,55.30954]" ya-after-init="afterInit($target)">
         <ya-cluster>
-            <ya-marker ya-source="o" ng-repeat="o in res" ya-after-init="ifLast($target)"></ya-marker>
+            <ya-geo-object ya-source="o" ng-repeat="o in res" ya-after-init="ifLast($target)"></ya-geo-object>
         </ya-cluster>
     </ya-map>
 </div>

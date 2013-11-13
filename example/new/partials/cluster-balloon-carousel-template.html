@@ -1,6 +1,6 @@
 <div class="center">
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;ya-template-layout ya-key="balloonContentTemplate"&gt;
     &lt;div class=entry&gt;
         &lt;div class=bold&gt;$[properties.balloonContentHeader]&lt;/div&gt;
@@ -10,7 +10,7 @@
 &lt;/ya-template-layout&gt;
 &lt;ya-map ya-zoom="5" ya-center="{{ center }}" ya-options="{geoObjectClusterDisableClickZoom: true}"&gt;
     &lt;ya-cluster ya-options="{clusterBalloonContentBodyLayout: 'cluster#balloonCarouselContent',clusterBalloonContentItemLayout: 'balloonContentTemplate',clusterBalloonPagerSize: 5,clusterBalloonWidth: 220}"&gt;
-        &lt;ya-marker ng-repeat="o in geoObjects" ya-source="o"&gt;&lt;/ya-marker&gt;
+        &lt;ya-geo-object ng-repeat="o in geoObjects" ya-source="o"&gt;&lt;/ya-geo-object&gt;
     &lt;/ya-cluster&gt;
 &lt;/ya-map&gt;
     </pre>
@@ -123,7 +123,7 @@ init();</pre>
     </ya-template-layout>
     <ya-map ya-zoom="5" ya-center="{{ center }}" ya-options="{geoObjectClusterDisableClickZoom: true}">
         <ya-cluster ya-options="{clusterBalloonContentBodyLayout: 'cluster#balloonCarouselContent',clusterBalloonContentItemLayout: 'balloonContentTemplate',clusterBalloonPagerSize: 5,clusterBalloonWidth: 220}">
-            <ya-marker ng-repeat="o in geoObjects" ya-source="o"></ya-marker>
+            <ya-geo-object ng-repeat="o in geoObjects" ya-source="o"></ya-geo-object>
         </ya-cluster>
     </ya-map>
 </div>
