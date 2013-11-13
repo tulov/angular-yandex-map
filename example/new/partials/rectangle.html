@@ -1,11 +1,11 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;ya-map zoom="11" center="[37.601,55.674]"&gt;
-    &lt;geo-objects&gt;
-        &lt;geo-object source="geoObjects[0]" options="{draggable: true,fillColor: '#ffff0022',strokeColor: '#3caa3c88',strokeWidth: 7}"&gt;&lt;/geo-object&gt;
-        &lt;geo-object source="geoObjects[1]" options="{fillColor: '#7df9ff33',fillOpacity: 0.5,strokeColor: '#0000FF',strokeOpacity: 0.5,strokeWidth: 2,borderRadius: 6}"&gt;&lt;/geo-object&gt;
-    &lt;/geo-objects&gt;
+&lt;ya-map ya-zoom="11" ya-center="[37.601,55.674]"&gt;
+    &lt;ya-geo-objects&gt;
+        &lt;ya-geo-object ya-source="geoObjects[0]" ya-options="{draggable: true,fillColor: '#ffff0022',strokeColor: '#3caa3c88',strokeWidth: 7}"&gt;&lt;/ya-geo-object&gt;
+        &lt;ya-geo-object ya-source="geoObjects[1]" ya-options="{fillColor: '#7df9ff33',fillOpacity: 0.5,strokeColor: '#0000FF',strokeOpacity: 0.5,strokeWidth: 2,borderRadius: 6}"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-geo-objects&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
@@ -40,10 +40,10 @@ $scope.geoObjects=[
 ];</pre>
 </div>
 <div class="right">
-    <ya-map zoom="11" center="[37.601,55.674]">
-        <geo-objects>
-            <geo-object source="geoObjects[0]" options="{draggable: true,fillColor: '#ffff0022',strokeColor: '#3caa3c88',strokeWidth: 7}"></geo-object>
-            <geo-object source="geoObjects[1]" options="{fillColor: '#7df9ff33',fillOpacity: 0.5,strokeColor: '#0000FF',strokeOpacity: 0.5,strokeWidth: 2,borderRadius: 6}"></geo-object>
-        </geo-objects>
+    <ya-map ya-zoom="11" ya-center="[37.601,55.674]">
+        <ya-geo-objects>
+            <ya-geo-object ya-source="geoObjects[0]" ya-options="{draggable: true,fillColor: '#ffff0022',strokeColor: '#3caa3c88',strokeWidth: 7}"></ya-geo-object>
+            <ya-geo-object ya-source="geoObjects[1]" ya-options="{fillColor: '#7df9ff33',fillOpacity: 0.5,strokeColor: '#0000FF',strokeOpacity: 0.5,strokeWidth: 2,borderRadius: 6}"></ya-geo-object>
+        </ya-geo-objects>
     </ya-map>
 </div>

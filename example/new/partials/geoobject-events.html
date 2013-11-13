@@ -1,38 +1,38 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;ya-map zoom="1" center="[2.341198,48.856929]" after-init="afterInit($map)"&gt;
-    &lt;map-toolbars&gt;
-        &lt;map-toolbar name="toolBar"&gt;
-            &lt;control type="button" params="Свойство: balloonHeader"
-                     ya-select="balloonHeader($event)"
-                     ya-deselect="balloonHeader($event)"&gt;&lt;/control&gt;
-            &lt;control type="button" params="Опция: geodesic"
-                     ya-select="geodes($event)"
-                     ya-deselect="geodes($event)"&gt;&lt;/control&gt;
-            &lt;control type="button" params="Изменить радиус"
-                     ya-select="changeRadius($event)"
-                     ya-deselect="changeRadius($event)"&gt;&lt;/control&gt;
-        &lt;/map-toolbar&gt;
-    &lt;/map-toolbars&gt;
-    &lt;geo-objects&gt;
-        &lt;geo-object
-                after-init="setObject($geoObject)"
-                source="circle"
-                options="{draggable: true}"
-                ya-mapchange="run($event)"
-                ya-geometrychange="run($event)"
-                ya-pixelgeometrychange="run($event)"
-                ya-optionschange="run($event)"
-                ya-propertieschange="run($event)"
-                ya-balloonopen="run($event)"
-                ya-balloonclose="run($event)"
-                hintshow="run($event)"
-                ya-hinthide="run($event)"
-                ya-dragstart="run($event)"
-                ya-dragend="run($event)"
-                &gt;&lt;/geo-object&gt;
-    &lt;/geo-objects&gt;
+&lt;ya-map ya-zoom="1" ya-center="[2.341198,48.856929]" ya-after-init="afterInit($target)"&gt;
+    &lt;ya-toolbars&gt;
+        &lt;ya-toolbar ya-name="toolBar"&gt;
+            &lt;ya-control ya-type="button" ya-params="Свойство: balloonHeader"
+                        ya-event-select="balloonHeader($event)"
+                        ya-event-deselect="balloonHeader($event)"&gt;&lt;/ya-control&gt;
+            &lt;ya-control ya-type="button" ya-params="Опция: geodesic"
+                        ya-event-select="geodes($event)"
+                        ya-event-deselect="geodes($event)"&gt;&lt;/ya-control&gt;
+            &lt;ya-control ya-type="button" ya-params="Изменить радиус"
+                        ya-event-select="changeRadius($event)"
+                        ya-event-deselect="changeRadius($event)"&gt;&lt;/ya-control&gt;
+        &lt;/ya-toolbar&gt;
+    &lt;/ya-toolbars&gt;
+    &lt;ya-geo-objects&gt;
+        &lt;ya-geo-object
+                ya-after-init="setObject($target)"
+                ya-source="circle"
+                ya-options="{draggable: true}"
+                ya-event-mapchange="run($event)"
+                ya-event-geometrychange="run($event)"
+                ya-event-pixelgeometrychange="run($event)"
+                ya-event-optionschange="run($event)"
+                ya-event-propertieschange="run($event)"
+                ya-event-balloonopen="run($event)"
+                ya-event-balloonclose="run($event)"
+                ya-event-hintshow="run($event)"
+                ya-event-hinthide="run($event)"
+                ya-event-dragstart="run($event)"
+                ya-event-dragend="run($event)"
+                &gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-geo-objects&gt;
 &lt;/ya-map&gt;
 &lt;span ng-repeat="l in log"&gt;{{ l }}&lt;br&gt;&lt;/span&gt;
     </pre>
@@ -72,38 +72,38 @@ $scope.changeRadius = function(e){
     </pre>
 </div>
 <div class="right">
-    <ya-map zoom="1" center="[2.341198,48.856929]" after-init="afterInit($map)">
-        <map-toolbars>
-            <map-toolbar name="toolBar">
-                <control type="button" params="Свойство: balloonHeader"
-                        ya-select="balloonHeader($event)"
-                        ya-deselect="balloonHeader($event)"></control>
-                <control type="button" params="Опция: geodesic"
-                         ya-select="geodes($event)"
-                         ya-deselect="geodes($event)"></control>
-                <control type="button" params="Изменить радиус"
-                         ya-select="changeRadius($event)"
-                         ya-deselect="changeRadius($event)"></control>
-            </map-toolbar>
-        </map-toolbars>
-        <geo-objects>
-            <geo-object
-                    after-init="setObject($geoObject)"
-                    source="circle"
-                    options="{draggable: true}"
-                    ya-mapchange="run($event)"
-                    ya-geometrychange="run($event)"
-                    ya-pixelgeometrychange="run($event)"
-                    ya-optionschange="run($event)"
-                    ya-propertieschange="run($event)"
-                    ya-balloonopen="run($event)"
-                    ya-balloonclose="run($event)"
-                    hintshow="run($event)"
-                    ya-hinthide="run($event)"
-                    ya-dragstart="run($event)"
-                    ya-dragend="run($event)"
-                    ></geo-object>
-        </geo-objects>
+    <ya-map ya-zoom="1" ya-center="[2.341198,48.856929]" ya-after-init="afterInit($target)">
+        <ya-toolbars>
+            <ya-toolbar ya-name="toolBar">
+                <ya-control ya-type="button" ya-params="Свойство: balloonHeader"
+                        ya-event-select="balloonHeader($event)"
+                        ya-event-deselect="balloonHeader($event)"></ya-control>
+                <ya-control ya-type="button" ya-params="Опция: geodesic"
+                         ya-event-select="geodes($event)"
+                         ya-event-deselect="geodes($event)"></ya-control>
+                <ya-control ya-type="button" ya-params="Изменить радиус"
+                         ya-event-select="changeRadius($event)"
+                         ya-event-deselect="changeRadius($event)"></ya-control>
+            </ya-toolbar>
+        </ya-toolbars>
+        <ya-geo-objects>
+            <ya-geo-object
+                    ya-after-init="setObject($target)"
+                    ya-source="circle"
+                    ya-options="{draggable: true}"
+                    ya-event-mapchange="run($event)"
+                    ya-event-geometrychange="run($event)"
+                    ya-event-pixelgeometrychange="run($event)"
+                    ya-event-optionschange="run($event)"
+                    ya-event-propertieschange="run($event)"
+                    ya-event-balloonopen="run($event)"
+                    ya-event-balloonclose="run($event)"
+                    ya-event-hintshow="run($event)"
+                    ya-event-hinthide="run($event)"
+                    ya-event-dragstart="run($event)"
+                    ya-event-dragend="run($event)"
+                    ></ya-geo-object>
+        </ya-geo-objects>
     </ya-map>
     <span ng-repeat="l in log">{{ l }}<br></span>
 </div>

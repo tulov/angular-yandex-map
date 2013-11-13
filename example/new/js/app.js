@@ -326,6 +326,54 @@ angular.module('myApp', ['yaMap'], function($routeProvider, $locationProvider) {
             templateUrl:'partials/list-box-template.html',
             controller:ListBoxTemplateCtrl
         })
+        .when('/template/cluster-balloon',{
+            templateUrl:'partials/cluster-balloon-template.html',
+            controller:ClusterBalloonTemplateCtrl
+        })
+        .when('/template/cluster-balloon-carousel',{
+            templateUrl:'partials/cluster-balloon-carousel-template.html',
+            controller:ClusterBalloonCarouselTemplateCtrl
+        })
+        .when('/template/cluster-balloon-accordion',{
+            templateUrl:'partials/cluster-balloon-accordion-template.html',
+            controller:ClusterBalloonAccordionTemplateCtrl
+        })
+        .when('/geocode',{
+            templateUrl:'partials/geocode.html',
+            controller:GeocodeCtrl
+        })
+        .when('/multi-geocode',{
+            templateUrl:'partials/multi-geocode.html',
+            controller:MultiGeocodeCtrl
+        })
+        .when('/traffic',{
+            templateUrl:'partials/traffic.html',
+            controller:EmptyCtrl
+        })
+        .when('/traffic/without-button',{
+            templateUrl:'partials/traffic-without-button.html',
+            controller:TrafficWithoutButtonCtrl
+        })
+        .when('/geolocation/api',{
+            templateUrl:'partials/geolocation-api.html',
+            controller:GeolocationApiCtrl
+        })
+        .when('/geolocation/place',{
+            templateUrl:'partials/geolocation-place.html',
+            controller:EmptyCtrl
+        })
+        .when('/route',{
+            templateUrl:'partials/route.html',
+            controller:RouteCtrl
+        })
+        .when('/route/edit',{
+            templateUrl:'partials/route-edit.html',
+            controller:RouteEditCtrl
+        })
+        .when('/route/calculate-cost',{
+            templateUrl:'partials/calculate-cost.html',
+            controller:CalculateCostCtrl
+        })
     ;
 
     // configure html5 to get links working on jsfiddle
@@ -1015,7 +1063,6 @@ function RouteMKADCtrl($scope, $http){
                     });
                 });
                 res.getViaPoints().each(function(obj){
-                    console.log(obj);
                     var g = obj.geometry;
                     edges.push({
                         geometry:{
@@ -1052,7 +1099,6 @@ function GeocodeResultViewCtrl($scope){
             function(res){
                 var geos = [];
                 res.geoObjects.each(function(obj){
-                    //console.log(obj);
                     geos.push({
                         geometry:{
                             type:obj.geometry.getType(),
@@ -1318,3 +1364,554 @@ function ListBoxTemplateCtrl($scope,templateLayoutFactory){
     };
 }
 
+function ClusterBalloonTemplateCtrl($scope, templateLayoutFactory){
+    $scope.center = [37.621587,55.74954];
+    $scope.overrides={
+        build: function () {
+            // Сначала вызываем метод build родительского класса.
+            var MainContentLayout = templateLayoutFactory.get('mainTemplate');
+            MainContentLayout.superclass.build.call(this);
+            // Нужно отслеживать, какой из пунктов левого меню выбран,
+            // чтобы обновлять содержимое правой части.
+            this.stateListener = this.getData().state.events.group()
+                .add('change', this.onStateChange, this);
+            // Запоминаем текущий активный объект.
+            this.activeObject = this.getData().state.get('activeObject');
+            this.applyContent();
+        },
+
+        clear: function () {
+            if (this.activeObjectLayout) {
+                this.activeObjectLayout.setParentElement(null);
+                this.activeObjectLayout = null;
+            }
+            // Снимаем слушателей изменения полей.
+            this.stateListener.removeAll();
+            // А затем вызываем метод clear родительского класса.
+            var MainContentLayout = templateLayoutFactory.get('mainTemplate');
+            MainContentLayout.superclass.clear.call(this);
+        },
+
+        onStateChange: function () {
+            // При изменении одного из полей состояния
+            // проверяем, не сменился ли активный объект.
+            var newActiveObject = this.getData().state.get('activeObject');
+            if (newActiveObject != this.activeObject) {
+                // Если объект изменился, нужно обновить
+                // содержимое правой части.
+                this.activeObject = newActiveObject;
+                this.applyContent();
+            }
+        },
+
+        applyContent: function () {
+            if (this.activeObjectLayout) {
+                this.activeObjectLayout.setParentElement(null);
+            }
+            // Чтобы было удобнее формировать текстовый шаблон,
+            // создадим внутренний макет, в который будем передавать
+            // модифицированный dataSet.
+            var MainContentSubLayout = templateLayoutFactory.get('subMainTemplate');
+            this.activeObjectLayout = new MainContentSubLayout({
+                // Поскольку внутренний макет будет отображать
+                // информацию какого-то геообъекта,
+                // будем передавать во входном хэше данные и опции
+                // текущего активного геообъекта.
+                options: this.options,
+                properties: this.activeObject.properties
+            });
+
+            // Прикрепляем внутренний макет к внешнему.
+            this.activeObjectLayout.setParentElement(this.getParentElement());
+        }
+    };
+    var init = function(){
+        var geos = [];
+        for (var i = 0; i < 500; i++) {
+            var coordinates = [
+                $scope.center[0] + 0.5 * Math.random() * (Math.random() < 0.5 ? -1 : 1),
+                $scope.center[1] + 0.7 * Math.random() * (Math.random() < 0.5 ? -1 : 1)
+            ];
+            geos.push({
+                geometry:{
+                    type:'Point',
+                    coordinates:coordinates
+                },
+                properties:{
+                    name: 'Метка №' + i,
+                    clusterCaption: '№' + i,
+                    balloonContentBody: '<br>Варкалось. Хливкие шорьки<br>' +
+                        'Пырялись по наве<br>' +
+                        'И хрюкотали зелюки,<br>' +
+                        'Как мюмзики в мове.<br>',
+                    balloonContentHeader: 'Бармаглот',
+                    balloonContentFooter: 'Л. Кэрролл'
+                }
+            });
+        }
+        $scope.geoObjects = geos;
+    };
+    init();
+}
+
+function ClusterBalloonCarouselTemplateCtrl($scope){
+    $scope.center = [37.611619,55.819543];
+    var content = [
+            [
+                "Пятнадцать человек на сундук мертвеца, ",
+                "Йо-хо-хо, и бутылка рому! ",
+                "Пей, и дьявол тебя доведёт до конца. ",
+                "Йо-хо-хо, и бутылка рому!"
+            ],
+            [
+                "Их мучила жажда, в конце концов, ",
+                "Йо-хо-хо, и бутылка рому! ",
+                "Им стало казаться, что едят мертвецов. ",
+                "Йо-хо-хо, и бутылка рому!"
+            ],
+            [
+                "Что пьют их кровь и мослы их жуют. ",
+                "Йо-хо-хо, и бутылка рому! ",
+                "Вот тут-то и вынырнул чёрт Дэви Джонс. ",
+                "Йо-хо-хо, и бутылка рому!"
+            ],
+            [
+                "Он вынырнул с чёрным большим ключом, ",
+                "Йо-хо-хо, и бутылка рому! ",
+                "С ключом от каморки на дне морском. ",
+                "Йо-хо-хо, и бутылка рому!"
+            ],
+            [
+                "Таращил глаза, как лесная сова, ",
+                "Йо-хо-хо, и бутылка рому! ",
+                "И в хохоте жутком тряслась голова. ",
+                "Йо-хо-хо, и бутылка рому!"
+            ],
+            [
+                "Сказал он: «Теперь вы пойдёте со мной, ",
+                "Йо-хо-хо, и бутылка рому! ",
+                "Вас всех схороню я в пучине морской». ",
+                "Йо-хо-хо, и бутылка рому!"
+            ],
+            [
+                "И он потащил их в подводный свой дом, ",
+                "Йо-хо-хо, и бутылка рому! ",
+                "И запер в нём двери тем чёрным ключом. ",
+                "Йо-хо-хо, и бутылка рому!"
+            ]
+        ];
+    function getRandomCoordinates () {
+        return [
+            $scope.center[0] + 5.5 * Math.random() * Math.random() * (
+                Math.random() < 0.5 ? -1 : 1),
+            $scope.center[1] + 5.5 * Math.random() * Math.random() * (
+                Math.random() < 0.5 ? -1 : 1)
+        ];
+    }
+    function getRandomContentPart () {
+        return content[Math.floor(Math.random() * content.length)].join('<br/>');
+    }
+    var init = function(){
+        var geos = [];
+        for (var i = 0; i < 99; i++) {
+            geos.push({
+                geometry:{
+                    type:'Point',
+                    coordinates:getRandomCoordinates()
+                },
+                properties:{
+                    balloonContentHeader: 'Пиратская песня (' + (i + 1) + ')',
+                    balloonContentBody: getRandomContentPart(),
+                    balloonContentFooter: 'Р.Л.Стивенсон'
+                }
+            });
+        }
+        $scope.geoObjects = geos;
+    };
+    init();
+}
+
+function ClusterBalloonAccordionTemplateCtrl($scope){
+    $scope.center = [37.611619,55.819543];
+    var icons = ['pizza', 'burger', 'film', 'food', 'market', 'pharmacy'];
+    function getRandomIcon () {
+        return icons[Math.floor(Math.random() * icons.length)];
+
+    }
+    function getRandomCoordinates () {
+        return [
+            $scope.center[0] + 5.5 * Math.random() * Math.random() * (
+                Math.random() < 0.5 ? -1 : 1),
+            $scope.center[1] + 5.5 * Math.random() * Math.random() * (
+                Math.random() < 0.5 ? -1 : 1)
+        ];
+    }
+    var init = function(){
+        var geos = [], icos=[];
+        for (var i = 0; i < 99; i++) {
+            geos.push({
+                geometry:{
+                    type:'Point',
+                    coordinates:getRandomCoordinates()
+                },
+                properties:{
+                    clusterCaption: 'Метка ' + (i + 1),
+                    balloonContentHeader: 'Чайлд Роланд к Тёмной Башне пришёл',
+                    balloonContentBody: ['...',
+                        'Его слова — мне дальше не пройти,',
+                        'Мне надо повернуть на этот тракт,',
+                        'Что уведет от Темной Башни в мрак…',
+                        'Я понял: предо мной — конец пути,',
+                        'И рядом цель, что я мечтал найти…',
+                        'Но смысл за годы обратился в прах,',
+                        '...'].join('<br/>'),
+                    balloonContentFooter: 'Роберт Браунинг'
+                }
+            });
+            var icon = getRandomIcon();
+            icos.push({
+                iconImageHref: 'img/pin_' + icon + '.png',
+                iconImageSize: [32, 36],
+                iconImageOffet: [-16, -36],
+                // иконка геообъекта в балуне кластера
+                balloonIconImageHref: 'img/' + icon + '.png',
+                balloonIconImageOffset: [2, 2],
+                balloonIconImageSize: [14, 14]
+            });
+        }
+        $scope.icons = icos;
+        $scope.geoObjects = geos;
+    };
+    init();
+}
+
+function GeocodeCtrl($scope){
+    $scope.beforeInit = function(){
+        ymaps.geocode('Нижний Новгород', { results: 1 }).then(function (res) {
+            // Выбираем первый результат геокодирования.
+            var firstGeoObject = res.geoObjects.get(0);
+            // Задаем центр карты.
+            $scope.$apply(function(){
+                $scope.center = firstGeoObject.geometry.getCoordinates();
+            });
+        }, function (err) {
+            // Если геокодирование не удалось, сообщаем об ошибке.
+            alert(err.message);
+        });
+    };
+    var loadMetro = function(){
+        if(!$scope.center || !$scope.map){
+            return;
+        }
+        // Поиск станций метро.
+        // Делаем запрос на обратное геокодирование.
+        ymaps.geocode($scope.center, {
+            // Ищем только станции метро.
+            kind: 'metro',
+            // Ищем в пределах области видимости карты.
+            boundedBy: $scope.map.getBounds(),
+            // Запрашиваем не более 20 результатов.
+            results: 20
+        }).then(function (res) {
+                var geos = [];
+                res.geoObjects.each(function(obj){
+                    geos.push({
+                        geometry:{
+                            type:'Point',
+                            coordinates:obj.geometry.getCoordinates()
+                        }
+                    });
+                });
+                $scope.$apply(function(){
+                    $scope.metros = geos;
+                });
+            });
+    };
+    $scope.$watch('center',loadMetro);
+    $scope.$watch('map', loadMetro);
+    $scope.afterInit = function(map){
+        $scope.map = map;
+    };
+    $scope.geoObjects = [];
+    $scope.mapClick=function(e){
+        var coords = e.get('coordPosition');
+
+        // Отправим запрос на геокодирование.
+        ymaps.geocode(coords).then(function (res) {
+            var names = [];
+            // Переберём все найденные результаты и
+            // запишем имена найденный объектов в массив names.
+            res.geoObjects.each(function (obj) {
+                names.push(obj.properties.get('name'));
+            });
+            // Добавим на карту метку в точку, по координатам
+            // которой запрашивали обратное геокодирование.
+            var geoObj = {
+                geometry:{
+                    type:'Point',
+                    coordinates:coords
+                },
+                properties:{
+                    // В качестве контента иконки выведем
+                    // первый найденный объект.
+                    iconContent:names[0],
+                    // А в качестве контента балуна - подробности:
+                    // имена всех остальных найденных объектов.
+                    balloonContent:names.reverse().join(', ')
+                }
+            };
+            $scope.$apply(function(){
+                $scope.geoObjects.push(geoObj);
+            });
+        });
+    };
+}
+
+function MultiGeocodeCtrl($scope){
+    var geocodes = [
+        'Москва, Слесарный переулок, д.3',
+        'Люберцы, Октябрьский проспект д.143',
+        [37.588628,55.734046],
+        'Мытищи, ул. Олимпийский проспект, владение 13, корпус А',
+        'Москва, 3-я Хорошевская улица д.2, стр.1',
+        'Москва, Нижний Сусальный переулок, д.5, стр.4'
+    ];
+    $scope.beforeInit = function(){
+        var geocodeQuery;
+        for (var i = 0, ii = geocodes.length; i < ii; i++) {
+            geocodeQuery = geocodes[i];
+            ymaps.geocode(geocodeQuery).then(function (res) {
+                res.geoObjects.each(function(geoObject){
+                    $scope.$apply(function(){
+                        $scope.geoObjects.push({
+                            geometry:{
+                                type:'Point',
+                                coordinates:geoObject.geometry.getCoordinates()
+                            },
+                            properties:{
+                                // А в качестве контента балуна - подробности:
+                                // имена всех остальных найденных объектов.
+                                balloonContent:geoObject.properties.get('name')
+                            }
+                        });
+                    });
+                });
+            });
+        }
+    };
+    $scope.geoObjects = [];
+}
+
+function TrafficWithoutButtonCtrl($scope){
+    $scope.afterInit=function(map){
+        var actualProvider = new ymaps.traffic.provider.Actual({}, { infoLayerShown: true });
+        // И затем добавим его на карту.
+        actualProvider.setMap(map);
+    };
+}
+
+function GeolocationApiCtrl($scope){
+    $scope.beforeInit = function(){
+        // Данные о местоположении, определённом по IP
+        var geolocation = ymaps.geolocation,
+            // координаты
+            coords = [geolocation.longitude,geolocation.latitude];
+        $scope.center = coords;
+        $scope.geoObject = {
+            geometry:{
+                type:'Point',
+                coordinates:coords
+            },
+            properties:{
+                // В балуне: страна, город, регион.
+                balloonContentHeader: geolocation.country,
+                balloonContent: geolocation.city,
+                balloonContentFooter: geolocation.region
+            }
+        };
+    };
+}
+
+function RouteCtrl($scope){
+    var routePoints = [
+        'Москва, улица Крылатские холмы',
+        {
+            point: 'Москва, метро Молодежная',
+            // метро "Молодежная" - транзитная точка
+            // (проезжать через эту точку, но не останавливаться в ней).
+            type: 'viaPoint'
+        },
+        [55.731272, 37.447198], // метро "Кунцевская".
+        'Москва, метро Пионерская'
+    ];
+    $scope.route = function(map){
+        ymaps.route(routePoints).then(function (route) {
+            map.geoObjects.add(route);
+            // Зададим содержание иконок начальной и конечной точкам маршрута.
+            // С помощью метода getWayPoints() получаем массив точек маршрута.
+            // Массив транзитных точек маршрута можно получить с помощью метода getViaPoints.
+            var points = route.getWayPoints(),
+                lastPoint = points.getLength() - 1;
+            // Задаем стиль метки - иконки будут красного цвета, и
+            // их изображения будут растягиваться под контент.
+            points.options.set('preset', 'twirl#redStretchyIcon');
+            // Задаем контент меток в начальной и конечной точках.
+            points.get(0).properties.set('iconContent', 'Точка отправления');
+            points.get(lastPoint).properties.set('iconContent', 'Точка прибытия');
+
+            // Проанализируем маршрут по сегментам.
+            // Сегмент - участок маршрута, который нужно проехать до следующего
+            // изменения направления движения.
+            // Для того, чтобы получить сегменты маршрута, сначала необходимо получить
+            // отдельно каждый путь маршрута.
+            // Весь маршрут делится на два пути:
+            // 1) от улицы Крылатские холмы до станции "Кунцевская";
+            // 2) от станции "Кунцевская" до "Пионерская".
+
+            var way,
+                segments,
+                path=['Трогаемся'];
+            // Получаем массив путей.
+            for (var i = 0; i < route.getPaths().getLength(); i++) {
+                way = route.getPaths().get(i);
+                segments = way.getSegments();
+                for (var j = 0; j < segments.length; j++) {
+                    var street = segments[j].getStreet();
+                    path.push('Едем ' + segments[j].getHumanAction() +
+                        (street ? ' на ' + street : '') +
+                        ', проезжаем ' + segments[j].getLength() + ' м.,'
+                    );
+                }
+            }
+            path.push('Останавливаемся');
+            $scope.$apply(function(){
+                $scope.path = path;
+            });
+        }, function (error) {
+            alert('Возникла ошибка: ' + error.message);
+        });
+    };
+}
+
+function RouteEditCtrl($scope){
+    var routePoints = [
+        'Москва, метро Смоленская',
+        {
+            // Метро Арбатская - транзитная точка (проезжать через эту точку,
+            // но не останавливаться в ней).
+            type: 'viaPoint',
+            point: 'Москва, метро Арбатская'
+        },
+        // Метро "Третьяковская".
+        [37.62561,55.74062]
+    ];
+    var startEditing=false;
+    $scope.btnLabel = 'Включить редактор маршрута';
+    $scope.route = function(map){
+        ymaps.route(routePoints, {
+            // Автоматически позиционировать карту.
+            mapStateAutoApply: true
+        }).then(function (route) {
+                map.geoObjects.add(route);
+                $scope.routeEdit = function(){
+                    if (!startEditing) {
+                        // Включаем редактор.
+                        startEditing=!startEditing;
+                        route.editor.start({ addWayPoints: true });
+                        $scope.btnLabel = 'Отключить редактор маршрута';
+                    } else {
+                        // Выключаем редактор.
+                        startEditing=!startEditing;
+                        route.editor.stop();
+                        $scope.btnLabel='Включить редактор маршрута';
+                    }
+                };
+            }, function (error) {
+                alert("Возникла ошибка: " + error.message);
+            });
+    };
+}
+
+function CalculateCostCtrl($scope){
+    function DeliveryCalculator(map, finish) {
+        this._map = map;
+        this._start = null;
+        this._finish = new ymaps.Placemark(finish, { iconContent: 'Б' });
+        this._route = null;
+
+        map.events.add('click', this._onClick, this);
+        map.geoObjects.add(this._finish);
+    }
+
+    var ptp = DeliveryCalculator.prototype;
+
+    ptp._onClick= function (e) {
+        this.setStartPoint(e.get('coordPosition'));
+    };
+
+    ptp._onDragEnd = function (e) {
+        var target = e.get('target');
+        this.setStartPoint(target.geometry.getCoordinates());
+    };
+
+    ptp.getDirections = function () {
+        var self = this,
+            start = this._start.geometry.getCoordinates(),
+            finish = this._finish.geometry.getCoordinates();
+
+        if(this._route) {
+            this._map.geoObjects.remove(this._route);
+        }
+
+        ymaps.geocode(start, { results: 1 })
+            .then(function (geocode) {
+                var address = geocode.geoObjects.get(0) &&
+                    geocode.geoObjects.get(0).properties.get('balloonContentBody') || '';
+
+                ymaps.route([start, finish])
+                    .then(function (router) {
+                        var distance = Math.round(router.getLength() / 1000),
+                            message = '<span>Расстояние: ' + distance + 'км.</span><br/>' +
+                                '<span style="font-weight: bold; font-style: italic">Стоимость доставки: %sр.</span>';
+
+                        self._route = router.getPaths();
+                        self._route.options.set({ strokeWidth: 5, strokeColor: '0000ffff', opacity: 0.5 });
+                        self._map.geoObjects.add(self._route);
+                        self._start.properties.set('balloonContentBody', address + message.replace('%s', self.calculate(distance)));
+                        self._start.balloon.open();
+                    });
+            });
+    };
+
+    ptp.setStartPoint = function (position) {
+        if(this._start) {
+            this._start.geometry.setCoordinates(position);
+        }
+        else {
+            this._start = new ymaps.Placemark(position, { iconContent: 'А' }, { draggable: true });
+            this._start.events.add('dragend', this._onDragEnd, this);
+            this._map.geoObjects.add(this._start);
+        }
+        this.getDirections();
+    };
+
+    ptp.calculate = function (len) {
+        // Константы.
+        var DELIVERY_TARIF = 20,
+            MINIMUM_COST = 500;
+
+        return Math.max(len * DELIVERY_TARIF, MINIMUM_COST);
+    };
+
+    var calculator;
+    $scope.afterInit = function(map){
+        calculator = new DeliveryCalculator(map, map.getCenter());
+    };
+    $scope.resultSelect = function(e){
+        var results = e.get('target').getResultsArray(),
+            selected = e.get('resultIndex'),
+            point = results[selected].geometry.getCoordinates();
+        calculator.setStartPoint(point);
+    };
+
+}

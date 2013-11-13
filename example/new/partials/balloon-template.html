@@ -1,17 +1,17 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;template-layout key="templateOne" overrides="overrides"&gt;
+&lt;ya-template-layout ya-key="templateOne" ya-overrides="overrides"&gt;
     &lt;div style="margin: 10px;"&gt;
         &lt;b&gt;$[properties.name]&lt;/b&gt;&lt;br /&gt;
         &lt;i id="count"&gt;&lt;/i&gt;
         &lt;button id="counter-button"&gt; +1 &lt;/button&gt;
     &lt;/div&gt;
-&lt;/template-layout&gt;
-&lt;ya-map zoom="10" center="[37.62708,55.650625]"&gt;
-    &lt;geo-objects&gt;
-        &lt;geo-object source="point" options="{balloonContentLayout:'templateOne'}"&gt;&lt;/geo-object&gt;
-    &lt;/geo-objects&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="10" ya-center="[37.62708,55.650625]"&gt;
+    &lt;ya-geo-objects&gt;
+        &lt;ya-geo-object ya-source="point" ya-options="{balloonContentLayout:'templateOne'}"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-geo-objects&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
@@ -59,16 +59,16 @@ $scope.point = {
 </pre>
 </div>
 <div class="right">
-    <template-layout key="templateOne" overrides="overrides">
+    <ya-template-layout ya-key="templateOne" ya-overrides="overrides">
         <div style="margin: 10px;">
             <b>$[properties.name]</b><br />
             <i id="count"></i>
             <button id="counter-button"> +1 </button>
         </div>
-    </template-layout>
-    <ya-map zoom="10" center="[37.62708,55.650625]">
-        <geo-objects>
-            <geo-object source="point" options="{balloonContentLayout:'templateOne'}"></geo-object>
-        </geo-objects>
+    </ya-template-layout>
+    <ya-map ya-zoom="10" ya-center="[37.62708,55.650625]">
+        <ya-geo-objects>
+            <ya-geo-object ya-source="point" ya-options="{balloonContentLayout:'templateOne'}"></ya-geo-object>
+        </ya-geo-objects>
     </ya-map>
 </div>

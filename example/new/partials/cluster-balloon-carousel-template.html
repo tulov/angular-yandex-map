@@ -1,0 +1,129 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-template-layout ya-key="balloonContentTemplate"&gt;
+    &lt;div class=entry&gt;
+        &lt;div class=bold&gt;$[properties.balloonContentHeader]&lt;/div&gt;
+        &lt;div&gt;$[properties.balloonContentBody]&lt;/div&gt;
+        &lt;div class=author&gt;$[properties.balloonContentFooter]&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="5" ya-center="{{ center }}" ya-options="{geoObjectClusterDisableClickZoom: true}"&gt;
+    &lt;ya-cluster ya-options="{clusterBalloonContentBodyLayout: 'cluster#balloonCarouselContent',clusterBalloonContentItemLayout: 'balloonContentTemplate',clusterBalloonPagerSize: 5,clusterBalloonWidth: 220}"&gt;
+        &lt;ya-marker ng-repeat="o in geoObjects" ya-source="o"&gt;&lt;/ya-marker&gt;
+    &lt;/ya-cluster&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>CSS</p>
+    <pre class="css">
+.entry {
+    padding: 10px 20px 10px 15px;
+}
+
+.entry > * {
+    margin-top: 6px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.author {
+    text-align: right;
+    font-style: italic;
+    font-size: .8em;
+    line-height: .8em;
+    margin-right: 5px;
+}
+    </pre>
+    <p>javascript:</p>
+    <pre class="js">
+$scope.center = [37.611619,55.819543];
+var content = [
+        [
+            "Пятнадцать человек на сундук мертвеца, ",
+            "Йо-хо-хо, и бутылка рому! ",
+            "Пей, и дьявол тебя доведёт до конца. ",
+            "Йо-хо-хо, и бутылка рому!"
+        ],
+        [
+            "Их мучила жажда, в конце концов, ",
+            "Йо-хо-хо, и бутылка рому! ",
+            "Им стало казаться, что едят мертвецов. ",
+            "Йо-хо-хо, и бутылка рому!"
+        ],
+        [
+            "Что пьют их кровь и мослы их жуют. ",
+            "Йо-хо-хо, и бутылка рому! ",
+            "Вот тут-то и вынырнул чёрт Дэви Джонс. ",
+            "Йо-хо-хо, и бутылка рому!"
+        ],
+        [
+            "Он вынырнул с чёрным большим ключом, ",
+            "Йо-хо-хо, и бутылка рому! ",
+            "С ключом от каморки на дне морском. ",
+            "Йо-хо-хо, и бутылка рому!"
+        ],
+        [
+            "Таращил глаза, как лесная сова, ",
+            "Йо-хо-хо, и бутылка рому! ",
+            "И в хохоте жутком тряслась голова. ",
+            "Йо-хо-хо, и бутылка рому!"
+        ],
+        [
+            "Сказал он: «Теперь вы пойдёте со мной, ",
+            "Йо-хо-хо, и бутылка рому! ",
+            "Вас всех схороню я в пучине морской». ",
+            "Йо-хо-хо, и бутылка рому!"
+        ],
+        [
+            "И он потащил их в подводный свой дом, ",
+            "Йо-хо-хо, и бутылка рому! ",
+            "И запер в нём двери тем чёрным ключом. ",
+            "Йо-хо-хо, и бутылка рому!"
+        ]
+    ];
+function getRandomCoordinates () {
+    return [
+        $scope.center[0] + 5.5 * Math.random() * Math.random() * (
+            Math.random() < 0.5 ? -1 : 1),
+        $scope.center[1] + 5.5 * Math.random() * Math.random() * (
+            Math.random() < 0.5 ? -1 : 1)
+    ];
+}
+function getRandomContentPart () {
+    return content[Math.floor(Math.random() * content.length)].join('<br/>');
+}
+var init = function(){
+    var geos = [];
+    for (var i = 0; i < 99; i++) {
+        geos.push({
+            geometry:{
+                type:'Point',
+                coordinates:getRandomCoordinates()
+            },
+            properties:{
+                balloonContentHeader: 'Пиратская песня (' + (i + 1) + ')',
+                balloonContentBody: getRandomContentPart(),
+                balloonContentFooter: 'Р.Л.Стивенсон'
+            }
+        });
+    }
+    $scope.geoObjects = geos;
+};
+init();</pre>
+</div>
+<div class="right">
+    <ya-template-layout ya-key="balloonContentTemplate">
+        <div class=entry>
+            <div class=bold>$[properties.balloonContentHeader]</div>
+            <div>$[properties.balloonContentBody]</div>
+            <div class=author>$[properties.balloonContentFooter]</div>
+        </div>
+    </ya-template-layout>
+    <ya-map ya-zoom="5" ya-center="{{ center }}" ya-options="{geoObjectClusterDisableClickZoom: true}">
+        <ya-cluster ya-options="{clusterBalloonContentBodyLayout: 'cluster#balloonCarouselContent',clusterBalloonContentItemLayout: 'balloonContentTemplate',clusterBalloonPagerSize: 5,clusterBalloonWidth: 220}">
+            <ya-marker ng-repeat="o in geoObjects" ya-source="o"></ya-marker>
+        </ya-cluster>
+    </ya-map>
+</div>

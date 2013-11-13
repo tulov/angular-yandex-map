@@ -1,17 +1,17 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;template-layout key="buttonTemplate"&gt;
+&lt;ya-template-layout ya-key="buttonTemplate"&gt;
     &lt;div class='my-button [if state.selected]my-button-selected[endif]'&gt;
         $[data.content]
     &lt;/div&gt;
-&lt;/template-layout&gt;
-&lt;ya-map zoom="10" center="[37.62708,55.650625]"&gt;
-    &lt;map-toolbars&gt;
-        &lt;map-toolbar name="toolBar" options="{right:5,top:5}"&gt;
-            &lt;control type="button" params="Жмак-жмак" options="{layout:'buttonTemplate'}"&gt;&lt;/control&gt;
-        &lt;/map-toolbar&gt;
-    &lt;/map-toolbars&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="10" ya-center="[37.62708,55.650625]"&gt;
+    &lt;ya-toolbars&gt;
+        &lt;ya-toolbar ya-name="toolBar" ya-options="{right:5,top:5}"&gt;
+            &lt;ya-control ya-type="button" ya-params="Жмак-жмак" ya-options="{layout:'buttonTemplate'}"&gt;&lt;/ya-control&gt;
+        &lt;/ya-toolbar&gt;
+    &lt;/ya-toolbars&gt;
 &lt;/ya-map&gt;
 </pre>
     <p>CSS</p>
@@ -42,16 +42,16 @@
     </pre>
 </div>
 <div class="right">
-    <template-layout key="buttonTemplate">
+    <ya-template-layout ya-key="buttonTemplate">
         <div class='my-button [if state.selected]my-button-selected[endif]'>
             $[data.content]
         </div>
-    </template-layout>
-    <ya-map zoom="10" center="[37.62708,55.650625]">
-        <map-toolbars>
-            <map-toolbar name="toolBar" options="{right:5,top:5}">
-                <control type="button" params="Жмак-жмак" options="{layout:'buttonTemplate'}"></control>
-            </map-toolbar>
-        </map-toolbars>
+    </ya-template-layout>
+    <ya-map ya-zoom="10" ya-center="[37.62708,55.650625]">
+        <ya-toolbars>
+            <ya-toolbar ya-name="toolBar" ya-options="{right:5,top:5}">
+                <ya-control ya-type="button" ya-params="Жмак-жмак" ya-options="{layout:'buttonTemplate'}"></ya-control>
+            </ya-toolbar>
+        </ya-toolbars>
     </ya-map>
 </div>

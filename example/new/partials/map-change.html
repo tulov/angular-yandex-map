@@ -1,7 +1,7 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html" ng-non-bindable>
-&lt;ya-map zoom="10" center="{{ center }}" type="{{ type }}"  after-init="afterMapInit($map)"&gt;&lt;/ya-map&gt;
+&lt;ya-map ya-zoom="10" ya-center="{{ center }}" ya-type="{{ type }}" ya-after-init="afterMapInit($map)"&gt;&lt;/ya-map&gt;
 &lt;button ng-click="changeCenter()"&gt;Изменить центр&lt;/button&gt;
 &lt;button ng-click="changeBounds()"&gt;Изменить границы&lt;/button&gt;
 &lt;button ng-click="replace()"&gt;Изменить тип и плавно переместиться&lt;/button&gt;
@@ -29,7 +29,7 @@ $scope.replace=function(){
 };</pre>
 </div>
 <div class="right">
-    <ya-map zoom="10" center="{{ center }}" type="{{ type }}" after-init="afterMapInit($map)"></ya-map>
+    <ya-map ya-zoom="10" ya-center="{{ center }}" ya-type="{{ type }}" ya-after-init="afterMapInit($target)"></ya-map>
     <button ng-click="changeCenter()">Изменить центр</button>
     <button ng-click="changeBounds()">Изменить границы</button>
     <button ng-click="replace()">Изменить тип и плавно переместиться</button>

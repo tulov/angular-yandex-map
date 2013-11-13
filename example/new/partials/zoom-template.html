@@ -1,18 +1,18 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;template-layout key="zoomTemplate" overrides="over"&gt;
+&lt;ya-template-layout ya-key="zoomTemplate" ya-overrides="over"&gt;
     &lt;div&gt;
         &lt;div id='zoom-in' class='btn'&gt;&lt;i class='icon-plus'&gt;&lt;/i&gt;&lt;/div&gt;&lt;br&gt;
         &lt;div id='zoom-out' class='btn'&gt;&lt;i class='icon-minus'&gt;&lt;/i&gt;&lt;/div&gt;
     &lt;/div&gt;
-&lt;/template-layout&gt;
-&lt;ya-map zoom="9" center="[37.573856,55.751574]"&gt;
-    &lt;map-toolbars&gt;
-        &lt;map-toolbar name="toolBar" options="{left:5,top:5}"&gt;
-            &lt;control type="SmallZoomControl" options="{layout:'zoomTemplate'}"&gt;&lt;/control&gt;
-        &lt;/map-toolbar&gt;
-    &lt;/map-toolbars&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="9" ya-center="[37.573856,55.751574]"&gt;
+    &lt;ya-toolbars&gt;
+        &lt;ya-toolbar ya-name="toolBar" ya-options="{left:5,top:5}"&gt;
+            &lt;ya-control ya-type="SmallZoomControl" ya-options="{layout:'zoomTemplate'}"&gt;&lt;/ya-control&gt;
+        &lt;/ya-toolbar&gt;
+    &lt;/ya-toolbars&gt;
 &lt;/ya-map&gt;
 </pre>
     <p>javascript</p>
@@ -64,17 +64,17 @@ $scope.over={
 </pre>
 </div>
 <div class="right">
-    <template-layout key="zoomTemplate" overrides="over">
+    <ya-template-layout ya-key="zoomTemplate" ya-overrides="over">
         <div>
             <div id='zoom-in' class='btn'><i class='icon-plus'></i></div><br>
             <div id='zoom-out' class='btn'><i class='icon-minus'></i></div>
         </div>
-    </template-layout>
-    <ya-map zoom="9" center="[37.573856,55.751574]">
-        <map-toolbars>
-            <map-toolbar name="toolBar" options="{left:5,top:5}">
-                <control type="SmallZoomControl" options="{layout:'zoomTemplate'}"></control>
-            </map-toolbar>
-        </map-toolbars>
+    </ya-template-layout>
+    <ya-map ya-zoom="9" ya-center="[37.573856,55.751574]">
+        <ya-toolbars>
+            <ya-toolbar ya-name="toolBar" ya-options="{left:5,top:5}">
+                <ya-control ya-type="SmallZoomControl" ya-options="{layout:'zoomTemplate'}"></ya-control>
+            </ya-toolbar>
+        </ya-toolbars>
     </ya-map>
 </div>

@@ -75,3 +75,26 @@ pre.html,pre.js,pre.css{
     border-color: #e6e6e6 #e6e6e6 #bfbfbf;
     font-family: Arial;
 }
+.cluster-balloon-item {
+    margin: 10px;
+    cursor: pointer;
+}
+.entry {
+    padding: 10px 20px 10px 15px;
+}
+
+.entry > * {
+    margin-top: 6px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.author {
+    text-align: right;
+    font-style: italic;
+    font-size: .8em;
+    line-height: .8em;
+    margin-right: 5px;
+}

@@ -1,11 +1,10 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;ya-map zoom="10" center="[37.64,55.72]"&gt;
-    &lt;geo-objects&gt;
-        &lt;geo-object source="geoObjects[0]" editor-menu-manager="editor" ya-edit
-            options="{strokeColor: '#00000088',strokeWidth: 4,editorMaxPoints: 6}"&gt;&lt;/geo-object&gt;
-    &lt;/geo-objects&gt;
+&lt;ya-map ya-zoom="10" ya-center="[37.64,55.72]"&gt;
+    &lt;ya-geo-objects&gt;
+        &lt;ya-geo-object ya-source="geoObjects[0]" ya-options="{strokeColor: '#00000088',strokeWidth: 4,editorMaxPoints: 6}" editor-menu-manager="editor" ya-edit&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-geo-objects&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
@@ -40,9 +39,9 @@ $scope.editor = function (items) {
 </pre>
 </div>
 <div class="right">
-    <ya-map zoom="10" center="[37.64,55.72]">
-        <geo-objects>
-            <geo-object source="geoObjects[0]" options="{strokeColor: '#00000088',strokeWidth: 4,editorMaxPoints: 6}" editor-menu-manager="editor" ya-edit></geo-object>
-        </geo-objects>
+    <ya-map ya-zoom="10" ya-center="[37.64,55.72]">
+        <ya-geo-objects>
+            <ya-geo-object ya-source="geoObjects[0]" ya-options="{strokeColor: '#00000088',strokeWidth: 4,editorMaxPoints: 6}" editor-menu-manager="editor" ya-edit></ya-geo-object>
+        </ya-geo-objects>
     </ya-map>
 </div>

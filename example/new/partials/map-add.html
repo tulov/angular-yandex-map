@@ -1,7 +1,7 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;ya-map zoom="8" center="[37.64,55.76]" after-init="afterMapInit($map)"&gt;&lt;/ya-map&gt;
+&lt;ya-zoom="8" ya-center="[37.64,55.76]" ya-after-init="afterMapInit($target)"&gt;&lt;/ya-map&gt;
 &lt;button ng-click="del()"&gt;Удалить&lt;/button&gt;
     </pre>
     <p>javascript:</p>
@@ -16,6 +16,6 @@ $scope.del = function(){
 </pre>
 </div>
 <div class="right">
-    <ya-map zoom="8" center="[37.64,55.76]" after-init="afterMapInit($map)"></ya-map>
+    <ya-map ya-zoom="8" ya-center="[37.64,55.76]" ya-after-init="afterMapInit($target)"></ya-map>
     <button ng-click="del()">Удалить</button>
 </div>

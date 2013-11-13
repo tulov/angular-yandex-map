@@ -1,10 +1,10 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;ya-map zoom="12" center="[37.75,55.73]" ya-click="mapClick($event,$geoQueryCollection)"&gt;
-    &lt;geo-objects ya-geo-query&gt;
-        &lt;geo-object ng-repeat="cafe in cafes" source="cafe"&gt;&lt;/geo-object&gt;
-    &lt;/geo-objects&gt;
+&lt;ya-map ya-zoom="12" ya-center="[37.75,55.73]" ya-event-click="mapClick($event,$geoQueryCollection)"&gt;
+    &lt;ya-geo-objects ya-geo-query&gt;
+        &lt;ya-geo-object ng-repeat="cafe in cafes" ya-source="cafe"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-geo-objects&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
@@ -47,9 +47,9 @@ $scope.mapClick=function(event, geoQueryCollection){
 </div>
 <div class="right">
     <p>При клике на карту будет открываться балун ближайшей к месту клика метки</p>
-    <ya-map zoom="12" center="[37.75,55.73]" ya-click="mapClick($event,$geoQueryCollection)">
-        <geo-objects ya-geo-query>
-            <geo-object ng-repeat="cafe in cafes" source="cafe"></geo-object>
-        </geo-objects>
+    <ya-map ya-zoom="12" ya-center="[37.75,55.73]" ya-event-click="mapClick($event,$geoQueryCollection)">
+        <ya-geo-objects ya-geo-query>
+            <ya-geo-object ng-repeat="cafe in cafes" ya-source="cafe"></ya-geo-object>
+        </ya-geo-objects>
     </ya-map>
 </div>

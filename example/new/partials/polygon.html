@@ -1,11 +1,11 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;ya-map zoom="10" center="[37.75,55.73]"&gt;
-    &lt;geo-objects&gt;
-        &lt;geo-object source="geoObjects[0]" options="{fillColor: '#00FF00',strokeColor: '#0000FF',opacity: 0.5,strokeWidth: 5,strokeStyle: 'shortdash'}"&gt;&lt;/geo-object&gt;
-        &lt;geo-object source="geoObjects[1]" options="{fillColor: '#00FF0088',strokeWidth: 5}"&gt;&lt;/geo-object&gt;
-    &lt;/geo-objects&gt;
+&lt;ya-map ya-zoom="10" ya-center="[37.75,55.73]"&gt;
+    &lt;ya-geo-objects&gt;
+        &lt;ya-geo-object ya-source="geoObjects[0]" ya-options="{fillColor: '#00FF00',strokeColor: '#0000FF',opacity: 0.5,strokeWidth: 5,strokeStyle: 'shortdash'}"&gt;&lt;/ya-geo-object&gt;
+        &lt;ya-geo-object ya-source="geoObjects[1]" ya-options="{fillColor: '#00FF0088',strokeWidth: 5}"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-geo-objects&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
@@ -61,10 +61,10 @@ $scope.geoObjects=[
 ];</pre>
 </div>
 <div class="right">
-    <ya-map zoom="10" center="[37.75,55.73]">
-        <geo-objects>
-            <geo-object source="geoObjects[0]" options="{fillColor: '#00FF00',strokeColor: '#0000FF',opacity: 0.5,strokeWidth: 5,strokeStyle: 'shortdash'}"></geo-object>
-            <geo-object source="geoObjects[1]" options="{fillColor: '#00FF0088',strokeWidth: 5}"></geo-object>
-        </geo-objects>
+    <ya-map ya-zoom="10" ya-center="[37.75,55.73]">
+        <ya-geo-objects>
+            <ya-geo-object ya-source="geoObjects[0]" ya-options="{fillColor: '#00FF00',strokeColor: '#0000FF',opacity: 0.5,strokeWidth: 5,strokeStyle: 'shortdash'}"></ya-geo-object>
+            <ya-geo-object ya-source="geoObjects[1]" ya-options="{fillColor: '#00FF0088',strokeWidth: 5}"></ya-geo-object>
+        </ya-geo-objects>
     </ya-map>
 </div>

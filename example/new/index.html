@@ -134,12 +134,13 @@
     template-layout
 
 -->
+<!-- todo: для pre с классом html добавить атрибут ng-non-bindable-->
 <div class="container">
     <div class="left">
         Карта:
         <ul>
             <li><a href="/">Создание и удаление</a></li>
-            <!--<li><a href="/map/change">Основные параметры</a></li>
+            <li><a href="/map/change">Основные параметры</a></li>
             <li><a href="/map/fullscreen">На весь контейнер</a></li>
             <li><a href="/map/hidden">Скрытый контейнер</a></li>
             <li><a href="/map/controls">Элементы управления</a></li>
@@ -178,7 +179,7 @@
             <li><a href="/events/geoobect">События</a></li>
             <li><a href="/events/coordinate-click">Координаты щелчка</a></li>
             <li><a href="/events/edit-geoobject">Редактирование метки</a></li>
-            <li><a href="/events/change-color">Смена значка метки при наведении</a></li>-->
+            <li><a href="/events/change-color">Смена значка метки при наведении</a></li>
         </ul>
         Шаблоны и макеты:
         <ul>
@@ -186,6 +187,30 @@
             <li><a href="/template/batton">Макет кнопки</a></li>
             <li><a href="/template/zoom">Макет элемента изменения масштаба</a></li>
             <li><a href="/template/list-box">Макет выпадающего списка</a></li>
+            <li><a href="/template/cluster-balloon">Макет балуна кластера</a></li>
+            <li><a href="/template/cluster-balloon-carousel">Макет балуна кластера "Карусель"</a></li>
+            <li><a href="/template/cluster-balloon-accordion">Макет балуна кластера "Аккордион"</a></li>
+        </ul>
+        Геокодирование:
+        <ul>
+            <li><a href="/geocode">Геокодирование</a></li>
+            <li><a href="/multi-geocode">Множественное геокодирование</a></li>
+        </ul>
+        Пробки
+        <ul>
+            <li><a href="/traffic">Элемент управления "Пробки"</a></li>
+            <li><a href="/traffic/without-button">Слой пробок на карте без кнопки</a></li>
+        </ul>
+        Местоположение:
+        <ul>
+            <li><a href="/geolocation/api">Определение местоположения по IP</a></li>
+            <li><a href="/geolocation/place">Создание карты с местоположением пользователя</a></li>
+        </ul>
+        Маршрутизация:
+        <ul>
+            <li><a href="/route">Построение маршрута</a></li>
+            <li><a href="/route/edit">Редактирование маршрута</a></li>
+            <li><a href="/route/calculate-cost">Стоимость доставки</a></li>
         </ul>
     </div>
     <div ng-view class="content"></div>

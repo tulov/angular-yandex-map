@@ -1,0 +1,106 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-template-layout ya-key="balloonItemContentTemplate"&gt;
+    &lt;div class=entry&gt;
+        &lt;div class=bold&gt;$[properties.balloonContentHeader]&lt;/div&gt;
+        &lt;div&gt;$[properties.balloonContentBody]&lt;/div&gt;
+        &lt;div class=author&gt;$[properties.balloonContentFooter]&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="5" ya-center="{{ center }}" ya-options="{geoObjectClusterDisableClickZoom: true}"&gt;
+    &lt;ya-cluster ya-options="{clusterBalloonContentBodyLayout: 'cluster#balloonAccordionContent',clusterBalloonAccordionItemContentLayout: 'balloonItemContentTemplate',clusterBalloonWidth: 300,clusterBalloonHeight: 200}"&gt;
+        &lt;ya-marker ng-repeat="o in geoObjects" ya-source="o" ya-options="$parent.icons[$parent.$index]"&gt;&lt;/ya-marker&gt;
+    &lt;/ya-cluster&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>CSS</p>
+    <pre class="css">
+.entry {
+    padding: 10px 20px 10px 15px;
+}
+
+.entry > * {
+    margin-top: 6px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.author {
+    text-align: right;
+    font-style: italic;
+    font-size: .8em;
+    line-height: .8em;
+    margin-right: 5px;
+}
+    </pre>
+    <p>javascript:</p>
+    <pre class="js">
+$scope.center = [37.611619,55.819543];
+var icons = ['pizza', 'burger', 'film', 'food', 'market', 'pharmacy'];
+function getRandomIcon () {
+    return icons[Math.floor(Math.random() * icons.length)];
+
+}
+function getRandomCoordinates () {
+    return [
+        $scope.center[0] + 5.5 * Math.random() * Math.random() * (
+            Math.random() < 0.5 ? -1 : 1),
+        $scope.center[1] + 5.5 * Math.random() * Math.random() * (
+            Math.random() < 0.5 ? -1 : 1)
+    ];
+}
+var init = function(){
+    var geos = [], icos=[];
+    for (var i = 0; i < 99; i++) {
+        geos.push({
+            geometry:{
+                type:'Point',
+                coordinates:getRandomCoordinates()
+            },
+            properties:{
+                clusterCaption: 'Метка ' + (i + 1),
+                balloonContentHeader: 'Чайлд Роланд к Тёмной Башне пришёл',
+                balloonContentBody: ['...',
+                    'Его слова — мне дальше не пройти,',
+                    'Мне надо повернуть на этот тракт,',
+                    'Что уведет от Темной Башни в мрак…',
+                    'Я понял: предо мной — конец пути,',
+                    'И рядом цель, что я мечтал найти…',
+                    'Но смысл за годы обратился в прах,',
+                    '...'].join('<br/>'),
+                balloonContentFooter: 'Роберт Браунинг'
+            }
+        });
+        var icon = getRandomIcon();
+        icos.push({
+            iconImageHref: 'img/pin_' + icon + '.png',
+            iconImageSize: [32, 36],
+            iconImageOffet: [-16, -36],
+            // иконка геообъекта в балуне кластера
+            balloonIconImageHref: 'img/' + icon + '.png',
+            balloonIconImageOffset: [2, 2],
+            balloonIconImageSize: [14, 14]
+        });
+    }
+    $scope.icons = icos;
+    $scope.geoObjects = geos;
+};
+init();</pre>
+</div>
+<div class="right">
+    <ya-template-layout ya-key="balloonItemContentTemplate">
+        <div class=entry>
+            <div class=bold>$[properties.balloonContentHeader]</div>
+            <div>$[properties.balloonContentBody]</div>
+            <div class=author>$[properties.balloonContentFooter]</div>
+        </div>
+    </ya-template-layout>
+    <ya-map ya-zoom="5" ya-center="{{ center }}" ya-options="{geoObjectClusterDisableClickZoom: true}">
+        <ya-cluster ya-options="{clusterBalloonContentBodyLayout: 'cluster#balloonAccordionContent',clusterBalloonAccordionItemContentLayout: 'balloonItemContentTemplate',clusterBalloonWidth: 300,clusterBalloonHeight: 200}">
+            <ya-marker ng-repeat="o in geoObjects" ya-source="o" ya-options="$parent.icons[$parent.$index]"></ya-marker>
+        </ya-cluster>
+    </ya-map>
+</div>

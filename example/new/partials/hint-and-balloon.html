@@ -1,10 +1,10 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;ya-map zoom="5" center="[37.11,54.83]" after-init="afterMapInit($map)"&gt;
-    &lt;geo-objects&gt;
-        &lt;geo-object source="geoObjects[0]"&gt;&lt;/geo-object&gt;
-    &lt;/geo-objects&gt;
+&lt;ya-map ya-zoom="5" ya-center="[37.11,54.83]" ya-after-init="afterMapInit($target)"&gt;
+    &lt;ya-geo-objects&gt;
+        &lt;ya-geo-object ya-source="geoObjects[0]"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-geo-objects&gt;
 &lt;/ya-map&gt;
 </pre>
     <p>javascript</p>
@@ -42,9 +42,9 @@ $scope.afterMapInit=function(map){
 </pre>
 </div>
 <div class="right">
-    <ya-map zoom="5" center="[37.11,54.83]" after-init="afterMapInit($map)">
-        <geo-objects>
-            <geo-object source="geoObjects[0]"></geo-object>
-        </geo-objects>
+    <ya-map ya-zoom="5" ya-center="[37.11,54.83]" ya-after-init="afterMapInit($target)">
+        <ya-geo-objects>
+            <ya-geo-object ya-source="geoObjects[0]"></ya-geo-object>
+        </ya-geo-objects>
     </ya-map>
 </div>

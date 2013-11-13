@@ -1,0 +1,38 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-map ya-zoom="10" ya-center="{{ center }}" ya-before-init="beforeInit()"&gt;
+    &lt;ya-geo-objects&gt;
+        &lt;ya-geo-object ya-source="geoObject"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-geo-objects&gt;
+&lt;/ya-map&gt;
+</pre>
+    <p>javascript:</p>
+    <pre class="js">
+$scope.beforeInit = function(){
+    // Данные о местоположении, определённом по IP
+    var geolocation = ymaps.geolocation,
+        // координаты
+        coords = [geolocation.longitude,geolocation.latitude];
+    $scope.center = coords;
+    $scope.geoObject = {
+        geometry:{
+            type:'Point',
+            coordinates:coords
+        },
+        properties:{
+            // В балуне: страна, город, регион.
+            balloonContentHeader: geolocation.country,
+            balloonContent: geolocation.city,
+            balloonContentFooter: geolocation.region
+        }
+    };
+};</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="10" ya-center="{{ center }}" ya-before-init="beforeInit()">
+        <ya-geo-objects>
+            <ya-geo-object ya-source="geoObject"></ya-geo-object>
+        </ya-geo-objects>
+    </ya-map>
+</div>

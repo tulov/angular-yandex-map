@@ -1,25 +1,25 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;template-layout key="listBoxTemplate" overrides="overList"&gt;
+&lt;ya-template-layout ya-key="listBoxTemplate" ya-overrides="overList"&gt;
     &lt;button id="my-listbox-header" class="btn btn-success dropdown-toggle" data-toggle="dropdown"&gt;
         $[data.title] &lt;span class="caret"&gt;&lt;/span&gt;
     &lt;/button&gt;
     &lt;ul id="my-listbox"
         class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu"
-        style="display:[if state.expanded]block[else]none[endif];"&gt;
+        style="[if state.expanded]display:block[else]display:none[endif];"&gt;
     &lt;/ul&gt;
-&lt;/template-layout&gt;
-&lt;template-layout key="listBoxItemTemplate"&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-template-layout ya-key="listBoxItemTemplate"&gt;
     &lt;li&gt;&lt;a&gt;$[data.content]&lt;/a&gt;&lt;/li&gt;
-&lt;/template-layout&gt;
-&lt;ya-map zoom="9" center="[37.573856,55.751574]"&gt;
-    &lt;map-toolbars&gt;
-        &lt;map-toolbar name="toolBar" options="{left:5,top:5}"&gt;
-            &lt;control type="ListBox" params="{data:{title: 'Выберите пункт'},items:[{data: {content: 'Москва',center: [37.573856,55.751574],zoom: 9}},{data: {content: 'Омск',center: [73.365535,54.990215],zoom: 9}}]}" options="{layout:'listBoxTemplate',itemLayout:'listBoxItemTemplate'}"
-                     ya-click="click($event)"&gt;&lt;/control&gt;
-        &lt;/map-toolbar&gt;
-    &lt;/map-toolbars&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="9" ya-center="[37.573856,55.751574]"&gt;
+    &lt;ya-toolbars&gt;
+        &lt;ya-toolbar ya-name="toolBar" ya-options="{left:5,top:5}"&gt;
+            &lt;ya-control ya-type="ListBox" ya-params="{data:{title: 'Выберите пункт'},items:[{data: {content: 'Москва',center: [37.573856,55.751574],zoom: 9}},{data: {content: 'Омск',center: [73.365535,54.990215],zoom: 9}}]}" ya-options="{layout:'listBoxTemplate',itemLayout:'listBoxItemTemplate'}"
+                        ya-event-click="click($event)"&gt;&lt;/ya-control&gt;
+        &lt;/ya-toolbar&gt;
+    &lt;/ya-toolbars&gt;
 &lt;/ya-map&gt;
 </pre>
     <p>javascript</p>
@@ -74,24 +74,24 @@ $scope.click = function(e){
 };</pre>
 </div>
 <div class="right">
-    <template-layout key="listBoxTemplate" overrides="overList">
+    <ya-template-layout ya-key="listBoxTemplate" ya-overrides="overList">
         <button id="my-listbox-header" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
             $[data.title] <span class="caret"></span>
         </button>
         <ul id="my-listbox"
             class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu"
-            style="display:[if state.expanded]block[else]none[endif];">
+            style="[if state.expanded]display:block[else]display:none[endif];">
         </ul>
-    </template-layout>
-    <template-layout key="listBoxItemTemplate">
+    </ya-template-layout>
+    <ya-template-layout ya-key="listBoxItemTemplate">
         <li><a>$[data.content]</a></li>
-    </template-layout>
-    <ya-map zoom="9" center="[37.573856,55.751574]">
-        <map-toolbars>
-            <map-toolbar name="toolBar" options="{left:5,top:5}">
-                <control type="ListBox" params="{data:{title: 'Выберите пункт'},items:[{data: {content: 'Москва',center: [37.573856,55.751574],zoom: 9}},{data: {content: 'Омск',center: [73.365535,54.990215],zoom: 9}}]}" options="{layout:'listBoxTemplate',itemLayout:'listBoxItemTemplate'}"
-                        ya-click="click($event)"></control>
-            </map-toolbar>
-        </map-toolbars>
+    </ya-template-layout>
+    <ya-map ya-zoom="9" ya-center="[37.573856,55.751574]">
+        <ya-toolbars>
+            <ya-toolbar ya-name="toolBar" ya-options="{left:5,top:5}">
+                <ya-control ya-type="ListBox" ya-params="{data:{title: 'Выберите пункт'},items:[{data: {content: 'Москва',center: [37.573856,55.751574],zoom: 9}},{data: {content: 'Омск',center: [73.365535,54.990215],zoom: 9}}]}" ya-options="{layout:'listBoxTemplate',itemLayout:'listBoxItemTemplate'}"
+                        ya-event-click="click($event)"></ya-control>
+            </ya-toolbar>
+        </ya-toolbars>
     </ya-map>
 </div>

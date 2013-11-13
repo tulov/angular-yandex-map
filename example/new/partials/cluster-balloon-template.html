@@ -1,0 +1,140 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html">
+&lt;ya-template-layout ya-key="mainTemplate" ya-overrides="overrides"&gt;&lt;/ya-template-layout&gt;
+&lt;ya-template-layout ya-key="subMainTemplate"&gt;
+    &lt;h3&gt;$[properties.name]&lt;/h3&gt;
+    &lt;div width="100"&gt;
+        $[properties.balloonContentHeader]&lt;br&gt;
+        $[properties.balloonContentBody]
+    &lt;/div&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-template-layout ya-key="itemTemplate"&gt;
+    &lt;div class="cluster-balloon-item" style="[if data.isSelected]font-weight:bold[endif];"&gt;
+        $[properties.name]
+    &lt;/div&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="10" ya-center="{{ center }}"&gt;
+    &lt;ya-cluster ya-options="{clusterDisableClickZoom: true,clusterBalloonMainContentLayout: 'mainTemplate',clusterBalloonSidebarItemLayout: 'itemTemplate',clusterBalloonSidebarWidth: 100,clusterBalloonWidth: 300}"&gt;
+        &lt;ya-marker ng-repeat="o in geoObjects" ya-source="o"&gt;&lt;/ya-marker&gt;
+    &lt;/ya-cluster&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>CSS</p>
+    <pre class="css">
+.cluster-balloon-item {
+    margin: 10px;
+    cursor: pointer;
+}
+    </pre>
+    <p>javascript:</p>
+    <pre class="js">
+$scope.center = [37.621587,55.74954];
+$scope.overrides={
+    build: function () {
+        // Сначала вызываем метод build родительского класса.
+        var MainContentLayout = templateLayoutFactory.get('mainTemplate');
+        MainContentLayout.superclass.build.call(this);
+        // Нужно отслеживать, какой из пунктов левого меню выбран,
+        // чтобы обновлять содержимое правой части.
+        this.stateListener = this.getData().state.events.group()
+            .add('change', this.onStateChange, this);
+        // Запоминаем текущий активный объект.
+        this.activeObject = this.getData().state.get('activeObject');
+        this.applyContent();
+    },
+
+    clear: function () {
+        if (this.activeObjectLayout) {
+            this.activeObjectLayout.setParentElement(null);
+            this.activeObjectLayout = null;
+        }
+        // Снимаем слушателей изменения полей.
+        this.stateListener.removeAll();
+        // А затем вызываем метод clear родительского класса.
+        var MainContentLayout = templateLayoutFactory.get('mainTemplate');
+        MainContentLayout.superclass.clear.call(this);
+    },
+
+    onStateChange: function () {
+        // При изменении одного из полей состояния
+        // проверяем, не сменился ли активный объект.
+        var newActiveObject = this.getData().state.get('activeObject');
+        if (newActiveObject != this.activeObject) {
+            // Если объект изменился, нужно обновить
+            // содержимое правой части.
+            this.activeObject = newActiveObject;
+            this.applyContent();
+        }
+    },
+
+    applyContent: function () {
+        if (this.activeObjectLayout) {
+            this.activeObjectLayout.setParentElement(null);
+        }
+        // Чтобы было удобнее формировать текстовый шаблон,
+        // создадим внутренний макет, в который будем передавать
+        // модифицированный dataSet.
+        var MainContentSubLayout = templateLayoutFactory.get('subMainTemplate');
+        this.activeObjectLayout = new MainContentSubLayout({
+            // Поскольку внутренний макет будет отображать
+            // информацию какого-то геообъекта,
+            // будем передавать во входном хэше данные и опции
+            // текущего активного геообъекта.
+            options: this.options,
+            properties: this.activeObject.properties
+        });
+
+        // Прикрепляем внутренний макет к внешнему.
+        this.activeObjectLayout.setParentElement(this.getParentElement());
+    }
+};
+var init = function(){
+    var geos = [];
+    for (var i = 0; i < 500; i++) {
+        var coordinates = [
+            $scope.center[0] + 0.5 * Math.random() * (Math.random() < 0.5 ? -1 : 1),
+            $scope.center[1] + 0.7 * Math.random() * (Math.random() < 0.5 ? -1 : 1)
+        ];
+        geos.push({
+            geometry:{
+                type:'Point',
+                coordinates:coordinates
+            },
+            properties:{
+                name: 'Метка №' + i,
+                clusterCaption: '№' + i,
+                balloonContentBody: '<br>Варкалось. Хливкие шорьки<br>' +
+                    'Пырялись по наве<br>' +
+                    'И хрюкотали зелюки,<br>' +
+                    'Как мюмзики в мове.<br>',
+                balloonContentHeader: 'Бармаглот',
+                balloonContentFooter: 'Л. Кэрролл'
+            }
+        });
+    }
+    $scope.geoObjects = geos;
+};
+init();
+</pre>
+</div>
+<div class="right">
+    <ya-template-layout ya-key="mainTemplate" ya-overrides="overrides"></ya-template-layout>
+    <ya-template-layout ya-key="subMainTemplate">
+        <h3>$[properties.name]</h3>
+        <div width="100">
+            $[properties.balloonContentHeader]<br>
+            $[properties.balloonContentBody]
+        </div>
+    </ya-template-layout>
+    <ya-template-layout ya-key="itemTemplate">
+        <div class="cluster-balloon-item" style="[if data.isSelected]font-weight:bold[endif];">
+            $[properties.name]
+        </div>
+    </ya-template-layout>
+    <ya-map ya-zoom="10" ya-center="{{ center }}">
+        <ya-cluster ya-options="{clusterDisableClickZoom: true,clusterBalloonMainContentLayout: 'mainTemplate',clusterBalloonSidebarItemLayout: 'itemTemplate',clusterBalloonSidebarWidth: 100,clusterBalloonWidth: 300}">
+            <ya-marker ng-repeat="o in geoObjects" ya-source="o"></ya-marker>
+        </ya-cluster>
+    </ya-map>
+</div>

@@ -1,10 +1,10 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html">
-&lt;ya-map zoom="8" center="[37.75,55.73]" after-init="afterInit($map)" ya-boundschange="mapBoundschange($event)"&gt;
-    &lt;geo-objects&gt;
-        &lt;geo-object ng-repeat="o in onMap" source="o"&gt;&lt;/geo-object&gt;
-    &lt;/geo-objects&gt;
+&lt;ya-map ya-zoom="8" ya-center="[37.75,55.73]" ya-after-init="afterInit($target)" ya-event-boundschange="mapBoundschange($event)"&gt;
+    &lt;ya-geo-objects&gt;
+        &lt;ya-geo-object ng-repeat="o in onMap" ya-source="o"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-geo-objects&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
@@ -47,9 +47,9 @@ $scope.mapBoundschange=function(event){
 </div>
 <div class="right">
     <p>На карту добавляются только метки, попадающие в видимую область</p>
-    <ya-map zoom="8" center="[37.75,55.73]" after-init="afterInit($map)" ya-boundschange="mapBoundschange($event)">
-        <geo-objects>
-            <geo-object ng-repeat="o in onMap" source="o"></geo-object>
-        </geo-objects>
+    <ya-map ya-zoom="8" ya-center="[37.75,55.73]" ya-after-init="afterInit($target)" ya-event-boundschange="mapBoundschange($event)">
+        <ya-geo-objects>
+            <ya-geo-object ng-repeat="o in onMap" ya-source="o"></ya-geo-object>
+        </ya-geo-objects>
     </ya-map>
 </div>
