@@ -1,2 +1,4 @@
 .idea/
-lib/
+node_modules/
+example/angular/
+ya-map.min.js
