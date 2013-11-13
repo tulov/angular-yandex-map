@@ -1,6 +1,6 @@
 <div class="center">
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;ya-template-layout ya-key="listBoxTemplate" ya-overrides="overList"&gt;
     &lt;button id="my-listbox-header" class="btn btn-success dropdown-toggle" data-toggle="dropdown"&gt;
         $[data.title] &lt;span class="caret"&gt;&lt;/span&gt;
@@ -23,7 +23,7 @@
 &lt;/ya-map&gt;
 </pre>
     <p>javascript</p>
-    <pre class="js">
+    <pre class="js" ng-non-bindable>
 $scope.overList={
     build: function() {
         // Вызываем метод build родительского класса перед выполнением

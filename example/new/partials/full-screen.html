@@ -1,13 +1,13 @@
 <div class="center">
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="8" ya-center="[37.64,55.76]" ya-after-init="afterMapInit($target)"&gt;&lt;/ya-map&gt;
 &lt;label&gt; Отслеживать размер
     &lt;input ng-model="sizeChecked" type="checkbox"&gt;
 &lt;/label&gt;
     </pre>
     <p>javascript:</p>
-    <pre class="js">
+    <pre class="js" ng-non-bindable>
 var map;
 $scope.afterMapInit=function(nMap){
     map = nMap;

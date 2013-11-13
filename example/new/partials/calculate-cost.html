@@ -1,6 +1,6 @@
 <div class="center">
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="9" ya-center="[30.067233,60.906882]" ya-behaviors="scrollZoom drag" ya-after-init="afterInit($target)"&gt;
     &lt;ya-toolbars&gt;
         &lt;ya-toolbar ya-name="searchControl" ya-params="{useMapBounds: true,noCentering: true,noPlacemark: true}"
@@ -9,7 +9,7 @@
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
-    <pre class="js">
+    <pre class="js" ng-non-bindable>
 function DeliveryCalculator(map, finish) {
     this._map = map;
     this._start = null;

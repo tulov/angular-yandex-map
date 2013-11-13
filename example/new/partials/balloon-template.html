@@ -1,6 +1,6 @@
 <div class="center">
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;ya-template-layout ya-key="templateOne" ya-overrides="overrides"&gt;
     &lt;div style="margin: 10px;"&gt;
         &lt;b&gt;$[properties.name]&lt;/b&gt;&lt;br /&gt;
@@ -15,7 +15,7 @@
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
-    <pre class="js">
+    <pre class="js" ng-non-bindable>
 var counter=0;
 $scope.overrides={
     build: function () {

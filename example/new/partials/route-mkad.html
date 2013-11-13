@@ -9,7 +9,7 @@
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
-    <pre class="js">
+    <pre class="js" ng-non-bindable>
 $http.get('/json/moscow.json').success(
     function(moscow){
         $scope.moscow= {geometry:moscow};

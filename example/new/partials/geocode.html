@@ -1,6 +1,6 @@
 <div class="center">
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="11" ya-center="{{ center }}" ya-before-init="beforeInit()" ya-after-init="afterInit($target)"
         ya-event-click="mapClick($event)"&gt;
     &lt;ya-collection ya-options="{preset: 'twirl#metroMoscowIcon'}"&gt;
@@ -12,7 +12,7 @@
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
-    <pre class="js">
+    <pre class="js" ng-non-bindable>
 $scope.beforeInit = function(){
     ymaps.geocode('Нижний Новгород', { results: 1 }).then(function (res) {
         // Выбираем первый результат геокодирования.

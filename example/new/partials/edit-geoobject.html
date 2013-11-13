@@ -1,6 +1,6 @@
 <div class="center">
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;div id="menu" ng-show="show" ng-style="{left:clickCoords[0]+'px',top:clickCoords[1]+'px'}"&gt;
     &lt;ul id="menu_list"&gt;
         &lt;li&gt;Название: &lt;br /&gt; &lt;input type="text" name="icon_text" ng-model="params.iconContent"/&gt;&lt;/li&gt;
@@ -18,7 +18,7 @@
 &lt;/ya-map>
     </pre>
     <p>CSS</p>
-    <pre class="css">
+    <pre class="css" ng-non-bindable>
 #menu {
     position: absolute;
     width: 12em;
@@ -38,7 +38,7 @@
 }
     </pre>
     <p>javascript:</p>
-    <pre class="js">
+    <pre class="js" ng-non-bindable>
 var geoObj;
 $scope.afterInit=function(geoObject){
     geoObj = geoObject;

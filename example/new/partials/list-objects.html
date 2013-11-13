@@ -1,6 +1,6 @@
 <div class="center">
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="10" ya-center="[37.8,55.85]" ya-after-init="afterMapInit($target)"&gt;
     &lt;ya-collection ya-options="{preset:'twirl#blueIcon'}"&gt;
         &lt;ya-geo-object ng-repeat="o in geoObjects | filter:{type:'памятник'}" ya-source="o" ya-show-balloon="show==o"&gt;&lt;/ya-geo-object&gt;
@@ -21,7 +21,7 @@
 &lt;/ol&gt;
     </pre>
     <p>javascript:</p>
-    <pre class="js">
+    <pre class="js" ng-non-bindable>
 $scope.all=[
     {
         type:'памятник',

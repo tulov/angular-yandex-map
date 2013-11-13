@@ -1,6 +1,6 @@
 <div class="center">
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="10" ya-center="{{ center }}" ya-before-init="beforeInit()"&gt;
     &lt;ya-collection&gt;
         &lt;ya-geo-object ya-source="geoObject"&gt;&lt;/ya-geo-object&gt;
@@ -8,7 +8,7 @@
 &lt;/ya-map&gt;
 </pre>
     <p>javascript:</p>
-    <pre class="js">
+    <pre class="js" ng-non-bindable>
 $scope.beforeInit = function(){
     // Данные о местоположении, определённом по IP
     var geolocation = ymaps.geolocation,
