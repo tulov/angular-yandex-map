@@ -1,6 +1,7 @@
 "use strict";
 //todo: директивы представляющие объекты на карте можно располагать как в ya-map, так и в соответствующих коллекциях
 //todo: реализовать директивы, которые представляют упрощенные классы для работы с гео. объектами.
+//todo: заменить директиву yaGeoObjects на yaCollection
 //todo: написать документацию
 //todo: выложить на сервер
 angular.module('yaMap',[]).
@@ -164,8 +165,7 @@ angular.module('yaMap',[]).
                 setTimeout(function(){
                     scope.$apply(function(){
                         scope[attrName]({
-                            $event:event,
-                            $geoQueryCollection: scope.getGeoQueryCollection ? scope.getGeoQueryCollection() : undefined
+                            $event:event
                         });
                     });
                 });
@@ -210,17 +210,13 @@ angular.module('yaMap',[]).
     controller('YaMapCtrl',['$scope','mapApiLoad',function($scope,mapApiLoad){
         var self = this;
         mapApiLoad(function(){
-            var geoQueryCollection;
-            self.addCollection = function(collection, isGeoQuery){
-                $scope.map.geoObjects.add(collection);
-                if(isGeoQuery){
-                    geoQueryCollection = collection;
-                }
+            self.addGeoObjects = function(obj){
+                $scope.map.geoObjects.add(obj);
             };
-            self.getGeoQueryCollection = function(){
-                return geoQueryCollection;
+            self.removeGeoObjects = function(obj){
+                $scope.map.geoObjects.remove(obj);
             };
-            $scope.getGeoQueryCollection = self.getGeoQueryCollection;
+
             self.addControl = function(name, options){
                 $scope.map.controls.add(name,options);
             };
@@ -239,7 +235,7 @@ angular.module('yaMap',[]).
             };
             self.addToolbar = function(toolbar){
                 $scope.map.controls.add(toolbar);
-            }
+            };
         });
     }]).
     directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window','yaSubscriber','$parse',function($compile, mapApiLoad,yaMapSettings,$window,yaSubscriber,$parse){
@@ -489,14 +485,11 @@ angular.module('yaMap',[]).
     }]).
 
     controller('GeoObjectsCtrl',['$scope',function($scope){
-        this.add = function(geoObject){
+        this.addGeoObjects = function(geoObject){
             $scope.collection.add(geoObject);
         };
-        this.remove = function(geoObject){
+        this.removeGeoObjects = function(geoObject){
             $scope.collection.remove(geoObject);
-        };
-        this.getGeoQueryCollection = function(){
-            return $scope.getGeoQueryCollection();
         };
     }]).
     directive('yaGeoObjects',['$compile','yaMapSettings','$timeout','yaSubscriber','$parse',
@@ -515,7 +508,6 @@ angular.module('yaMap',[]).
                     var settingOptions = yaMapSettings.displayOptions && yaMapSettings.displayOptions.general
                         ? yaMapSettings.displayOptions.general : {};
                     var collectionOptions = angular.extend({}, settingOptions, options);
-                    var isGeoQuery = angular.isDefined(attrs.yaGeoQuery) && attrs.yaGeoQuery!=='false';
 
                     //отобразить все элементы на карте. будет срабатывать при любом добавлении объекта на карту.
                     var showAll = angular.isDefined(attrs.showAll) && attrs.showAll!='false';
@@ -545,9 +537,13 @@ angular.module('yaMap',[]).
                         }
                     }
 
-                    yaMap.addCollection(scope.collection, isGeoQuery);
+                    yaMap.addGeoObjects(scope.collection);
                     scope.yaAfterInit({$target:scope.collection});
-                    scope.getGeoQueryCollection = yaMap.getGeoQueryCollection;
+                    scope.$on('$destroy', function () {
+                        if (scope.collection) {
+                            yaMap.removeGeoObjects(scope.collection);
+                        }
+                    });
                     element.append(childNodes);
                     $compile(childNodes)(scope.$parent);
                 };
@@ -557,10 +553,10 @@ angular.module('yaMap',[]).
     }]).
 
     controller('MapClusterCtrl',['$scope',function($scope){
-        this.add = function(geoObject){
+        this.addGeoObjects = function(geoObject){
             $scope.cluster.add(geoObject);
         };
-        this.remove = function(geoObject){
+        this.removeGeoObjects = function(geoObject){
             $scope.cluster.remove(geoObject);
         };
     }]).
@@ -605,8 +601,13 @@ angular.module('yaMap',[]).
                         }
                     }
 
-                    yaMap.addCollection(scope.cluster);
+                    yaMap.addGeoObjects(scope.cluster);
                     scope.yaAfterInit({$target:scope.cluster});
+                    scope.$on('$destroy', function () {
+                        if (scope.cluster) {
+                            yaMap.removeGeoObjects(scope.cluster);
+                        }
+                    });
                     element.append(childNodes);
                     $compile(childNodes)(scope.$parent);
                 };
@@ -615,6 +616,7 @@ angular.module('yaMap',[]).
         };
     }]).
 
+    //todo: delete yaMarker
     directive('yaMarker',['yaSubscriber','templateLayoutFactory','$parse',function(yaSubscriber,templateLayoutFactory,$parse){
         return {
             require:'^yaCluster',
@@ -683,21 +685,21 @@ angular.module('yaMap',[]).
 
     directive('yaGeoObject',['GEOMETRY_TYPES','yaSubscriber','templateLayoutFactory','$parse',function(GEOMETRY_TYPES,yaSubscriber,templateLayoutFactory,$parse){
         return {
-            require:'^yaGeoObjects',
             restrict:'E',
+            require:['^yaMap','?^yaGeoObjects','?^yaCluster'],
             scope:{
                 yaSource:'=',
                 editor:'=yaEditorMenuManager',
                 yaShowBalloon:'=',
                 yaAfterInit:'&'
             },
-            link:function(scope,elm,attrs,geoObjects){
-                var obj;
+            link:function(scope,elm,attrs,ctrls){
+                var ctrl = ctrls[2] || ctrls[1] || ctrls[0],
+                    obj;
                 var options = attrs.yaOptions ? scope.$eval(attrs.yaOptions) : undefined;
                 if(options && options.balloonContentLayout){
                     options.balloonContentLayout = templateLayoutFactory.get(options.balloonContentLayout);
                 }
-                scope.getGeoQueryCollection = geoObjects.getGeoQueryCollection;
                 if(scope.editor){
                     if(!options){
                         options={};
@@ -714,8 +716,8 @@ angular.module('yaMap',[]).
                             yaSubscriber.subscribe(obj, parentGet,key,scope);
                         }
                     }
-                    geoObjects.add(obj);
-                    scope.yaAfterInit({$target:obj,$geoQueryCollection:scope.getGeoQueryCollection()});
+                    ctrl.addGeoObjects(obj);
+                    scope.yaAfterInit({$target:obj});
                     checkEditing(attrs.yaEdit);
                     checkDrawing(attrs.yaDraw);
                     checkShowBalloon(scope.yaShowBalloon);
@@ -737,7 +739,7 @@ angular.module('yaMap',[]).
                             createGeoObject(newValue,options);
                         }
                     }else if(obj){
-                        geoObjects.remove(obj);
+                        ctrl.removeGeoObjects(obj);
                     }
                 },function(){return true;});
                 var checkEditing = function(editAttr){
@@ -778,7 +780,7 @@ angular.module('yaMap',[]).
                 scope.$watch('yaShowBalloon',checkShowBalloon);
                 scope.$on('$destroy', function () {
                     if (obj) {
-                        geoObjects.remove(obj);
+                        ctrl.removeGeoObjects(obj);
                     }
                 });
             }

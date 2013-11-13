@@ -1,18 +1,19 @@
 <div class="center">
     <p>HTML:</p>
-    <pre class="html">
+    <pre class="html" ng-non-bindable>
 &lt;ya-map ya-zoom="8" ya-center="[37.75,55.43]"&gt;
-    &lt;ya-geo-objects ya-geo-query&gt;
+    &lt;ya-geo-objects ya-after-init="afterInit($target)"&gt;
         &lt;ya-geo-object ng-repeat="o in geoQuerySource" ya-source="o"&gt;&lt;/ya-geo-object&gt;
     &lt;/ya-geo-objects&gt;
-    &lt;ya-geo-objects&gt;
-        &lt;ya-geo-object ya-source="circle" ya-options="{draggable:true}" ya-event-drag="drag($event,$geoQueryCollection)"&gt;&lt;/ya-geo-object&gt;
-    &lt;/ya-geo-objects&gt;
+    &lt;ya-geo-object ya-source="circle" ya-options="{draggable:true}" ya-event-drag="drag($event)"&gt;&lt;/ya-geo-object&gt;
 &lt;/ya-map&gt;
     </pre>
     <p>javascript:</p>
     <pre class="js">
-var objects;
+var objects, collection;
+$scope.afterInit = function(col){
+    collection = col;
+};
 $scope.circle = {
     geometry:{
         type:'Circle',
@@ -40,7 +41,7 @@ $scope.geoQuerySource = [
         }
     }
 ];
-$scope.drag = function(event, collection){
+$scope.drag = function(event){
     if(!objects){
         objects = ymaps.geoQuery(collection);
     }
@@ -49,17 +50,14 @@ $scope.drag = function(event, collection){
     objectsInsideCircle.setOptions('preset', 'twirl#redIcon');
     // Оставшиеся объекты - синими.
     objects.remove(objectsInsideCircle).setOptions('preset', 'twirl#blueIcon');
-};
-</pre>
+};</pre>
 </div>
 <div class="right">
     <p>Перетаскивайте круг и следите за цветом меток</p>
     <ya-map ya-zoom="8" ya-center="[37.75,55.43]">
-        <ya-geo-objects ya-geo-query>
+        <ya-geo-objects ya-after-init="afterInit($target)">
             <ya-geo-object ng-repeat="o in geoQuerySource" ya-source="o"></ya-geo-object>
         </ya-geo-objects>
-        <ya-geo-objects>
-            <ya-geo-object ya-source="circle" ya-options="{draggable:true}" ya-event-drag="drag($event,$geoQueryCollection)"></ya-geo-object>
-        </ya-geo-objects>
+        <ya-geo-object ya-source="circle" ya-options="{draggable:true}" ya-event-drag="drag($event)"></ya-geo-object>
     </ya-map>
 </div>

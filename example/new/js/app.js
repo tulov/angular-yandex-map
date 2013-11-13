@@ -894,7 +894,10 @@ function CreateClusterCtrl($scope){
 }
 
 function PointInsideCircleCtrl($scope){
-    var objects;
+    var objects, collection;
+    $scope.afterInit = function(col){
+        collection = col;
+    };
     $scope.circle = {
         geometry:{
             type:'Circle',
@@ -922,7 +925,7 @@ function PointInsideCircleCtrl($scope){
             }
         }
     ];
-    $scope.drag = function(event, collection){
+    $scope.drag = function(event){
         if(!objects){
             objects = ymaps.geoQuery(collection);
         }
@@ -935,7 +938,7 @@ function PointInsideCircleCtrl($scope){
 }
 
 function FindObjectsCtrl($scope){
-    var cafe;
+    var cafe, collection;
     $scope.cafes = [
         {
             properties: {
@@ -963,9 +966,12 @@ function FindObjectsCtrl($scope){
             }
         }
     ];
-    $scope.mapClick=function(event, geoQueryCollection){
+    $scope.afterInit = function(col){
+        collection=col;
+    };
+    $scope.mapClick=function(event){
         if(!cafe){
-            cafe = ymaps.geoQuery(geoQueryCollection);
+            cafe = ymaps.geoQuery(collection);
         }
         cafe.getClosestTo(event.get('coordPosition')).balloon.open();
     };
@@ -1014,8 +1020,11 @@ function RouteMKADCtrl($scope, $http){
             $scope.moscow= {geometry:moscow};
         }
     );
-    $scope.afterInit = function(geoObject, collection, last){
-        if(!last){
+
+    var hasChange=false;
+    var changeColor = function(){
+        hasChange=true;
+        if(!moscow){
             return;
         }
         var routeObjects = ymaps.geoQuery(collection);
@@ -1031,9 +1040,7 @@ function RouteMKADCtrl($scope, $http){
             preset: 'twirl#blueIcon'
         });
     };
-    var moscow;
-    $scope.added = function(event){
-        moscow = event.get('child');
+    $scope.beforeInit = function(){
         ymaps.route([[37.527034,55.654884], [37.976100,55.767305]]).then(
             function (res) {
                 // Объединим в выборку все сегменты маршрута.
@@ -1079,6 +1086,25 @@ function RouteMKADCtrl($scope, $http){
                 });
             }
         );
+    };
+
+    $scope.afterInit = function(geoObject, last){
+        if(!last){
+            return;
+        }
+        changeColor();
+    };
+    var moscow;
+    $scope.added = function(obj){
+        moscow = obj;
+        if(hasChange){
+            changeColor();
+        }
+    };
+
+    var collection;
+    $scope.initCollection = function(col){
+        collection = col;
     };
 }
 
