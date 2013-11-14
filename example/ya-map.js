@@ -107,14 +107,11 @@ angular.module('yaMap',[]).
     }]).
 
     service('yaSubscriber',function(){
-        var eventPattern = /^yaEvent([A-Z]{1}[a-z]+)([A-Z]{1}[a-z]+)?$/;
+        var eventPattern = /^yaEvent(\w*)?([A-Z]{1}[a-z]+)$/;
         this.subscribe = function(target, parentGet, attrName, scope){
             var res = eventPattern.exec(attrName);
-            var eventName = (res[2] || res[1]).toLowerCase();
-            var propertyName = res[2] ? res[1] : undefined;
-            if(propertyName==='geoobjects'){
-                propertyName='geoObjects';
-            }
+            var eventName = res[2].toLowerCase();
+            var propertyName = res[1] ? (res[1][1].toLowerCase()+res[1].substring(1)) : undefined;
             scope[attrName]=function(locals){
                 return parentGet(scope.$parent || scope, locals);
             };
