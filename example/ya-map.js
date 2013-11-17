@@ -259,8 +259,11 @@ angular.module('yaMap',[]).
                         }
                     }
 
-                    zoom = zoom <0 ? 0 : zoom;
-                    zoom = zoom>23 ? 23 : zoom;
+                    if(zoom<0){
+                        zoom=0;
+                    }else if(zoom>23){
+                        zoom=23;
+                    }
 
                     var mapPromise;
                     var mapInit = function(center){
@@ -303,10 +306,13 @@ angular.module('yaMap',[]).
                             function(coords){
                                 if(!mapPromise){
                                     mapPromise = mapInit(coords);
+                                    var isInit = true;
                                 }
                                 mapPromise.then(
                                     function(map){
-                                        map.setCenter(coords);
+                                        if(!isInit){
+                                            map.setCenter(coords);
+                                        }
                                     }
                                 );
                             }
