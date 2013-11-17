@@ -1,0 +1,72 @@
+<div class="center">
+    <label>Количество вариантов для генерации:<input type="number" ng-model="count"></label>
+    <button ng-click="run()">Старт</button>
+    <table class="table" ng-show="results.length">
+        <tr>
+            <th>Количество</th>
+            <th>Общее время, мс</th>
+            <th>Время на один элемент, мс</th>
+        </tr>
+        <tr ng-repeat="r in results">
+            <td ng-bind="r.count"></td>
+            <td ng-bind="r.duration"></td>
+            <td ng-bind="r.forOne"></td>
+        </tr>
+    </table>
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="10" ya-center="{{ center }}"&gt;
+    &lt;ya-toolbar ya-name="smallZoomControl" ya-options="{right: 5, top: 75}"&gt;&lt;/ya-toolbar&gt;
+    &lt;ya-cluster&gt;
+        &lt;ya-geo-object ng-repeat="o in geoObjects" ya-source="o" ya-after-init="test($last)"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-cluster&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.count = 500;
+$scope.results = [];
+$scope.center = [37.611619,55.819543];
+var start, end;
+function getRandomCoordinates () {
+    return [
+        $scope.center[0] + 5.5 * Math.random() * Math.random() * (
+            Math.random() < 0.5 ? -1 : 1),
+        $scope.center[1] + 5.5 * Math.random() * Math.random() * (
+            Math.random() < 0.5 ? -1 : 1)
+    ];
+}
+$scope.run = function(){
+    var geos = [];
+    for (var i = 0; i < $scope.count; i++) {
+        geos.push({
+            geometry:{
+                type:'Point',
+                coordinates:getRandomCoordinates()
+            }
+        });
+    }
+    start = new Date();
+    $scope.geoObjects = geos;
+};
+$scope.test = function(last){
+    if(last){
+        end=new Date();
+        var dur = end.getTime() - start.getTime();
+        $scope.results.push({
+            count:$scope.count,
+            duration: dur,
+            forOne:dur/$scope.count
+        });
+    }
+};
+</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="10" ya-center="{{ center }}">
+        <ya-toolbar ya-name="smallZoomControl" ya-options="{right: 5, top: 75}"></ya-toolbar>
+        <ya-cluster>
+            <ya-geo-object ng-repeat="o in geoObjects" ya-source="o" ya-after-init="test($last)"></ya-geo-object>
+        </ya-cluster>
+    </ya-map>
+</div>

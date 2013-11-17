@@ -374,6 +374,10 @@ angular.module('myApp', ['ui.bootstrap','yaMap'], function($routeProvider, $loca
             templateUrl:'partials/calculate-cost.html',
             controller:CalculateCostCtrl
         })
+        .when('/performance/test',{
+            templateUrl:'partials/performance-test.html',
+            controller:PerformanceTestCtrl
+        })
     ;
 
     // configure html5 to get links working on jsfiddle
@@ -1962,4 +1966,43 @@ function CalculateCostCtrl($scope){
         calculator.setStartPoint(point);
     };
 
+}
+
+function PerformanceTestCtrl($scope){
+    $scope.count = 500;
+    $scope.results = [];
+    $scope.center = [37.611619,55.819543];
+    var start, end;
+    function getRandomCoordinates () {
+        return [
+            $scope.center[0] + 5.5 * Math.random() * Math.random() * (
+                Math.random() < 0.5 ? -1 : 1),
+            $scope.center[1] + 5.5 * Math.random() * Math.random() * (
+                Math.random() < 0.5 ? -1 : 1)
+        ];
+    }
+    $scope.run = function(){
+        var geos = [];
+        for (var i = 0; i < $scope.count; i++) {
+            geos.push({
+                geometry:{
+                    type:'Point',
+                    coordinates:getRandomCoordinates()
+                }
+            });
+        }
+        start = new Date();
+        $scope.geoObjects = geos;
+    };
+    $scope.test = function(last){
+        if(last){
+            end=new Date();
+            var dur = end.getTime() - start.getTime();
+            $scope.results.push({
+                count:$scope.count,
+                duration: dur,
+                forOne:dur/$scope.count
+            });
+        }
+    };
 }
