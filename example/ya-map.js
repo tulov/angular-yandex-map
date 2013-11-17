@@ -299,7 +299,6 @@ angular.module('yaMap',[]).
 
                     scope.$watch('yaCenter',function(newValue){
                         var center = getEvalOrValue(newValue);
-                        console.log(center);
                         getCenterCoordinates(center).then(
                             function(coords){
                                 if(!mapPromise){
@@ -552,7 +551,7 @@ angular.module('yaMap',[]).
     directive('yaGeoObject',['GEOMETRY_TYPES','yaSubscriber','templateLayoutFactory','$parse',function(GEOMETRY_TYPES,yaSubscriber,templateLayoutFactory,$parse){
         return {
             restrict:'E',
-            require:['^yaMap','?^yaGeoObjects','?^yaCluster'],
+            require:['^yaMap','?^yaCollection','?^yaCluster'],
             scope:{
                 yaSource:'=',
                 yaShowBalloon:'=',

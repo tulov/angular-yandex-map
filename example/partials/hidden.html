@@ -1,15 +1,11 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html" ng-non-bindable>
-&lt;div ng-show="show"&gt;
-    &lt;ya-map ya-zoom="8" ya-center="[37.64,55.76]"&gt;&lt;/ya-map&gt;
-&lt;/div&gt;
+&lt;ya-map ya-zoom="8" ya-center="[37.64,55.76]" ng-show="$parent.show"&gt;&lt;/ya-map&gt;
 &lt;button ng-click="show=!show"&gt;Показать/Скрыть карту&lt;/button&gt;
     </pre>
 </div>
 <div class="right">
-    <div ng-show="show">
-        <ya-map ya-zoom="8" ya-center="[37.64,55.76]"></ya-map>
-    </div>
+    <ya-map ya-zoom="8" ya-center="[37.64,55.76]" ng-show="$parent.show"></ya-map>
     <button ng-click="show=!show">Показать/Скрыть карту</button>
 </div>
