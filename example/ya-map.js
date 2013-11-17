@@ -39,12 +39,14 @@ angular.module('yaMap',[]).
                     if (script.readyState=="loaded" || script.readyState=="complete"){
                         script.onreadystatechange = null;
                         _loading=false;
+                        loaded=true;
                         callback();
                     }
                 };
             } else { // Другие броузеры
                 script.onload = function(){
                     _loading=false;
+                    loaded=true;
                     callback();
                 };
             }
@@ -192,7 +194,7 @@ angular.module('yaMap',[]).
             };
         });
     }]).
-    directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window','yaSubscriber','$parse',function($compile, mapApiLoad,yaMapSettings,$window,yaSubscriber,$parse){
+    directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window','yaSubscriber','$parse','$q',function($compile, mapApiLoad,yaMapSettings,$window,yaSubscriber,$parse,$q){
         return {
             restrict:'E',
             scope: {
@@ -212,8 +214,40 @@ angular.module('yaMap',[]).
                             return value;
                         }
                     };
-                    var center = getEvalOrValue(attrs.yaCenter),
-                        zoom = Number(attrs.yaZoom),
+                    var getCenterCoordinates = function(center){
+                        var deferred = $q.defer();
+                        var result;
+                        if(!center){
+                            //устанавливаем в качестве центра местоположение пользователя
+                            mapApiLoad(function(){
+                                if(yaMapSettings.order==='longlat'){
+                                    result =  [ymaps.geolocation.longitude, ymaps.geolocation.latitude];
+                                }else{
+                                    result =  [ymaps.geolocation.latitude, ymaps.geolocation.longitude];
+                                }
+                                deferred.resolve(result);
+                            });
+                        }else if(angular.isArray(center)){
+                            deferred.resolve(center);
+                        }else if(angular.isString(center)){
+                            //проводим обратное геокодирование
+                            mapApiLoad(function(){
+                                ymaps.geocode(center, { results: 1 }).then(function (res) {
+                                    var firstGeoObject = res.geoObjects.get(0);
+                                    result = firstGeoObject.geometry.getCoordinates();
+                                    scope.$apply(function(){
+                                        deferred.resolve(result);
+                                    });
+                                }, function (err) {
+                                    scope.$apply(function(){
+                                        deferred.reject(err);
+                                    });
+                                });
+                            });
+                        }
+                        return deferred.promise;
+                    };
+                    var zoom = Number(attrs.yaZoom),
                         behaviors = attrs.yaBehaviors ? attrs.yaBehaviors.split(' ') : ['default'];
                     var disableBehaviors=[], enableBehaviors=[], behavior;
                     for (var i = 0, ii = behaviors.length; i < ii; i++) {
@@ -227,77 +261,70 @@ angular.module('yaMap',[]).
 
                     zoom = zoom <0 ? 0 : zoom;
                     zoom = zoom>23 ? 23 : zoom;
-                    var setCenter = function(callback){
-                        if(!center){
-                            //устанавливаем в качестве центра местоположение пользователя
-                            mapApiLoad(function(){
-                                if(yaMapSettings.order==='longlat'){
-                                    center =  [ymaps.geolocation.longitude, ymaps.geolocation.latitude];
-                                }else{
-                                    center =  [ymaps.geolocation.latitude, ymaps.geolocation.longitude];
-                                }
-                                if(callback){
-                                    callback();
-                                }
-                            });
-                        }else if(angular.isArray(center)){
-                            mapApiLoad(callback);
-                        }else if(angular.isString(center)){
-                            //проводим обратное геокодирование
-                            mapApiLoad(function(){
-                                ymaps.geocode(center, { results: 1 }).then(function (res) {
-                                    var firstGeoObject = res.geoObjects.get(0);
-                                    center = firstGeoObject.geometry.getCoordinates();
-                                    if(callback){
-                                        callback();
-                                    }
-                                }, function (err) {
-                                    // Если геокодирование не удалось, сообщаем об ошибке
-                                    $window.alert(err.message);
-                                })
-                            });
-                        }
-                    };
 
-                    var mapInit = function(){
-                        scope.yaBeforeInit();
-                        var options = attrs.yaOptions ? scope.$eval(attrs.yaOptions) : undefined;
-                        if(options && options.projection){
-                            options.projection = new ymaps.projection[options.projection.type](options.projection.bounds);
-                        }
-                        scope.map = new ymaps.Map(element[0],{
-                            center: center,
-                            zoom:zoom,
-                            type:attrs.yaType || 'yandex#map',
-                            behaviors:enableBehaviors
-                        }, options);
-                        scope.map.behaviors.disable(disableBehaviors);
-                        //подписка на события
-                        for(var key in attrs){
-                            if(key.indexOf('yaEvent')===0){
-                                var parentGet=$parse(attrs[key]);
-                                yaSubscriber.subscribe(scope.map, parentGet,key,scope);
+                    var mapPromise;
+                    var mapInit = function(center){
+                        var deferred = $q.defer();
+                        mapApiLoad(function(){
+                            scope.yaBeforeInit();
+                            var options = attrs.yaOptions ? scope.$eval(attrs.yaOptions) : undefined;
+                            if(options && options.projection){
+                                options.projection = new ymaps.projection[options.projection.type](options.projection.bounds);
                             }
-                        }
-
-                        scope.yaAfterInit({$target:scope.map});
-                        element.append(childNodes);
-                        setTimeout(function(){
-                            scope.$apply(function() {
-                                $compile(childNodes)(scope.$parent);
+                            scope.map = new ymaps.Map(element[0],{
+                                center: center,
+                                zoom:zoom,
+                                type:attrs.yaType || 'yandex#map',
+                                behaviors:enableBehaviors
+                            }, options);
+                            scope.map.behaviors.disable(disableBehaviors);
+                            //подписка на события
+                            for(var key in attrs){
+                                if(key.indexOf('yaEvent')===0){
+                                    var parentGet=$parse(attrs[key]);
+                                    yaSubscriber.subscribe(scope.map, parentGet,key,scope);
+                                }
+                            }
+                            deferred.resolve(scope.map);
+                            scope.yaAfterInit({$target:scope.map});
+                            element.append(childNodes);
+                            setTimeout(function(){
+                                scope.$apply(function() {
+                                    $compile(childNodes)(scope.$parent);
+                                });
                             });
                         });
+                        return deferred.promise;
                     };
 
                     scope.$watch('yaCenter',function(newValue){
-                        center = getEvalOrValue(newValue);
-                        setCenter(function(){
-                            scope.map.setCenter(center);
-                        });
+                        var center = getEvalOrValue(newValue);
+                        console.log(center);
+                        getCenterCoordinates(center).then(
+                            function(coords){
+                                if(!mapPromise){
+                                    mapPromise = mapInit(coords);
+                                }
+                                mapPromise.then(
+                                    function(map){
+                                        map.setCenter(coords);
+                                    }
+                                );
+                            }
+                        );
+                        /*if(_center){
+                            setCenter(function(){
+                                scope.map.setCenter(_center);
+                            });
+                        }*/
                     });
                     scope.$watch('yaType',function(newValue){
-                        if(newValue){
-                            scope.map.setType(newValue);
+                        if(newValue && mapPromise){
+                            mapPromise.then(
+                                function(map){
+                                    map.setType(newValue);
+                                }
+                            );
                         }
                     });
 
@@ -306,8 +333,6 @@ angular.module('yaMap',[]).
                             scope.map.destroy();
                         }
                     });
-
-                    setCenter(mapInit);
                 };
             },
             controller: 'YaMapCtrl'
