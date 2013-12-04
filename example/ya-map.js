@@ -58,7 +58,7 @@ angular.module('yaMap',[]).
             callbacks.push(callback);
             if(loaded){
                 runCallbacks();
-            }else{
+            }else if(!_loading){
                 loadScript(loadUrl, function(){
                     ymaps.ready(function(){
                         runCallbacks();

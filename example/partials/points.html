@@ -7,6 +7,8 @@
     &lt;ya-geo-object ya-source="geoObjects[2]"
                    ya-options="{iconImageHref:'img/myIcon.gif',iconImageSize:[30, 42],iconImageOffset: [-3, -42]}"&gt;&lt;/ya-geo-object&gt;
 &lt;/ya-map&gt;
+&lt;button ng-click="changeOne()"&gt;Сменить первый объект&lt;/button&gt;
+&lt;button ng-click="changeCoords()"&gt;Сменить координаты второго объекта&lt;/button&gt;
     </pre>
     <p>javascript:</p>
     <pre class="js" ng-non-bindable>
@@ -41,7 +43,26 @@ $scope.geoObjects=[
             hintContent: 'Собственный значок метки'
         }
     }
-];</pre>
+];
+$scope.changeOne = function(){
+    $scope.geoObjects[0]={
+        // Геометрия = тип объекта + географические координаты объекта
+        geometry: {
+            // Тип геометрии - точка
+            type: 'Point',
+            // Координаты точки.
+            coordinates: [37.7,55.7]
+        },
+        // Свойства
+        properties: {
+            iconContent: 'Метка',
+            balloonContent: 'Меня можно перемещать'
+        }
+    }
+};
+$scope.changeCoords = function(){
+    $scope.geoObjects[1].geometry.coordinates=[37.7,55.9];
+};</pre>
 </div>
 <div class="right">
     <ya-map ya-zoom="10" ya-center="[37.64,55.76]">
@@ -50,4 +71,6 @@ $scope.geoObjects=[
         <ya-geo-object ya-source="geoObjects[2]"
                        ya-options="{iconImageHref:'img/myIcon.gif',iconImageSize:[30, 42],iconImageOffset: [-3, -42]}"></ya-geo-object>
     </ya-map>
+    <button ng-click="changeOne()">Сменить первый объект</button>
+    <button ng-click="changeCoords()">Сменить координаты второго объекта</button>
 </div>

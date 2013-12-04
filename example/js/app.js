@@ -613,6 +613,25 @@ function PointsCtrl($scope){
             }
         }
     ];
+    $scope.changeOne = function(){
+        $scope.geoObjects[0]={
+            // Геометрия = тип объекта + географические координаты объекта
+            geometry: {
+                // Тип геометрии - точка
+                type: 'Point',
+                // Координаты точки.
+                coordinates: [37.7,55.7]
+            },
+            // Свойства
+            properties: {
+                iconContent: 'Метка',
+                balloonContent: 'Меня можно перемещать'
+            }
+        }
+    };
+    $scope.changeCoords = function(){
+        $scope.geoObjects[1].geometry.coordinates=[37.7,55.9];
+    };
 }
 
 function LineStringCtrl($scope){
@@ -1981,16 +2000,20 @@ function PerformanceTestCtrl($scope){
                 Math.random() < 0.5 ? -1 : 1)
         ];
     }
-    $scope.run = function(){
-        var geos = [];
-        for (var i = 0; i < $scope.count; i++) {
-            geos.push({
+    function getRandomGeoObjects (count){
+        var result = [];
+        for (var i = 0; i < count; i++) {
+            result.push({
                 geometry:{
                     type:'Point',
                     coordinates:getRandomCoordinates()
                 }
             });
         }
+        return result;
+    }
+    $scope.run = function(){
+        var geos = getRandomGeoObjects($scope.count);
         start = new Date();
         $scope.geoObjects = geos;
     };
