@@ -423,10 +423,10 @@ function MapAddCtrl($scope) {
 }
 
 function MapChangeCtrl($scope) {
-    $scope.center=[37.64,55.76];
+    $scope.center=[40.925358,57.767265];
     $scope.type='yandex#satellite';
     $scope.changeCenter = function(){
-        $scope.center = [40.925358,57.767265];
+        $scope.center = [37.64,55.76];
     };
     var map;
     $scope.afterMapInit=function(nMap){
