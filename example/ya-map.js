@@ -204,7 +204,8 @@ angular.module('yaMap',[]).
                 yaAfterInit:'&'
             },
             compile: function(tElement) {
-                var childNodes = tElement.contents();
+                var childNodes = tElement.contents(),
+                    centerCoordinatesDeferred = null;
                 tElement.html('');
                 return function(scope, element,attrs) {
                     var getEvalOrValue = function(value){
@@ -215,7 +216,9 @@ angular.module('yaMap',[]).
                         }
                     };
                     var getCenterCoordinates = function(center){
-                        var deferred = $q.defer();
+                        if(centerCoordinatesDeferred)
+                            centerCoordinatesDeferred.reject();
+                        centerCoordinatesDeferred = $q.defer();
                         var result;
                         if(!center){
                             //устанавливаем в качестве центра местоположение пользователя
@@ -225,10 +228,10 @@ angular.module('yaMap',[]).
                                 }else{
                                     result =  [ymaps.geolocation.latitude, ymaps.geolocation.longitude];
                                 }
-                                deferred.resolve(result);
+                                centerCoordinatesDeferred.resolve(result);
                             });
                         }else if(angular.isArray(center)){
-                            deferred.resolve(center);
+                            centerCoordinatesDeferred.resolve(center);
                         }else if(angular.isString(center)){
                             //проводим обратное геокодирование
                             mapApiLoad(function(){
@@ -236,16 +239,16 @@ angular.module('yaMap',[]).
                                     var firstGeoObject = res.geoObjects.get(0);
                                     result = firstGeoObject.geometry.getCoordinates();
                                     scope.$apply(function(){
-                                        deferred.resolve(result);
+                                        centerCoordinatesDeferred.resolve(result);
                                     });
                                 }, function (err) {
                                     scope.$apply(function(){
-                                        deferred.reject(err);
+                                        centerCoordinatesDeferred.reject(err);
                                     });
                                 });
                             });
                         }
-                        return deferred.promise;
+                        return centerCoordinatesDeferred.promise;
                     };
                     var zoom = Number(attrs.yaZoom),
                         behaviors = attrs.yaBehaviors ? attrs.yaBehaviors.split(' ') : ['default'];
