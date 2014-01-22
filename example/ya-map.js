@@ -204,7 +204,7 @@ angular.module('yaMap',[]).
                 yaAfterInit:'&'
             },
             compile: function(tElement) {
-                var childNodes = tElement.contents(),
+                var childNodes = tElement.children(),
                     centerCoordinatesDeferred = null;
                 tElement.html('');
                 return function(scope, element,attrs) {
