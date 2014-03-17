@@ -234,7 +234,7 @@ angular.module('yaMap',[]).
                             });
                         }else if(angular.isArray(center)){
                             $timeout(function(){
-                                centerCoordinatesDeferred.resolve(result);
+                                centerCoordinatesDeferred.resolve(center);
                             });
                         }else if(angular.isString(center)){
                             //проводим обратное геокодирование
