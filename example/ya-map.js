@@ -69,8 +69,8 @@ angular.module('yaMap',[]).
     }]).
 
     service('yaLayer',[function(){
-        this.create = function(tileZoomFn){
-            return new ymaps.Layer(tileZoomFn);
+        this.create = function(tileZoomFn, options){
+            return new ymaps.Layer(tileZoomFn, options);
         };
     }]).
 
