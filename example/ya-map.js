@@ -194,7 +194,7 @@ angular.module('yaMap',[]).
             };
         });
     }]).
-    directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window','yaSubscriber','$parse','$q',function($compile, mapApiLoad,yaMapSettings,$window,yaSubscriber,$parse,$q){
+    directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window','yaSubscriber','$parse','$q','$timeout',function($compile, mapApiLoad,yaMapSettings,$window,yaSubscriber,$parse,$q,$timeout){
         return {
             restrict:'E',
             scope: {
@@ -228,10 +228,14 @@ angular.module('yaMap',[]).
                                 }else{
                                     result =  [ymaps.geolocation.latitude, ymaps.geolocation.longitude];
                                 }
-                                centerCoordinatesDeferred.resolve(result);
+                                $timeout(function(){
+                                    centerCoordinatesDeferred.resolve(result);
+                                });
                             });
                         }else if(angular.isArray(center)){
-                            centerCoordinatesDeferred.resolve(center);
+                            $timeout(function(){
+                                centerCoordinatesDeferred.resolve(result);
+                            });
                         }else if(angular.isString(center)){
                             //проводим обратное геокодирование
                             mapApiLoad(function(){
