@@ -17,7 +17,6 @@ angular.module('yaMap',[]).
         var loaded = false;
         var callbacks = [];
         var runCallbacks = function(){
-            loaded = true;
             var callback;
             while(callbacks.length){
                 callback = callbacks.splice(0,1);
@@ -38,15 +37,11 @@ angular.module('yaMap',[]).
                 script.onreadystatechange = function(){
                     if (script.readyState=="loaded" || script.readyState=="complete"){
                         script.onreadystatechange = null;
-                        _loading=false;
-                        loaded=true;
                         callback();
                     }
                 };
             } else { // Другие броузеры
                 script.onload = function(){
-                    _loading=false;
-                    loaded=true;
                     callback();
                 };
             }
@@ -61,6 +56,7 @@ angular.module('yaMap',[]).
             }else if(!_loading){
                 loadScript(loadUrl, function(){
                     ymaps.ready(function(){
+                        loaded=true;
                         runCallbacks();
                     });
                 });
