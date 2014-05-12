@@ -140,7 +140,7 @@ angular.module('yaMap',[]).
 
     directive('yaTemplateLayout',['templateLayoutFactory',function(templateLayoutFactory){
         return{
-            restrict:'E',
+            restrict:'EA',
             priority:1001,
             scope:{
                 overrides:'=yaOverrides'
@@ -192,7 +192,7 @@ angular.module('yaMap',[]).
     }]).
     directive('yaMap',['$compile','mapApiLoad','yaMapSettings','$window','yaSubscriber','$parse','$q','$timeout',function($compile, mapApiLoad,yaMapSettings,$window,yaSubscriber,$parse,$q,$timeout){
         return {
-            restrict:'E',
+            restrict:'EA',
             scope: {
                 yaCenter:'@',
                 yaType:'@',
@@ -355,7 +355,7 @@ angular.module('yaMap',[]).
     directive('yaToolbar',['$compile','$parse','yaSubscriber',function($compile,$parse,yaSubscriber){
         return {
             require:'^yaMap',
-            restrict:'E',
+            restrict:'EA',
             scope:{
                 yaAfterInit:'&'
             },
@@ -389,7 +389,7 @@ angular.module('yaMap',[]).
 
     directive('yaControl',['yaSubscriber','templateLayoutFactory','$parse',function(yaSubscriber,templateLayoutFactory,$parse){
         return {
-            restrict:'E',
+            restrict:'EA',
             require:'^yaToolbar',
             scope:{
                 yaAfterInit:'&'
@@ -452,7 +452,7 @@ angular.module('yaMap',[]).
         function($compile,yaMapSettings,$timeout,yaSubscriber,$parse){
         return {
             require:'^yaMap',
-            restrict:'E',
+            restrict:'EA',
             scope:{
                 yaAfterInit:'&'
             },
@@ -507,7 +507,7 @@ angular.module('yaMap',[]).
     directive('yaCluster',['yaMapSettings','yaSubscriber','$compile','templateLayoutFactory','$parse',function(yaMapSettings,yaSubscriber,$compile,templateLayoutFactory,$parse){
         return {
             require:'^yaMap',
-            restrict:'E',
+            restrict:'EA',
             scope:{
                 yaAfterInit:'&'
             },
@@ -559,7 +559,7 @@ angular.module('yaMap',[]).
 
     directive('yaGeoObject',['GEOMETRY_TYPES','yaSubscriber','templateLayoutFactory','$parse',function(GEOMETRY_TYPES,yaSubscriber,templateLayoutFactory,$parse){
         return {
-            restrict:'E',
+            restrict:'EA',
             require:['^yaMap','?^yaCollection','?^yaCluster'],
             scope:{
                 yaSource:'=',
@@ -655,7 +655,7 @@ angular.module('yaMap',[]).
 
     directive('yaHotspotLayer',[function(){
         return {
-            restrict:'E',
+            restrict:'EA',
             require:'^yaMap',
             link:function(scope,elm,attrs,yaMap){
                 if(!attrs.yaUrlTemplate){
@@ -672,7 +672,7 @@ angular.module('yaMap',[]).
 
     directive('yaImageLayer',[function(){
         return {
-            restrict:'E',
+            restrict:'EA',
             require:'^yaMap',
             link:function(scope,elm,attrs,yaMap){
                 if(!attrs.yaUrlTemplate){
