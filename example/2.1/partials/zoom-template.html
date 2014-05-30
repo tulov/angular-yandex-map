@@ -1,0 +1,72 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-template-layout ya-key="zoomTemplate" ya-overrides="over"&gt;
+    &lt;div&gt;
+        &lt;div id='zoom-in' class='btn'&gt;&lt;i class='icon-plus'&gt;&lt;/i&gt;&lt;/div&gt;&lt;br&gt;
+        &lt;div id='zoom-out' class='btn'&gt;&lt;i class='icon-minus'&gt;&lt;/i&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="9" ya-center="[37.573856,55.751574]"&gt;
+    &lt;ya-control ya-type="SmallZoomControl" ya-options="{layout:'zoomTemplate'}"&gt;&lt;/ya-control&gt;
+&lt;/ya-map&gt;
+</pre>
+    <p>javascript</p>
+    <pre class="js" ng-non-bindable>
+$scope.over={
+    build: function () {
+        // Вызываем родительский метод build.
+        var ZoomLayout = templateLayoutFactory.get('zoomTemplate');
+        ZoomLayout.superclass.build.call(this);
+
+        // Привязываем функции-обработчики к контексту и сохраняем ссылки
+        // на них, чтобы потом отписаться от событий.
+        this.zoomInCallback = ymaps.util.bind(this.zoomIn, this);
+        this.zoomOutCallback = ymaps.util.bind(this.zoomOut, this);
+
+        // Начинаем слушать клики на кнопках макета.
+        angular.element(document.getElementById('zoom-in')).bind('click', this.zoomInCallback);
+        angular.element(document.getElementById('zoom-out')).bind('click', this.zoomOutCallback);
+    },
+
+    clear: function () {
+        // Снимаем обработчики кликов.
+        angular.element(document.getElementById('zoom-in')).unbind('click', this.zoomInCallback);
+        angular.element(document.getElementById('zoom-out')).unbind('click', this.zoomOutCallback);
+
+        // Вызываем родительский метод clear.
+        var ZoomLayout = templateLayoutFactory.get('zoomTemplate');
+        ZoomLayout.superclass.clear.call(this);
+    },
+
+    zoomIn: function () {
+        var map = this.getData().control.getMap();
+        // Генерируем событие, в ответ на которое
+        // элемент управления изменит коэффициент масштабирования карты.
+        this.events.fire('zoomchange', {
+            oldZoom: map.getZoom(),
+            newZoom: map.getZoom() + 1
+        });
+    },
+
+    zoomOut: function () {
+        var map = this.getData().control.getMap();
+        this.events.fire('zoomchange', {
+            oldZoom: map.getZoom(),
+            newZoom: map.getZoom() - 1
+        });
+    }
+};
+</pre>
+</div>
+<div class="right">
+    <ya-template-layout ya-key="zoomTemplate" ya-overrides="over">
+        <div>
+            <div id='zoom-in' class='btn'><i class='icon-plus'></i></div><br>
+            <div id='zoom-out' class='btn'><i class='icon-minus'></i></div>
+        </div>
+    </ya-template-layout>
+    <ya-map ya-zoom="9" ya-center="[37.573856,55.751574]" ya-controls="">
+         <ya-control ya-type="ZoomControl" ya-options="{layout:'zoomTemplate'}"></ya-control>
+    </ya-map>
+</div>

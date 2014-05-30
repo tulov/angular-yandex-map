@@ -1,0 +1,21 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="8" ya-center="[37.64,55.76]" ya-after-init="afterMapInit($target)"&gt;&lt;/ya-map&gt;
+&lt;button ng-click="del()"&gt;Удалить&lt;/button&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+var _map;
+$scope.afterMapInit = function(map){
+    _map = map;
+};
+$scope.del = function(){
+    _map.destroy();
+};
+</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="8" ya-center="[37.64,55.76]" ya-after-init="afterMapInit($target)"></ya-map>
+    <button ng-click="del()">Удалить</button>
+</div>

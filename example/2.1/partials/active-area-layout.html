@@ -1,0 +1,23 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="9" ya-center="[37.500737,55.709243]" ya-options="{minZoom:9,maxZoom:10}" ya-controls="zoomControl"&gt;
+    &lt;ya-image-layer ya-url-template="img/%z/tile_x=%x&y=%y.png"
+                    ya-options="{tileTransparent:true}"&gt;&lt;/ya-image-layer&gt;
+    &lt;ya-hotspot-layer
+            ya-url-template="http://api.yandex.ru/maps/jsbox/examples/maps/ru/hotspot_layer/hotspot_data/%z/tile_x=%x&y=%y"
+            ya-key-template="testCallback_tile_%c"
+            ya-options="{cursor: 'help'}"&gt;&lt;/ya-hotspot-layer&gt;
+&lt;/ya-map&gt;
+    </pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="9" ya-center="[37.500737,55.709243]" ya-options="{minZoom:9,maxZoom:10}" ya-controls="zoomControl">
+        <ya-image-layer ya-url-template="img/%z/tile_x=%x&y=%y.png"
+                        ya-options="{tileTransparent:true}"></ya-image-layer>
+        <ya-hotspot-layer
+                ya-url-template="http://api.yandex.ru/maps/jsbox/examples/maps/ru/hotspot_layer/hotspot_data/%z/tile_x=%x&y=%y"
+                ya-key-template="testCallback_tile_%c"
+                ya-options="{cursor: 'help'}"></ya-hotspot-layer>
+    </ya-map>
+</div>

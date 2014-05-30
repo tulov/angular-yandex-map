@@ -1,0 +1,49 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-template-layout ya-key="buttonTemplate"&gt;
+    &lt;div class='my-button [if state.selected]my-button-selected[endif]'&gt;
+        $[data.content]
+    &lt;/div&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="10" ya-center="[37.62708,55.650625]" ya-controls=""&gt;
+    &lt;ya-control ya-type="button" ya-params="Жмак-жмак" ya-options="{layout:'buttonTemplate'}"&gt;&lt;/ya-control&gt;
+&lt;/ya-map&gt;
+</pre>
+    <p>CSS</p>
+    <pre class="css" ng-non-bindable>
+.my-button-selected {
+    color: #333333;
+    background-color: #e6e6e6;
+    outline: 2px dashed #333;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+}
+
+.my-button {
+    display: inline-block;
+    padding: 4px 14px;
+    margin-bottom: 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: #333333;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #f5f5f5;
+    border: 1px solid #bbbbbb;
+    border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+    font-family: Arial;
+}
+    </pre>
+</div>
+<div class="right">
+    <ya-template-layout ya-key="buttonTemplate">
+        <div class='my-button [if state.selected]my-button-selected[endif]'>
+            $[data.content]
+        </div>
+    </ya-template-layout>
+    <ya-map ya-zoom="10" ya-center="[37.62708,55.650625]" ya-controls="">
+        <ya-control ya-type="button" ya-params="Жмак-жмак" ya-options="{layout:'buttonTemplate',float:'left'}"></ya-control>
+    </ya-map>
+</div>

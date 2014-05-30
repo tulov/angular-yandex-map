@@ -1,0 +1,34 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="9" ya-center="[37.617761,55.755773]"&gt;
+    &lt;ya-geo-object ya-source="point"
+                   ya-event-mouseenter="mouseenter($event)"
+                   ya-event-mouseleave="mouseleave($event)"
+            &gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map>
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.point = {
+    geometry:{
+        type:'Point',
+        coordinates:[37.617761,55.755773]
+    }
+};
+$scope.mouseenter=function(e){
+    e.get('target').options.set('preset', 'islands#greenIcon');
+};
+$scope.mouseleave=function(e){
+    e.get('target').options.unset('preset');
+};
+</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="9" ya-center="[37.617761,55.755773]">
+        <ya-geo-object ya-source="point"
+                    ya-event-mouseenter="mouseenter($event)"
+                    ya-event-mouseleave="mouseleave($event)"
+                ></ya-geo-object>
+    </ya-map>
+</div>

@@ -1,0 +1,64 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-template-layout ya-key="squareLayout"&gt;
+    &lt;div class="placemark_layout_container"&gt;&lt;div class="square_layout"&gt;$&lt;/div&gt;&lt;/div&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-template-layout ya-key="circleLayout"&gt;
+    &lt;div class="placemark_layout_container"&gt;&lt;div class="circle_layout"&gt;#&lt;/div&gt;&lt;/div&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-template-layout ya-key="polygonLayout"&gt;
+    &lt;div class="placemark_layout_container"&gt;&lt;div class="polygon_layout"&gt;!&lt;/div&gt;&lt;/div&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="10" ya-center="[37.6, 55.7]" ya-controls=""&gt;
+    &lt;ya-geo-object ya-source="geoObjects[0]" ya-options="{iconLayout: 'squareLayout',iconShape: {type: 'Rectangle',coordinates: [[-25, -25], [25, 25]]}}"&gt;&lt;/ya-geo-object&gt;
+    &lt;ya-geo-object ya-source="geoObjects[1]" ya-options="{iconLayout: 'circleLayout',iconShape: {type: 'Circle',coordinates: [0,0], radius:25}}"&gt;&lt;/ya-geo-object&gt;
+    &lt;ya-geo-object ya-source="geoObjects[2]" ya-options="{iconLayout: 'polygonLayout',iconShape: {type: 'Polygon',coordinates: [[[-28,-76],[28,-76],[28,-20],[12,-20],[0,-4],[-12,-20],[-28,-20]]]}}"&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.geoObjects=[
+    {
+        geometry:{
+            type:'Point',
+            coordinates:[37.682145,55.725118]
+        },
+        properties:{
+            hintContent: 'Метка с прямоугольным HTML макетом'
+        }
+    },{
+        geometry:{
+            type:'Point',
+            coordinates:[37.605584,55.783202]
+        },
+        properties:{
+            hintContent: 'Метка с круглым HTML макетом'
+        }
+    },{
+        geometry:{
+            type:'Point',
+            coordinates:[37.558416,55.662693]
+        },
+        properties:{
+            hintContent: 'HTML метка сложной формы'
+        }
+    }
+];</pre>
+</div>
+<div class="right">
+    <ya-template-layout ya-key="squareLayout">
+        <div class="placemark_layout_container"><div class="square_layout">$</div></div>
+    </ya-template-layout>
+    <ya-template-layout ya-key="circleLayout">
+        <div class="placemark_layout_container"><div class="circle_layout">#</div></div>
+    </ya-template-layout>
+    <ya-template-layout ya-key="polygonLayout">
+        <div class="placemark_layout_container"><div class="polygon_layout">!</div></div>
+    </ya-template-layout>
+    <ya-map ya-zoom="10" ya-center="[37.6, 55.7]" ya-controls="">
+        <ya-geo-object ya-source="geoObjects[0]" ya-options="{iconLayout: 'squareLayout',iconShape: {type: 'Rectangle',coordinates: [[-25, -25], [25, 25]]}}"></ya-geo-object>
+        <ya-geo-object ya-source="geoObjects[1]" ya-options="{iconLayout: 'circleLayout',iconShape: {type: 'Circle',coordinates: [0,0], radius:25}}"></ya-geo-object>
+        <ya-geo-object ya-source="geoObjects[2]" ya-options="{iconLayout: 'polygonLayout',iconShape: {type: 'Polygon',coordinates: [[[-28,-76],[28,-76],[28,-20],[12,-20],[0,-4],[-12,-20],[-28,-20]]]}}"></ya-geo-object>
+    </ya-map>
+</div>

@@ -1,0 +1,89 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-template-layout ya-key="listBoxTemplate" ya-overrides="overList"&gt;
+    &lt;button id="my-listbox-header" class="btn btn-success dropdown-toggle" data-toggle="dropdown"&gt;
+        $[data.title] &lt;span class="caret"&gt;&lt;/span&gt;
+    &lt;/button&gt;
+    &lt;ul id="my-listbox"
+        class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu"
+        style="[if state.expanded]display:block[else]display:none[endif];"&gt;
+    &lt;/ul&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-template-layout ya-key="listBoxItemTemplate"&gt;
+    &lt;li&gt;&lt;a&gt;$[data.content]&lt;/a&gt;&lt;/li&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="9" ya-center="[37.573856,55.751574]" ya-controls=""&gt;
+        &lt;ya-control ya-type="ListBox" ya-params="{data:{title: 'Выберите пункт'},items:[{data: {content: 'Москва',center: [37.573856,55.751574],zoom: 9}},{data: {content: 'Омск',center: [73.365535,54.990215],zoom: 9}}]}" ya-options="{layout:'listBoxTemplate',itemLayout:'listBoxItemTemplate'}"
+                    ya-event-click="click($event)"&gt;&lt;/ya-control&gt;
+&lt;/ya-map&gt;
+</pre>
+    <p>javascript</p>
+    <pre class="js" ng-non-bindable>
+$scope.overList={
+    build: function() {
+        // Вызываем метод build родительского класса перед выполнением
+        // дополнительных действий.
+        var ListBoxLayout = templateLayoutFactory.get('listBoxTemplate');
+        ListBoxLayout.superclass.build.call(this);
+
+        this.childContainerElement = angular.element(document.getElementById('my-listbox'))[0];
+        // Генерируем специальное событие, оповещающее элемент управления
+        // о смене контейнера дочерних элементов.
+        this.events.fire('childcontainerchange', {
+            newChildContainerElement: this.childContainerElement,
+            oldChildContainerElement: null
+        });
+    },
+
+    // Переопределяем интерфейсный метод, возвращающий ссылку на
+    // контейнер дочерних элементов.
+    getChildContainerElement: function () {
+        return this.childContainerElement;
+    },
+
+    clear: function () {
+        // Заставим элемент управления перед очисткой макета
+        // откреплять дочерние элементы от родительского.
+        // Это защитит нас от неожиданных ошибок,
+        // связанных с уничтожением dom-элементов в ранних версиях ie.
+        this.events.fire('childcontainerchange', {
+            newChildContainerElement: null,
+            oldChildContainerElement: this.childContainerElement
+        });
+        this.childContainerElement = null;
+        // Вызываем метод clear родительского класса после выполнения
+        // дополнительных действий.
+        var ListBoxLayout = templateLayoutFactory.get('listBoxTemplate');
+        ListBoxLayout.superclass.clear.call(this);
+    }
+};
+$scope.click = function(e){
+    var item = e.get('target');
+    if (item.data.get('title') != 'Выберите пункт') {
+        var myMap = item.getMap();
+        myMap.setCenter(
+            item.data.get('center'),
+            item.data.get('zoom')
+        );
+    }
+};</pre>
+</div>
+<div class="right">
+    <ya-template-layout ya-key="listBoxTemplate" ya-overrides="overList">
+        <button id="my-listbox-header" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+            $[data.title] <span class="caret"></span>
+        </button>
+        <ul id="my-listbox"
+            class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu"
+            style="[if state.expanded]display:block[else]display:none[endif];">
+        </ul>
+    </ya-template-layout>
+    <ya-template-layout ya-key="listBoxItemTemplate">
+        <li><a>$[data.content]</a></li>
+    </ya-template-layout>
+    <ya-map ya-zoom="9" ya-center="[37.573856,55.751574]" ya-controls="">
+            <ya-control ya-type="ListBox" ya-params="{data:{title: 'Выберите пункт'},items:[{data: {content: 'Москва',center: [37.573856,55.751574],zoom: 9}},{data: {content: 'Омск',center: [73.365535,54.990215],zoom: 9}}]}" ya-options="{layout:'listBoxTemplate',itemLayout:'listBoxItemTemplate'}"
+                    ya-event-click="click($event)"></ya-control>
+    </ya-map>
+</div>

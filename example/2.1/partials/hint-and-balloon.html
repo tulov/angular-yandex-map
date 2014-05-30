@@ -1,0 +1,46 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="5" ya-center="[37.11,54.83]" ya-after-init="afterMapInit($target)"&gt;
+    &lt;ya-geo-object ya-source="geoObjects[0]"&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+</pre>
+    <p>javascript</p>
+    <pre class="js" ng-non-bindable>
+$scope.geoObjects=[
+    {
+        // Геометрия = тип объекта + географические координаты объекта
+        geometry: {
+            // Тип геометрии - точка
+            type: 'Point',
+            // Координаты точки.
+            coordinates: [31.260503,55.907228]
+        },
+        // Свойства
+        properties: {
+            balloonContentHeader: "Балун метки",
+            balloonContentBody: "Содержимое <em>балуна</em> метки",
+            balloonContentFooter: "Подвал",
+            hintContent: "Хинт метки"
+        }
+    }
+];
+$scope.afterMapInit=function(map){
+    $timeout(function(){
+        map.hint.show(map.getCenter(), "Содержимое хинта", {
+            // Опция: задержка перед открытием.
+            showTimeout: 1500
+        });
+    });
+    map.balloon.open([38.37,51.85], "Содержимое балуна", {
+        // Опция: не показываем кнопку закрытия.
+        closeButton: false
+    });
+};
+</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="5" ya-center="[37.11,54.83]" ya-after-init="afterMapInit($target)">
+        <ya-geo-object ya-source="geoObjects[0]"></ya-geo-object>
+    </ya-map>
+</div>

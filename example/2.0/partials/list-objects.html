@@ -1,0 +1,117 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+    &lt;ya-map ya-zoom="10" ya-center="[37.8,55.85]" ya-after-init="afterMapInit($target)"&gt;
+        &lt;ya-collection ya-options="{preset:'twirl#blueIcon'}"&gt;
+            &lt;ya-geo-object ng-repeat="o in geoObjects | filter:{type:'памятник'}" ya-source="o" ya-show-balloon="show==o"&gt;&lt;/ya-geo-object&gt;
+        &lt;/ya-collection&gt;
+        &lt;ya-collection ya-options="{preset:'twirl#redIcon'}"&gt;
+            &lt;ya-geo-object ng-repeat="o in geoObjects | filter:{type:'ресторан'}" ya-source="o" ya-show-balloon="show==o"&gt;&lt;/ya-geo-object&gt;
+        &lt;/ya-collection&gt;
+    &lt;/ya-map&gt;
+    &lt;ol&gt;
+        &lt;li ng-repeat="(k,v) in types"&gt;
+            &lt;a href="javascript:void(0);" ng-click="runGroup(k)"&gt;{{ k }}&lt;/a&gt;
+            &lt;ul&gt;
+                &lt;li ng-repeat="o in all | filter:{type:k}"&gt;
+                    &lt;a href="javascript:void(0);" ng-click="runBalloon(o)"&gt;{{ o.properties.balloonContent }}&lt;/a&gt;
+                &lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;
+    &lt;/ol&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.all=[
+    {
+        type:'памятник',
+        geometry: {
+            type: 'Point',
+            coordinates: [37.8,55.85]
+        },
+        properties: {
+            balloonContent: 'Метка 1'
+        }
+    },
+    {
+        type:'памятник',
+        geometry: {
+            type: 'Point',
+            coordinates: [37.8,55.75]
+        },
+        properties: {
+            balloonContent: 'Метка 2'
+        }
+    },
+    {
+        type:'памятник',
+        geometry: {
+            type: 'Point',
+            coordinates: [37.85,55.8]
+        },
+        properties: {
+            balloonContent: 'Метка 3'
+        }
+    },
+    {
+        type:'ресторан',
+        geometry: {
+            type: 'Point',
+            coordinates: [37.75,55.8]
+        },
+        properties: {
+            balloonContent: 'Метка 4'
+        }
+    },
+    {
+        type:'ресторан',
+        geometry: {
+            type: 'Point',
+            coordinates: [37.8,55.8]
+        },
+        properties: {
+            balloonContent: 'Метка 5'
+        }
+    }
+];
+$scope.types={
+    'памятник':true,
+    'ресторан':true
+};
+var filter = $filter('filter');
+$scope.runGroup = function(type){
+    if(type){
+        $scope.types[type]=!$scope.types[type];
+    }
+    $scope.geoObjects = filter($scope.all, filterFn);
+};
+var filterFn = function(val){
+    return $scope.types[val.type];
+};
+$scope.runGroup();
+$scope.runBalloon = function(obj){
+    $scope.show = obj;
+};
+</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="10" ya-center="[37.8,55.85]" ya-after-init="afterMapInit($target)">
+        <ya-collection ya-options="{preset:'twirl#blueIcon'}">
+            <ya-geo-object ng-repeat="o in geoObjects | filter:{type:'памятник'}" ya-source="o" ya-show-balloon="show==o"></ya-geo-object>
+        </ya-collection>
+        <ya-collection ya-options="{preset:'twirl#redIcon'}">
+            <ya-geo-object ng-repeat="o in geoObjects | filter:{type:'ресторан'}" ya-source="o" ya-show-balloon="show==o"></ya-geo-object>
+        </ya-collection>
+    </ya-map>
+    <ol>
+        <li ng-repeat="(k,v) in types">
+            <a href="javascript:void(0);" ng-click="runGroup(k)">{{ k }}</a>
+            <ul>
+                <li ng-repeat="o in all | filter:{type:k}">
+                    <a href="javascript:void(0);" ng-click="runBalloon(o)">{{ o.properties.balloonContent }}</a>
+                </li>
+            </ul>
+        </li>
+    </ol>
+
+</div>

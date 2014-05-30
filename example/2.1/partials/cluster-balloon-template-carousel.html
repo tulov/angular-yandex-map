@@ -1,0 +1,69 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-template-layout ya-key="customItemContentLayout"&gt;
+    &lt;h2 class=ballon_header&gt;$[properties.balloonContentHeader|raw]&lt;/h2&gt;
+    &lt;div class=ballon_body&gt;$[properties.balloonContentBody|raw]&lt;/div&gt;
+    &lt;div class=ballon_footer&gt;$[properties.balloonContentFooter|raw]&lt;/div&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="9" ya-center="{{mapCenter}}" ya-controls=""&gt;
+    &lt;ya-cluster ya-options="{clusterDisableClickZoom: true,clusterOpenBalloonOnClick: true,clusterBalloonPanelMaxMapArea: 0,clusterBalloonContentLayoutWidth: 350,clusterBalloonItemContentLayout: 'customItemContentLayout',clusterBalloonLeftColumnWidth: 120}"&gt;
+        &lt;ya-geo-object ng-repeat="o in geoObjects" ya-source="o"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-cluster&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>CSS</p>
+    <pre class="css" ng-non-bindable>
+.ballon_header { font-size: 16px; margin-top: 0; margin-bottom: 10px; color: #708090; }
+.ballon_body { font-size: 14px; text-align: center; }
+.ballon_footer { font-size: 12px; text-align: right; border-top: 1px solid #7D7D7D; color: #7D7D7D; margin-top: 10px; }
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+var objs=[];
+$scope.mapCenter=[37.619044,55.755381];
+for(var i= 0;i<100;i++){
+    objs.push({
+        geometry:{
+            type:'Point',
+            coordinates:getRandomCoordinates()
+        },
+        properties:{
+            // Устаналиваем данные, которые будут отображаться в балуне.
+            balloonContentHeader: 'Метка №' + (i + 1),
+            balloonContentBody: getContentBody(i),
+            balloonContentFooter: 'Мацуо Басё'
+        }
+    });
+}
+$scope.geoObjects=objs;
+function getRandomCoordinates () {
+    return [
+        $scope.mapCenter[0] + (Math.random() * 0.3 - 0.15),
+        $scope.mapCenter[1] + (Math.random() * 0.5 - 0.25)
+    ];
+}
+var placemarkBodies;
+function getContentBody (num) {
+    if (!placemarkBodies) {
+        placemarkBodies = [
+            ['Желтый лист в ручье.', 'Просыпайся, цикада,', 'Берег все ближе.'].join('&lt;br/&gt;'),
+            ['Ива на ветру.', 'Соловей в ветвях запел,', 'Как ее душа.'].join('&lt;br/&gt;'),
+            ['Лежу и молчу,', 'Двери запер на замок.', 'Приятный отдых.'].join('&lt;br/&gt;')
+        ];
+    }
+    return '&lt;strong&gt;Тело метки №' + (num + 1) + '&lt;/strong&gt;&lt;br/&gt;' + placemarkBodies[num % placemarkBodies.length];
+}</pre>
+</div>
+<div class="right">
+    <ya-template-layout ya-key="carouselItemContentLayout">
+        <h2 class=ballon_header>$[properties.balloonContentHeader|raw]</h2>
+        <div class=ballon_body>$[properties.balloonContentBody|raw]</div>
+        <div class=ballon_footer>$[properties.balloonContentFooter|raw]</div>
+    </ya-template-layout>
+    <ya-map ya-zoom="9" ya-center="{{mapCenter}}" ya-controls="">
+        <ya-cluster ya-options="{clusterDisableClickZoom: true,clusterOpenBalloonOnClick: true,clusterBalloonContentLayout: 'cluster#balloonCarousel',clusterBalloonItemContentLayout: 'carouselItemContentLayout',clusterBalloonPanelMaxMapArea: 0,clusterBalloonContentLayoutWidth: 200,clusterBalloonContentLayoutHeight: 130,clusterBalloonPagerSize: 5}">
+            <ya-geo-object ng-repeat="o in geoObjects" ya-source="o"></ya-geo-object>
+        </ya-cluster>
+    </ya-map>
+</div>

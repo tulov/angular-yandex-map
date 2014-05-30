@@ -1,24 +1,26 @@
 <div class="center">
     <p>HTML:</p>
     <pre class="html" ng-non-bindable>
-&lt;ya-map ya-zoom="10" ya-center="[37.8,55.85]" ya-after-init="afterMapInit($target)"&gt;
-    &lt;ya-collection ya-options="{preset:'twirl#blueIcon'}"&gt;
-        &lt;ya-geo-object ng-repeat="o in geoObjects | filter:{type:'памятник'}" ya-source="o" ya-show-balloon="show==o"&gt;&lt;/ya-geo-object&gt;
-    &lt;/ya-collection&gt;
-    &lt;geo-objects options="{preset:'twirl#redIcon'}"&gt;
-        &lt;geo-object ng-repeat="o in geoObjects | filter:{type:'ресторан'}" source="o" ya-show-balloon="show==o"&gt;&lt;/geo-object&gt;
-    &lt;/geo-objects&gt;
-&lt;/ya-map&gt;
-&lt;ol&gt;
-    &lt;li ng-repeat="(k,v) in types"&gt;
-        &lt;a href="javascript:void(0);" ng-click="runGroup(k)"&gt;{{ k }}&lt;/a&gt;
-        &lt;ul&gt;
-            &lt;li ng-repeat="o in all | filter:{type:k}"&gt;
-                &lt;a href="javascript:void(0);" ng-click="runBalloon(o)"&gt;{{ o.properties.balloonContent }}&lt;/a&gt;
-            &lt;/li&gt;
-        &lt;/ul&gt;
-    &lt;/li&gt;
-&lt;/ol&gt;
+&lt;div class="right"&gt;
+    &lt;ya-map ya-zoom="10" ya-center="[37.8,55.85]" ya-after-init="afterMapInit($target)"&gt;
+        &lt;ya-collection ya-options="{preset:'twirl#blueIcon'}"&gt;
+            &lt;ya-geo-object ng-repeat="o in geoObjects | filter:{type:'памятник'}" ya-source="o" ya-show-balloon="show==o"&gt;&lt;/ya-geo-object&gt;
+        &lt;/ya-collection&gt;
+        &lt;ya-collection ya-options="{preset:'twirl#redIcon'}"&gt;
+            &lt;ya-geo-object ng-repeat="o in geoObjects | filter:{type:'ресторан'}" ya-source="o" ya-show-balloon="show==o"&gt;&lt;/ya-geo-object&gt;
+        &lt;/ya-collection&gt;
+    &lt;/ya-map&gt;
+    &lt;ol&gt;
+        &lt;li ng-repeat="(k,v) in types"&gt;
+            &lt;a href="javascript:void(0);" ng-click="runGroup(k)"&gt;{{ k }}&lt;/a&gt;
+            &lt;ul&gt;
+                &lt;li ng-repeat="o in all | filter:{type:k}"&gt;
+                    &lt;a href="javascript:void(0);" ng-click="runBalloon(o)"&gt;{{ o.properties.balloonContent }}&lt;/a&gt;
+                &lt;/li&gt;
+            &lt;/ul&gt;
+        &lt;/li&gt;
+    &lt;/ol&gt;
+&lt;/div&gt;
     </pre>
     <p>javascript:</p>
     <pre class="js" ng-non-bindable>
@@ -99,9 +101,9 @@ $scope.runBalloon = function(obj){
         <ya-collection ya-options="{preset:'twirl#blueIcon'}">
             <ya-geo-object ng-repeat="o in geoObjects | filter:{type:'памятник'}" ya-source="o" ya-show-balloon="show==o"></ya-geo-object>
         </ya-collection>
-        <geo-objects options="{preset:'twirl#redIcon'}">
-            <geo-object ng-repeat="o in geoObjects | filter:{type:'ресторан'}" source="o" ya-show-balloon="show==o"></geo-object>
-        </geo-objects>
+        <ya-collection ya-options="{preset:'twirl#redIcon'}">
+            <ya-geo-object ng-repeat="o in geoObjects | filter:{type:'ресторан'}" ya-source="o" ya-show-balloon="show==o"></ya-geo-object>
+        </ya-collection>
     </ya-map>
     <ol>
         <li ng-repeat="(k,v) in types">

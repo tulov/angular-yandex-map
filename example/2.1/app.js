@@ -1,381 +1,237 @@
 /**
  * Created by владелец on 05.11.13.
  */
-/*var app = angular.module('myApp', ['yaMap']).
-    controller('MapCtrl', ['$scope',function($scope){
-        $scope.center = [37.8,55.85];
-        $scope.geoObjects=[
-            {
-                // Геометрия = тип объекта + географические координаты объекта
-                geometry: {
-                    // Тип геометрии - точка
-                    type: 'Point',
-                    // Координаты точки.
-                    coordinates: [37.8,55.85]
-                },
-                // Свойства
-                properties: {
-                    // Контент метки.
-                    iconContent: 'Метка 1'
-                }
-            },
-            {
-                // Геометрия = тип объекта + географические координаты объекта
-                geometry: {
-                    // Тип геометрии - точка
-                    type: 'Point',
-                    // Координаты точки.
-                    coordinates: [37.8,55.75]
-                },
-                // Свойства
-                properties: {
-                    // Контент метки.
-                    iconContent: 'Метка 2'
-                }
-            },
-            {
-                // Геометрия = тип объекта + географические координаты объекта
-                geometry: {
-                    // Тип геометрии - точка
-                    type: 'Point',
-                    // Координаты точки.
-                    coordinates: [37.85,55.8]
-                },
-                // Свойства
-                properties: {
-                    // Контент метки.
-                    iconContent: 'Метка 3'
-                }
-            },
-            {
-                // Геометрия = тип объекта + географические координаты объекта
-                geometry: {
-                    // Тип геометрии - точка
-                    type: 'Point',
-                    // Координаты точки.
-                    coordinates: [37.75,55.8]
-                },
-                // Свойства
-                properties: {
-                    // Контент метки.
-                    iconContent: 'Метка 4'
-                }
-            },
-            {
-                // Геометрия = тип объекта + географические координаты объекта
-                geometry: {
-                    // Тип геометрии - точка
-                    type: 'Point',
-                    // Координаты точки.
-                    coordinates: [37.8,55.8]
-                },
-                // Свойства
-                properties: {
-                    // Контент метки.
-                    iconContent: 'Метка 5'
-                }
-            },
-            {
-                // Геометрия = тип объекта + географические координаты объекта
-                geometry: {
-                    // Тип геометрии - линия
-                    type: "LineString",
-                    // Координаты точки
-                    coordinates: [
-                        [37.30,55.80],
-                        [37.90,55.70],
-                        [37.40,55.70]
-                    ]
-                },
-                // Свойства геообъекта
-                properties: {
-                    // Контент хинта
-                    hintContent: "Я геообъект",
-                    // Контент балуна
-                    balloonContent: "балуна контент",
-                    draggable:true
-                }
-            },
-            {
-                // Задаем модель геообъекта.
-                // Модель = геометрия + свойства гообъекта.
-                // Геометрия = тип геометрии + координаты геообъекта.
-                geometry: {
-                    // Тип геометрии - прямоугольник
-                    type: 'Rectangle',
-                    // Координаты
-                    coordinates: [
-                        [ 37.66,55.665],
-                        [37.53,55.64]
-                    ]
-                },
-                // Свойства
-                properties: {
-                    hintContent: 'Перетащи меня!',
-                    balloonContent: 'balloon content'
-                }
-            },
-            {
-                // Геометрия.
-                geometry: {
-                    // Тип геометрии - полигон.
-                    type: "Polygon",
-                    // Координаты точек.
-                    coordinates: [
-                        // Координаты вершин внешнего контура
-                        [
-                            [37.80,55.75],
-                            [37.90,55.80],
-                            [38.00,55.75],
-                            [ 38.00,55.70],
-                            [37.80,55.70]
-                        ],
-                        // Координаты вершин внутренней границы многоугольника.
-                        [
-                            [37.82,55.75],
-                            [37.98,55.75],
-                            [37.90,55.65]
-                        ]
-                    ]
-                },
-                properties:{
-                    //Свойства
-                    hintContent: "Многоугольник"
-                }
-            },
-            {
-                // Геометрия.
-                geometry: {
-                    // Тип геометрии - круг.
-                    type: "Circle",
-                    // Координаты центра.
-                    coordinates: [37.60,55.76],
-                    radius:10000
-                },
-                properties:{
-                    //Свойства
-                    hintContent: "Круг"
-                }
-            }
-        ];
-        $scope.change = function(){
-            $scope.geoObjects[0].geometry.coordinates=[38.3,56.35];
-            $scope.geoObjects[0].properties.iconContent='пометка';
-        };
-        $scope.del = function(){
-            $scope.geoObjects.length -= 1;
-        };
-        $scope.add = function(){
-            $scope.geoObjects.push({
-                // Геометрия = тип объекта + географические координаты объекта
-                geometry: {
-                    // Тип геометрии - точка
-                    type: 'Point',
-                    // Координаты точки.
-                    coordinates: [37.3,55.35]
-                },
-                // Свойства
-                properties: {
-                    // Контент метки.
-                    iconContent: 'add'
-                }
-            });
-        };
-
-        var i= 0,
-            //так как внутри используется $eval, строки нужно брать в двойные кавычки
-            centers = [[37.8,55.85],'Казахстан, город астана',undefined];
-        $scope.changeCenter = function(){
-            $scope.center = centers[++i%3];
-        };
-
-        $scope.test = function(event, obj){
-            console.log(arguments);
-        }
-    }]);*/
 angular.module('myApp', ['ui.bootstrap','yaMap'], function($routeProvider, $locationProvider) {
-    $routeProvider.when('/', {
-            templateUrl: 'partials/map-add.html',
+    $routeProvider.when('/2.1/', {
+            templateUrl: '2.1/partials/map-add.html',
             controller: MapAddCtrl
         })
-        .when('/map/change', {
-            templateUrl: 'partials/map-change.html',
+        .when('/2.1/map/change', {
+            templateUrl: '2.1/partials/map-change.html',
             controller: MapChangeCtrl
         })
-        .when('/map/fullscreen',{
-            templateUrl:'partials/full-screen.html',
-            controller:MapFullScreenCtrl
+        .when('/2.1/map/create', {
+            templateUrl: '2.1/partials/create.html',
+            controller: EmptyCtrl
         })
-        .when('/map/hidden',{
-            templateUrl:'partials/hidden.html',
-            controller:EmptyCtrl
-        })
-        .when('/map/controls',{
-            templateUrl:'partials/controls.html',
-            controller:EmptyCtrl
-        })
-        .when('/map/hint-and-balloon',{
-            templateUrl:'partials/hint-and-balloon.html',
-            controller:HintAndBalloonCtrl
-        })
-        .when('/map/dynamic-balloon',{
-            templateUrl:'partials/dynamic-balloon.html',
-            controller:DynamicBalloonCtrl
-        })
-        .when('/map/own-map',{
-            templateUrl:'partials/own-map.html',
+        .when('/2.1/map/own-map',{
+            templateUrl:'2.1/partials/own-map.html',
             controller:OwnMapCtrl
         })
-        .when('/map/active-area',{
-            templateUrl:'partials/active-area.html',
+        .when('/2.1/balloon-and-hint',{
+            templateUrl:'2.1/partials/hint-and-balloon.html',
+            controller:HintAndBalloonCtrl
+        })
+        .when('/2.1/balloon-and-hint/dynamic-balloon',{
+            templateUrl:'2.1/partials/dynamic-balloon.html',
+            controller:DynamicBalloonCtrl
+        })
+        .when('/2.1/balloon-and-hint/balloon-panel',{
+            templateUrl:'2.1/partials/balloon-panel.html',
+            controller:BalloonPanelCtrl
+        })
+        .when('/2.1/active-area',{
+            templateUrl:'2.1/partials/active-area-layout.html',
             controller:EmptyCtrl
         })
-        .when('/geoobjects/points',{
-            templateUrl:'partials/points.html',
+        .when('/2.1/geoobjects/points',{
+            templateUrl:'2.1/partials/points.html',
             controller:PointsCtrl
         })
-        .when('/geoobjects/linestring',{
-            templateUrl:'partials/linestring.html',
+        .when('/2.1/geoobjects/linestring',{
+            templateUrl:'2.1/partials/linestring.html',
             controller:LineStringCtrl
         })
-        .when('/geoobjects/rectangle',{
-            templateUrl:'partials/rectangle.html',
+        .when('/2.1/geoobjects/rectangle',{
+            templateUrl:'2.1/partials/rectangle.html',
             controller:RectangleCtrl
         })
-        .when('/geoobjects/polygon',{
-            templateUrl:'partials/polygon.html',
+        .when('/2.1/geoobjects/polygon',{
+            templateUrl:'2.1/partials/polygon.html',
             controller:PolygonCtrl
         })
-        .when('/geoobjects/circle',{
-            templateUrl:'partials/circle.html',
+        .when('/2.1/geoobjects/circle',{
+            templateUrl:'2.1/partials/circle.html',
             controller:CircleCtrl
         })
-        .when('/geoobjects/linestring-edit',{
-            templateUrl:'partials/linestring-edit.html',
+        .when('/2.1/geoobjects/add-to-collection',{
+            templateUrl:'2.1/partials/add-to-collection.html',
+            controller:AddObjToCollection
+        })
+        .when('/2.1/geoobjects/linestring-edit',{
+            templateUrl:'2.1/partials/linestring-edit.html',
             controller:LineStringEditCtrl
         })
-        .when('/geoobjects/polygon-draw',{
-            templateUrl:'partials/polygon-draw.html',
+        .when('/2.1/geoobjects/polygon-draw',{
+            templateUrl:'2.1/partials/polygon-draw.html',
             controller:PolygonDrawCtrl
         })
-        .when('/geoobjects/list-objects',{
-            templateUrl:'partials/list-objects.html',
+        .when('/2.1/geoobjects/list-objects',{
+            templateUrl:'2.1/partials/list-objects.html',
             controller:ListObjectsCtrl
         })
-        .when('/cluster/create',{
-            templateUrl:'partials/create-cluster.html',
+        .when('/2.1/geoobjects/change-parameters',{
+            templateUrl:'2.1/partials/change-parameters.html',
+            controller:ChangeParametersCtrl
+        })
+        .when('/2.1/cluster/create',{
+            templateUrl:'2.1/partials/create-cluster.html',
             controller:CreateClusterCtrl
         })
-        .when('/cluster/set-size',{
-            templateUrl:'partials/set-size-cluster.html',
+        .when('/2.1/cluster/own-icon',{
+            templateUrl:'2.1/partials/own-icon.html',
             controller:CreateClusterCtrl
         })
-        .when('/geoquery/point-inside-circle',{
-            templateUrl:'partials/point-inside-circle.html',
+        .when('/2.1/cluster/color',{
+            templateUrl:'2.1/partials/cluster-color.html',
+            controller:ColorClusterCtrl
+        })
+        .when('/2.1/cluster/set-size',{
+            templateUrl:'2.1/partials/set-size-cluster.html',
+            controller:SetSizeClusterCtrl
+        })
+        .when('/2.1/cluster/two-column',{
+            templateUrl:'2.1/partials/cluster-balloon-template-two-column.html',
+            controller:ClusterTwoColumnCtrl
+        })
+        .when('/2.1/cluster/carousel',{
+            templateUrl:'2.1/partials/cluster-balloon-template-carousel.html',
+            controller:ClusterTwoColumnCtrl
+        })
+        .when('/2.1/cluster/accordion',{
+            templateUrl:'2.1/partials/cluster-balloon-template-accordion.html',
+            controller:ClusterAccordionCtrl
+        })
+        .when('/2.1/cluster/self',{
+            templateUrl:'2.1/partials/cluster-balloon-template-self.html',
+            controller:ClusterSelfCtrl
+        })
+        .when('/2.1/geoquery/point-inside-circle',{
+            templateUrl:'2.1/partials/point-inside-circle.html',
             controller:PointInsideCircleCtrl
         })
-        .when('/geoquery/find-objects',{
-            templateUrl:'partials/find-objects.html',
+        .when('/2.1/geoquery/find-objects',{
+            templateUrl:'2.1/partials/find-objects.html',
             controller:FindObjectsCtrl
         })
-        .when('/geoquery/add-bounds-objects',{
-            templateUrl:'partials/add-bounds-objects.html',
+        .when('/2.1/geoquery/add-bounds-objects',{
+            templateUrl:'2.1/partials/add-bounds-objects.html',
             controller:AddBoundsObjectsCtrl
         })
-        .when('/geoquery/route-mkad',{
-            templateUrl:'partials/route-mkad.html',
+        .when('/2.1/geoquery/route-mkad',{
+            templateUrl:'2.1/partials/route-mkad.html',
             controller:RouteMKADCtrl
         })
-        .when('/geoquery/geocode-result-view',{
-            templateUrl:'partials/geocode-result-view.html',
+        .when('/2.1/geoquery/geocode-result-view',{
+            templateUrl:'2.1/partials/geocode-result-view.html',
             controller:GeocodeResultViewCtrl
         })
-        .when('/behaviors/map',{
-            templateUrl:'partials/behaviors.html',
+        .when('/2.1/behaviors/map',{
+            templateUrl:'2.1/partials/behaviors.html',
             controller:EmptyCtrl
         })
-        .when('/events/geoobect',{
-            templateUrl:'partials/geoobject-events.html',
+        .when('/2.1/behaviors/dragger',{
+            templateUrl:'2.1/partials/dragger.html',
+            controller:DraggerCtrl
+        })
+        .when('/2.1/geoobjects/events',{
+            templateUrl:'2.1/partials/geoobject-events.html',
             controller:GeoObjectEventsCtrl
         })
-        .when('/events/coordinate-click',{
-            templateUrl:'partials/click-coordinate.html',
+        .when('/2.1/geoobjects/active-area',{
+            templateUrl:'2.1/partials/active-area.html',
+            controller:ActiveAreaCtrl
+        })
+        .when('/2.1/behaviors/coordinate-click',{
+            templateUrl:'2.1/partials/click-coordinate.html',
             controller:ClickCoordinateCtrl
         })
-        .when('/events/edit-geoobject',{
-            templateUrl:'partials/edit-geoobject.html',
+        /*.when('/2.1/events/edit-geoobject',{
+            templateUrl:'2.1/partials/edit-geoobject.html',
             controller:EditGeoobjectCtrl
-        })
-        .when('/events/change-color',{
-            templateUrl:'partials/change-color.html',
+        })*/
+        .when('/2.1/geoobjects/change-color',{
+            templateUrl:'2.1/partials/change-color.html',
             controller:ChangeColorCtrl
         })
-        .when('/template/balloon',{
-            templateUrl:'partials/balloon-template.html',
+        .when('/2.1/balloon-and-hint/template',{
+            templateUrl:'2.1/partials/balloon-template.html',
             controller:BalloonTemplateCtrl
         })
-        .when('/template/batton',{
-            templateUrl:'partials/batton-template.html',
+        .when('/2.1/toolbar/standart',{
+            templateUrl:'2.1/partials/toolbar-standart.html',
             controller:EmptyCtrl
         })
-        .when('/template/zoom',{
-            templateUrl:'partials/zoom-template.html',
+        .when('/2.1/toolbar/add',{
+            templateUrl:'2.1/partials/toolbar-add.html',
+            controller:EmptyCtrl
+        })
+        .when('/2.1/toolbar/add-batton',{
+            templateUrl:'2.1/partials/toolbar-batton.html',
+            controller:EmptyCtrl
+        })
+        .when('/2.1/toolbar/button',{
+            templateUrl:'2.1/partials/button-template.html',
+            controller:EmptyCtrl
+        })
+        .when('/2.1/toolbar/zoom',{
+            templateUrl:'2.1/partials/zoom-template.html',
             controller:ZoomTemplateCtrl
         })
-        .when('/template/list-box',{
-            templateUrl:'partials/list-box-template.html',
+        .when('/2.1/toolbar/list-box',{
+            templateUrl:'2.1/partials/list-box-template.html',
             controller:ListBoxTemplateCtrl
         })
-        .when('/template/cluster-balloon',{
-            templateUrl:'partials/cluster-balloon-template.html',
+        /*.when('/2.1/template/cluster-balloon',{
+            templateUrl:'2.1/partials/cluster-balloon-template.html',
             controller:ClusterBalloonTemplateCtrl
         })
-        .when('/template/cluster-balloon-carousel',{
-            templateUrl:'partials/cluster-balloon-carousel-template.html',
+        .when('/2.1/template/cluster-balloon-carousel',{
+            templateUrl:'2.1/partials/cluster-balloon-carousel-template.html',
             controller:ClusterBalloonCarouselTemplateCtrl
         })
-        .when('/template/cluster-balloon-accordion',{
-            templateUrl:'partials/cluster-balloon-accordion-template.html',
+        .when('/2.1/template/cluster-balloon-accordion',{
+            templateUrl:'2.1/partials/cluster-balloon-accordion-template.html',
             controller:ClusterBalloonAccordionTemplateCtrl
-        })
-        .when('/geocode',{
-            templateUrl:'partials/geocode.html',
+        })*/
+        .when('/2.1/geocode/one',{
+            templateUrl:'2.1/partials/geocode.html',
             controller:GeocodeCtrl
         })
-        .when('/multi-geocode',{
-            templateUrl:'partials/multi-geocode.html',
+        .when('/2.1/geocode/multi',{
+            templateUrl:'2.1/partials/multi-geocode.html',
             controller:MultiGeocodeCtrl
         })
-        .when('/traffic',{
-            templateUrl:'partials/traffic.html',
+        .when('/2.1/traffic/element',{
+            templateUrl:'2.1/partials/traffic.html',
             controller:EmptyCtrl
         })
-        .when('/traffic/without-button',{
-            templateUrl:'partials/traffic-without-button.html',
+        .when('/2.1/traffic/without-button',{
+            templateUrl:'2.1/partials/traffic-without-button.html',
             controller:TrafficWithoutButtonCtrl
         })
-        .when('/geolocation/api',{
-            templateUrl:'partials/geolocation-api.html',
+        .when('/2.1/geolocation/api',{
+            templateUrl:'2.1/partials/geolocation-api.html',
             controller:GeolocationApiCtrl
         })
-        .when('/geolocation/place',{
-            templateUrl:'partials/geolocation-place.html',
+        .when('/2.1/geolocation/place',{
+            templateUrl:'2.1/partials/geolocation-place.html',
             controller:EmptyCtrl
         })
-        .when('/route',{
-            templateUrl:'partials/route.html',
+        .when('/2.1/route/create',{
+            templateUrl:'2.1/partials/route.html',
             controller:RouteCtrl
         })
-        .when('/route/edit',{
-            templateUrl:'partials/route-edit.html',
+        .when('/2.1/route/edit',{
+            templateUrl:'2.1/partials/route-edit.html',
             controller:RouteEditCtrl
         })
-        .when('/route/calculate-cost',{
-            templateUrl:'partials/calculate-cost.html',
+        .when('/2.1/route/calculate-cost',{
+            templateUrl:'2.1/partials/calculate-cost.html',
             controller:CalculateCostCtrl
         })
-        .when('/performance/test',{
-            templateUrl:'partials/performance-test.html',
+        .when('/2.1/performance/test',{
+            templateUrl:'2.1/partials/performance-test.html',
             controller:PerformanceTestCtrl
         })
     ;
@@ -405,6 +261,76 @@ directive('activeClass',function(){
             });
         };
     });
+
+function DraggerCtrl($scope){
+    var markerOffset,
+        markerPosition,
+        map;
+    $scope.afterInit=function(target){
+        map=target;
+    };
+    var marker = document.getElementById('marker');
+    $scope.onStart=function(event) {
+        var position = event.get('position');
+        // Сохраняем смещение маркера относительно точки начала драга.
+        markerOffset = [
+                position[0] - marker.offsetLeft,
+                position[1] - marker.offsetTop
+        ];
+        markerPosition = [
+                position[0] - markerOffset[0],
+                position[1] - markerOffset[1]
+        ];
+
+        applyMarkerPosition();
+    };
+
+    $scope.onMove=function(event) {
+        applyDelta(event);
+    };
+
+    $scope.onStop=function(event) {
+        applyDelta(event);
+        markerPosition[0] += markerOffset[0];
+        markerPosition[1] += markerOffset[1];
+        // Переводим координаты страницы в глобальные пиксельные координаты.
+        var markerGlobalPosition = map.converter.pageToGlobal(markerPosition),
+        // Получаем центр карты в глобальных пиксельных координатах.
+            mapGlobalPixelCenter = map.getGlobalPixelCenter(),
+        // Получением размер контейнера карты на странице.
+            mapContainerSize = map.container.getSize(),
+            mapContainerHalfSize = [mapContainerSize[0] / 2, mapContainerSize[1] / 2],
+        // Вычисляем границы карты в глобальных пиксельных координатах.
+            mapGlobalPixelBounds = [
+                [mapGlobalPixelCenter[0] - mapContainerHalfSize[0], mapGlobalPixelCenter[1] - mapContainerHalfSize[1]],
+                [mapGlobalPixelCenter[0] + mapContainerHalfSize[0], mapGlobalPixelCenter[1] + mapContainerHalfSize[1]]
+            ];
+        // Проверяем, что завершение работы драггера произошло в видимой области карты.
+        if (containsPoint(mapGlobalPixelBounds, markerGlobalPosition)) {
+            // Теперь переводим глобальные пиксельные координаты в геокоординаты с учетом текущего уровня масштабирования карты.
+            var geoPosition = map.options.get('projection').fromGlobalPixels(markerGlobalPosition, map.getZoom());
+            alert(geoPosition.join(' '));
+        }
+    };
+
+    function applyDelta (event) {
+        // Поле 'delta' содержит разницу между положениями текущего и предыдущего события драггера.
+        var delta = event.get('delta');
+        markerPosition[0] += delta[0];
+        markerPosition[1] += delta[1];
+        applyMarkerPosition();
+    }
+
+    function applyMarkerPosition () {
+        marker.style.left=markerPosition[0]+'px';
+        marker.style.top=markerPosition[1]+'px';
+    }
+
+    function containsPoint (bounds, point) {
+        return point[0] >= bounds[0][0] && point[0] <= bounds[1][0] &&
+            point[1] >= bounds[0][1] && point[1] <= bounds[1][1];
+    }
+}
 
 function MainCtrl($scope, $route, $routeParams, $location) {
     $scope.$route = $route;
@@ -444,30 +370,27 @@ function MapChangeCtrl($scope) {
     };
 }
 
-function MapFullScreenCtrl($scope, $timeout, $window){
-    var map;
-    $scope.afterMapInit=function(nMap){
-        map = nMap;
-    };
-    var timeout;
-    var resize = function(){
-        if(timeout){
-            $timeout.cancel(timeout);
-        }
-        timeout = $timeout(function(){
-            map.container.fitToViewport();
-        },500);
-    };
-    $scope.$watch('sizeChecked',function(newValue,oldValue){
-        if(newValue){
-            angular.element($window).bind('resize', resize);
-        }else if(oldValue){
-            angular.element($window).unbind('resize',resize);
-        }
-    });
-}
-
 function EmptyCtrl($scope){}
+
+function ChangeParametersCtrl($scope){
+    $scope.point = {
+        geometry:{
+            type:'Point',
+            coordinates:[42.1, 47.6]
+        },
+        properties: {
+            iconContent:'Щелкни по мне правой кнопкой мыши!',
+            hintContent: "",
+            balloonContent: ""
+        }
+    };
+    $scope.params={position:{}};
+    $scope.contextmenu=function(e){
+        $scope.params.position.left = e.get('pagePixels')[0]+'px';
+        $scope.params.position.top = e.get('pagePixels')[1]+'px';
+        $scope.params.show=!$scope.params.show;
+    };
+}
 
 function HintAndBalloonCtrl($scope, $timeout){
     $scope.geoObjects=[
@@ -490,7 +413,7 @@ function HintAndBalloonCtrl($scope, $timeout){
     ];
     $scope.afterMapInit=function(map){
         $timeout(function(){
-            map.hint.show(map.getCenter(), "Содержимое хинта", {
+            map.hint.open(map.getCenter(), "Содержимое хинта", {
                 // Опция: задержка перед открытием.
                 showTimeout: 1500
             });
@@ -543,6 +466,29 @@ function DynamicBalloonCtrl($scope, $timeout){
     };
 }
 
+function BalloonPanelCtrl($scope){
+    $scope.point = {
+        geometry: {
+            // Тип геометрии - точка
+            type: 'Point',
+            // Координаты точки.
+            coordinates: [37.588227,55.733835]
+        },
+        // Свойства
+        properties: {
+            balloonContentBody: [
+                '<address>',
+                '<strong>Офис Яндекса в Москве</strong>',
+                '<br/>',
+                'Адрес: 119021, Москва, ул. Льва Толстого, 16',
+                '<br/>',
+                'Подробнее: <a href="http://company.yandex.ru/">http://company.yandex.ru</a>',
+                '</address>'
+            ].join('')
+        }
+    };
+}
+
 function OwnMapCtrl($scope, yaLayer, layerStorage,mapTypeStorage,yaMapType){
     $scope.mapInit = function() {
         // Создадим собственный слой карты:
@@ -571,17 +517,15 @@ function OwnMapCtrl($scope, yaLayer, layerStorage,mapTypeStorage,yaMapType){
 function PointsCtrl($scope){
     $scope.geoObjects=[
         {
-            // Геометрия = тип объекта + географические координаты объекта
             geometry: {
-                // Тип геометрии - точка
-                type: 'Point',
-                // Координаты точки.
+                type: "Point",
                 coordinates: [37.8,55.8]
             },
-            // Свойства
+            // Свойства.
             properties: {
-                iconContent: 'Метка',
-                balloonContent: 'Меня можно перемещать'
+                // Контент метки.
+                iconContent: 'Я тащусь',
+                hintContent: 'Ну давай уже тащи'
             }
         },
         {
@@ -590,13 +534,11 @@ function PointsCtrl($scope){
                 // Тип геометрии - точка
                 type: 'Point',
                 // Координаты точки.
-                coordinates: [37.6,55.8]
+                coordinates: [37.738521,55.684758]
             },
             // Свойства
             properties: {
-                iconContent: '1',
-                balloonContent: 'Балун',
-                hintContent: 'Стандартный значок метки'
+                balloonContent: 'цвет <strong>воды пляжа бонди</strong>'
             }
         },
         {
@@ -605,7 +547,98 @@ function PointsCtrl($scope){
                 // Тип геометрии - точка
                 type: 'Point',
                 // Координаты точки.
-                coordinates: [37.56,55.76]
+                coordinates: [37.715175,55.833436]
+            },
+            // Свойства
+            properties: {
+                balloonContent: '<strong>серобуромалиновый</strong> цвет'
+            }
+        },
+        {
+            // Геометрия = тип объекта + географические координаты объекта
+            geometry: {
+                // Тип геометрии - точка
+                type: 'Point',
+                // Координаты точки.
+                coordinates: [37.529789,55.687086]
+            },
+            // Свойства
+            properties: {
+                balloonContent: 'цвет <strong>влюбленной жабы</strong>'
+            }
+        },
+        {
+            // Геометрия = тип объекта + географические координаты объекта
+            geometry: {
+                // Тип геометрии - точка
+                type: 'Point',
+                // Координаты точки.
+                coordinates: [37.614924,55.782392]
+            },
+            // Свойства
+            properties: {
+                balloonContent: 'цвет <strong>детской неожиданности</strong>'
+            }
+        },
+        {
+            // Геометрия = тип объекта + географические координаты объекта
+            geometry: {
+                // Тип геометрии - точка
+                type: 'Point',
+                // Координаты точки.
+                coordinates: [37.656123,55.642063]
+            },
+            // Свойства
+            properties: {
+                balloonContent: 'цвет <strong>бисмарк-фуриозо</strong>'
+            }
+        },
+        {
+            // Геометрия = тип объекта + географические координаты объекта
+            geometry: {
+                // Тип геометрии - точка
+                type: 'Point',
+                // Координаты точки.
+                coordinates: [37.487208,55.826479]
+            },
+            // Свойства
+            properties: {
+                balloonContent: 'цвет <strong>фэйсбука</strong>'
+            }
+        },
+        {
+            // Геометрия = тип объекта + географические координаты объекта
+            geometry: {
+                // Тип геометрии - точка
+                type: 'Point',
+                // Координаты точки.
+                coordinates: [37.435023,55.694843]
+            },
+            // Свойства
+            properties: {
+                balloonContent: 'цвет <strong>вконтакте</strong>'
+            }
+        },
+        {
+            // Геометрия = тип объекта + географические координаты объекта
+            geometry: {
+                // Тип геометрии - точка
+                type: 'Point',
+                // Координаты точки.
+                coordinates: [37.814052,55.790139]
+            },
+            // Свойства
+            properties: {
+                balloonContent: 'цвет <strong>твиттера</strong>'
+            }
+        },
+        {
+            // Геометрия = тип объекта + географические координаты объекта
+            geometry: {
+                // Тип геометрии - точка
+                type: 'Point',
+                // Координаты точки.
+                coordinates: [37.573856,55.790139]
             },
             // Свойства
             properties: {
@@ -613,25 +646,6 @@ function PointsCtrl($scope){
             }
         }
     ];
-    $scope.changeOne = function(){
-        $scope.geoObjects[0]={
-            // Геометрия = тип объекта + географические координаты объекта
-            geometry: {
-                // Тип геометрии - точка
-                type: 'Point',
-                // Координаты точки.
-                coordinates: [37.7,55.7]
-            },
-            // Свойства
-            properties: {
-                iconContent: 'Метка',
-                balloonContent: 'Меня можно перемещать'
-            }
-        }
-    };
-    $scope.changeCoords = function(){
-        $scope.geoObjects[1].geometry.coordinates=[37.7,55.9];
-    };
 }
 
 function LineStringCtrl($scope){
@@ -664,36 +678,6 @@ function LineStringCtrl($scope){
             }
         }
     ];
-}
-
-function LineStringEditCtrl($scope){
-    $scope.geoObjects=[
-        {
-            geometry: {
-                type: 'LineString',
-                coordinates: [
-                    [37.50,55.80],
-                    [37.40,55.80],
-                    [37.50,55.70],
-                    [37.40,55.70]
-                ]
-            },
-            properties: {
-                balloonContent: "Ломаная линия"
-            }
-        }
-    ];
-    $scope.editor = function (items) {
-        items.push({
-            title: "Удалить линию",
-            onClick: function () {
-                $scope.$apply(function(){
-                    $scope.geoObjects.length=0;
-                });
-            }
-        });
-        return items;
-    };
 }
 
 function RectangleCtrl($scope){
@@ -795,6 +779,67 @@ function CircleCtrl($scope){
     ];
 }
 
+function AddObjToCollection($scope){
+    $scope.oneObjects = [
+        {
+            geometry: {
+                type: 'Point',
+                coordinates: [37.75, 55.73]
+            }
+        },
+        {
+            geometry: {
+                type: 'Point',
+                coordinates: [37.75, 55.81]
+            }
+        }
+    ];
+    $scope.twoObjects=[
+        {
+            geometry: {
+                type: 'Point',
+                coordinates: [37.65, 55.73]
+            }
+        },
+        {
+            geometry: {
+                type: 'Point',
+                coordinates: [37.65,55.81]
+            }
+        }
+    ];
+}
+
+function LineStringEditCtrl($scope){
+    $scope.geoObjects=[
+        {
+            geometry: {
+                type: 'LineString',
+                coordinates: [
+                    [37.50,55.80],
+                    [37.40,55.80],
+                    [37.50,55.70],
+                    [37.40,55.70]
+                ]
+            },
+            properties: {
+                balloonContent: "Ломаная линия"
+            }
+        }
+    ];
+    $scope.editor = function (items) {
+        items.push({
+            title: "Удалить линию",
+            onClick: function () {
+                $scope.$apply(function(){
+                    $scope.geoObjects.length=0;
+                });
+            }
+        });
+        return items;
+    };
+}
+
 function PolygonDrawCtrl($scope){
     $scope.geoObjects=[
         {
@@ -805,7 +850,6 @@ function PolygonDrawCtrl($scope){
         }
     ];
 }
-
 function ListObjectsCtrl($scope, $filter){
     $scope.all=[
         {
@@ -938,6 +982,219 @@ function CreateClusterCtrl($scope){
     createGeoObjects();
 }
 
+function SetSizeClusterCtrl($scope){
+    $scope.params={
+        pointCount:100,
+        useCluster:false,
+        size:64
+    };
+    $scope.cluster=[];
+    $scope.collection=[];
+    function getRandomCoordinates (bounds) {
+        var size = [bounds[1][0] - bounds[0][0], bounds[1][1] - bounds[0][1]];
+        return [Math.random() * size[0] + bounds[0][0], Math.random() * size[1] + bounds[0][1]];
+    }
+    $scope.add = function(){
+        var placemarksNumber = $scope.params.pointCount,
+            bounds = _map.getBounds(),
+        // Флаг, показывающий, нужно ли кластеризовать объекты.
+            useClusterer = $scope.params.useCluster,
+        // Размер ячейки кластеризатора, заданный пользователем.
+            gridSize = $scope.params.size;
+
+        if (gridSize > 0 && useClusterer) {
+            _cluster.options.set({
+                gridSize: gridSize
+            });
+        }
+        for (var i = 0; i < placemarksNumber; i++) {
+            var point = {
+                geometry:{
+                    type:'Point',
+                    coordinates:getRandomCoordinates(bounds)
+                }
+            };
+            if(useClusterer){
+                $scope.cluster.push(point);
+            }else{
+                $scope.collection.push(point);
+            }
+        }
+    };
+    $scope.remove = function(){
+        $scope.cluster.length=0;
+        $scope.collection.length=0;
+    };
+    var _map, _cluster;
+    $scope.init=function(map){
+        _map=map;
+    };
+    $scope.initCluster=function(cluster){
+        _cluster=cluster;
+    }
+}
+
+function ClusterTwoColumnCtrl($scope){
+    var objs=[];
+    $scope.mapCenter=[37.619044,55.755381];
+    for(var i= 0;i<100;i++){
+        objs.push({
+            geometry:{
+                type:'Point',
+                coordinates:getRandomCoordinates()
+            },
+            properties:{
+                // Устаналиваем данные, которые будут отображаться в балуне.
+                balloonContentHeader: 'Метка №' + (i + 1),
+                balloonContentBody: getContentBody(i),
+                balloonContentFooter: 'Мацуо Басё'
+            }
+        });
+    }
+    $scope.geoObjects=objs;
+    function getRandomCoordinates () {
+        return [
+            $scope.mapCenter[0] + (Math.random() * 0.3 - 0.15),
+            $scope.mapCenter[1] + (Math.random() * 0.5 - 0.25)
+        ];
+    }
+    var placemarkBodies;
+    function getContentBody (num) {
+        if (!placemarkBodies) {
+            placemarkBodies = [
+                ['Желтый лист в ручье.', 'Просыпайся, цикада,', 'Берег все ближе.'].join('<br/>'),
+                ['Ива на ветру.', 'Соловей в ветвях запел,', 'Как ее душа.'].join('<br/>'),
+                ['Лежу и молчу,', 'Двери запер на замок.', 'Приятный отдых.'].join('<br/>')
+            ];
+        }
+        return '<strong>Тело метки №' + (num + 1) + '</strong><br/>' + placemarkBodies[num % placemarkBodies.length];
+    }
+}
+
+function ClusterSelfCtrl($scope){
+    var objs=[];
+    $scope.mapCenter=[37.619044,55.755381];
+    for(var i= 0;i<100;i++){
+        objs.push({
+            geometry:{
+                type:'Point',
+                coordinates:getRandomCoordinates()
+            },
+            properties:{
+                // Устаналиваем данные, которые будут отображаться в балуне.
+                balloonContentHeader: 'Метка №' + (i + 1),
+                balloonContentBody: 'Информация о метке №'+i,
+                placemarkId: i
+            }
+        });
+    }
+    $scope.geoObjects=objs;
+    function getRandomCoordinates () {
+        return [
+            $scope.mapCenter[0] + (Math.random() * 0.3 - 0.15),
+            $scope.mapCenter[1] + (Math.random() * 0.5 - 0.25)
+        ];
+    }
+}
+
+function ClusterAccordionCtrl($scope){
+    var objs=[];
+    $scope.mapCenter=[37.619044,55.755381];
+    var placemarkColors = [
+        '#FF1F1F', '#1F44FF', '#1FFF8E', '#FF1FF5',
+        '#FFEF1F', '#FF931F', '#AE6961', '#6193AE'
+    ];
+    $scope.getRandomColor = function(){
+        return placemarkColors[Math.round(Math.random() * placemarkColors.length)];
+    };
+    for(var i= 0;i<100;i++){
+        objs.push({
+            geometry:{
+                type:'Point',
+                coordinates:getRandomCoordinates()
+            },
+            properties:{
+                // Устаналиваем данные, которые будут отображаться в балуне.
+                balloonContentHeader: 'Метка №' + (i + 1),
+                balloonContentBody: getContentBody(i),
+                balloonContentFooter: 'Мацуо Басё'
+            }
+        });
+    }
+    $scope.geoObjects=objs;
+    function getRandomCoordinates () {
+        return [
+            $scope.mapCenter[0] + (Math.random() * 0.3 - 0.15),
+            $scope.mapCenter[1] + (Math.random() * 0.5 - 0.25)
+        ];
+    }
+    var placemarkBodies;
+    function getContentBody (num) {
+        if (!placemarkBodies) {
+            placemarkBodies = [
+                ['Желтый лист в ручье.', 'Просыпайся, цикада,', 'Берег все ближе.'].join('<br/>'),
+                ['Ива на ветру.', 'Соловей в ветвях запел,', 'Как ее душа.'].join('<br/>'),
+                ['Лежу и молчу,', 'Двери запер на замок.', 'Приятный отдых.'].join('<br/>')
+            ];
+        }
+        return '<strong>Тело метки №' + (num + 1) + '</strong><br/>' + placemarkBodies[num % placemarkBodies.length];
+    }
+}
+
+function ColorClusterCtrl($scope){
+    var points = [
+        [37.411961,55.831903],[37.565466,55.763338],[37.565466,55.763338],[37.616378,55.744522],[37.642889,55.780898],
+        [37.435983,55.793559],[37.675638,55.800584],[37.589988,55.716733],[37.56084,55.775724],[37.433781,55.822144],
+        [37.669838,55.87417],[37.482338,55.71677],[37.75021,55.78085],[37.654142,55.810906],[37.713329,55.865386],
+        [37.525797,55.847121],[37.710743,55.778655],[37.717934,55.623415],[37.737,55.863193],[37.760113,55.86677],
+        [37.730838,55.698261],[37.564769,55.6338],[37.5394,55.639996],[37.405853,55.69023],[37.5129,55.77597],
+        [37.44218,55.775777],[37.440448,55.811814],[37.404853,55.751841],[37.728976,55.627303],[37.597163,55.816515],
+        [37.689397,55.664352],[37.600961,55.679195],[37.658425,55.673873],[37.605126,55.681006],[37.431744,55.876327],
+        [37.778445,55.843363],[37.549348,55.875445],[37.702087,55.662903],[37.434113,55.746099],[37.712326,55.83866],
+        [37.415725,55.774838],[37.630223,55.871539],[37.571271,55.657037],[37.711026,55.691046],[37.65961,55.803972],
+        [37.452759,55.616448],[37.442781,55.781329],[37.74887,55.844708],[37.406067,55.723123],[37.48498,55.858585]
+    ];
+    var createGeoObjects = function(){
+        var geoObjects = [];
+        var point;
+        for (var i = 0, ii = points.length; i < ii; i++) {
+            point = points[i];
+            geoObjects.push({
+                geometry:{
+                    type:'Point',
+                    coordinates:point
+                },
+                properties:{
+                    balloonContentBody: 'балун <strong>метки ' + i + '</strong>',
+                    clusterCaption: 'метка <strong>' + i + '</strong>'
+                }
+            });
+        }
+        $scope.geoObjects = geoObjects;
+    };
+    createGeoObjects();
+    $scope.enter = function(e){
+        var target = e.get('target');
+        if (typeof target.getGeoObjects != 'undefined') {
+            // Событие произошло на кластере.
+            target.options.set('preset', 'islands#invertedPinkClusterIcons');
+        } else {
+            // Событие произошло на геообъекте.
+            target.options.set('preset', 'islands#pinkIcon');
+        }
+    };
+    $scope.leave = function(e){
+        var target = e.get('target');
+        if (typeof target.getGeoObjects != 'undefined') {
+            // Событие произошло на кластере.
+            target.options.set('preset', 'islands#invertedVioletClusterIcons');
+        } else {
+            // Событие произошло на геообъекте.
+            target.options.set('preset', 'islands#violetIcon');
+        }
+    };
+}
+
 function PointInsideCircleCtrl($scope){
     var objects, collection;
     $scope.afterInit = function(col){
@@ -976,9 +1233,9 @@ function PointInsideCircleCtrl($scope){
         }
         var circle = event.get('target');
         var objectsInsideCircle = objects.searchInside(circle);
-        objectsInsideCircle.setOptions('preset', 'twirl#redIcon');
+        objectsInsideCircle.setOptions('preset', 'islands#redIcon');
         // Оставшиеся объекты - синими.
-        objects.remove(objectsInsideCircle).setOptions('preset', 'twirl#blueIcon');
+        objects.remove(objectsInsideCircle).setOptions('preset', 'islands#blueIcon');
     };
 }
 
@@ -1018,7 +1275,7 @@ function FindObjectsCtrl($scope){
         if(!cafe){
             cafe = ymaps.geoQuery(collection);
         }
-        cafe.getClosestTo(event.get('coordPosition')).balloon.open();
+        cafe.getClosestTo(event.get('coords')).balloon.open();
     };
 }
 
@@ -1077,12 +1334,12 @@ function RouteMKADCtrl($scope, $http){
         objectsInMoscow.setOptions(
             {
                 strokeColor: '#ff0005',
-                preset: 'twirl#redIcon'
+                preset: 'islands#redIcon'
             }
         );
         routeObjects.remove(objectsInMoscow).setOptions({
             strokeColor: '#0010ff',
-            preset: 'twirl#blueIcon'
+            preset: 'islands#blueIcon'
         });
     };
     $scope.beforeInit = function(){
@@ -1229,7 +1486,7 @@ function ClickCoordinateCtrl($scope){
     };
     $scope.mapClick = function(e){
         if (!map.balloon.isOpen()) {
-            var coords = e.get('coordPosition');
+            var coords = e.get('coords');
             map.balloon.open(coords, {
                 contentHeader:'Событие!',
                 contentBody:'<p>Кто-то щелкнул по карте.</p>' +
@@ -1245,10 +1502,13 @@ function ClickCoordinateCtrl($scope){
         }
     };
     $scope.handleContext = function(e){
-        map.hint.show(e.get('coordPosition'), 'Кто-то щелкнул правой кнопкой');
+        map.hint.open(e.get('coords'), 'Кто-то щелкнул правой кнопкой');
     };
+    $scope.balloonOpen=function(){
+        map.hint.close();
+    }
 }
-
+/*
 function EditGeoobjectCtrl($scope){
     var geoObj;
     $scope.afterInit=function(geoObject){
@@ -1279,6 +1539,36 @@ function EditGeoobjectCtrl($scope){
         }
     };
 }
+*/
+function ActiveAreaCtrl($scope){
+    $scope.geoObjects=[
+        {
+            geometry:{
+                type:'Point',
+                coordinates:[37.682145,55.725118]
+            },
+            properties:{
+                hintContent: 'Метка с прямоугольным HTML макетом'
+            }
+        },{
+            geometry:{
+                type:'Point',
+                coordinates:[37.605584,55.783202]
+            },
+            properties:{
+                hintContent: 'Метка с круглым HTML макетом'
+            }
+        },{
+            geometry:{
+                type:'Point',
+                coordinates:[37.558416,55.662693]
+            },
+            properties:{
+                hintContent: 'HTML метка сложной формы'
+            }
+        }
+    ];
+}
 
 function ChangeColorCtrl($scope){
     $scope.point = {
@@ -1288,7 +1578,7 @@ function ChangeColorCtrl($scope){
         }
     };
     $scope.mouseenter=function(e){
-        e.get('target').options.set('preset', 'twirl#greenIcon');
+        e.get('target').options.set('preset', 'islands#greenIcon');
     };
     $scope.mouseleave=function(e){
         e.get('target').options.unset('preset');
@@ -1434,7 +1724,7 @@ function ListBoxTemplateCtrl($scope,templateLayoutFactory){
         }
     };
 }
-
+/*
 function ClusterBalloonTemplateCtrl($scope, templateLayoutFactory){
     $scope.center = [37.621587,55.74954];
     $scope.overrides={
@@ -1655,7 +1945,7 @@ function ClusterBalloonAccordionTemplateCtrl($scope){
     };
     init();
 }
-
+*/
 function GeocodeCtrl($scope){
     $scope.beforeInit = function(){
         ymaps.geocode('Нижний Новгород', { results: 1 }).then(function (res) {
@@ -1705,7 +1995,7 @@ function GeocodeCtrl($scope){
     };
     $scope.geoObjects = [];
     $scope.mapClick=function(e){
-        var coords = e.get('coordPosition');
+        var coords = e.get('coords');
 
         // Отправим запрос на геокодирование.
         ymaps.geocode(coords).then(function (res) {
@@ -1783,24 +2073,43 @@ function TrafficWithoutButtonCtrl($scope){
 
 function GeolocationApiCtrl($scope){
     $scope.beforeInit = function(){
-        // Данные о местоположении, определённом по IP
-        var geolocation = ymaps.geolocation,
-            // координаты
-            coords = [geolocation.longitude,geolocation.latitude];
-        $scope.center = coords;
-        $scope.geoObject = {
-            geometry:{
-                type:'Point',
-                coordinates:coords
-            },
-            properties:{
-                // В балуне: страна, город, регион.
-                balloonContentHeader: geolocation.country,
-                balloonContent: geolocation.city,
-                balloonContentFooter: geolocation.region
-            }
-        };
+        var geolocation = ymaps.geolocation;
+        geolocation.get({
+            provider: 'yandex',
+            mapStateAutoApply: true
+        }).then(function (result) {
+            $scope.geoObjects.push({
+                geometry:{
+                    type:'Point',
+                    coordinates:result.geoObjects.position
+                },
+                properties:{
+                    balloonContent:'Определено по IP'
+                }
+            });
+            $scope.center = result.geoObjects.position;
+            $scope.$digest();
+        });
+
+        geolocation.get({
+            provider: 'browser',
+            mapStateAutoApply: true
+        }).then(function (result) {
+            // Синим цветом пометим положение, полученное через браузер.
+            // Если браузер не поддерживает эту функциональность, метка не будет добавлена на карту.
+            $scope.geoObjects.push({
+                geometry:{
+                    type:'Point',
+                    coordinates:result.geoObjects.position
+                },
+                properties:{
+                    balloonContent:'Определено по данным браузера'
+                }
+            });
+            $scope.$digest();
+        });
     };
+    $scope.geoObjects=[];
 }
 
 function RouteCtrl($scope){
@@ -1825,7 +2134,7 @@ function RouteCtrl($scope){
                 lastPoint = points.getLength() - 1;
             // Задаем стиль метки - иконки будут красного цвета, и
             // их изображения будут растягиваться под контент.
-            points.options.set('preset', 'twirl#redStretchyIcon');
+            points.options.set('preset', 'islands#redStretchyIcon');
             // Задаем контент меток в начальной и конечной точках.
             points.get(0).properties.set('iconContent', 'Точка отправления');
             points.get(lastPoint).properties.set('iconContent', 'Точка прибытия');
@@ -1907,51 +2216,55 @@ function CalculateCostCtrl($scope){
     function DeliveryCalculator(map, finish) {
         this._map = map;
         this._start = null;
-        this._finish = new ymaps.Placemark(finish, { iconContent: 'Б' });
         this._route = null;
-
         map.events.add('click', this._onClick, this);
-        map.geoObjects.add(this._finish);
     }
 
     var ptp = DeliveryCalculator.prototype;
 
     ptp._onClick= function (e) {
-        this.setStartPoint(e.get('coordPosition'));
+        if (this._start) {
+            this.setFinishPoint(e.get('coords'));
+        } else {
+            this.setStartPoint(e.get('coords'));
+        }
     };
 
     ptp._onDragEnd = function (e) {
-        var target = e.get('target');
-        this.setStartPoint(target.geometry.getCoordinates());
+        this.getDirection();
     };
 
-    ptp.getDirections = function () {
-        var self = this,
-            start = this._start.geometry.getCoordinates(),
-            finish = this._finish.geometry.getCoordinates();
-
+    ptp.getDirection = function () {
         if(this._route) {
             this._map.geoObjects.remove(this._route);
         }
 
-        ymaps.geocode(start, { results: 1 })
-            .then(function (geocode) {
-                var address = geocode.geoObjects.get(0) &&
-                    geocode.geoObjects.get(0).properties.get('balloonContentBody') || '';
+        if (this._start && this._finish) {
+            var self = this,
+                start = this._start.geometry.getCoordinates(),
+                finish = this._finish.geometry.getCoordinates();
 
-                ymaps.route([start, finish])
-                    .then(function (router) {
-                        var distance = Math.round(router.getLength() / 1000),
-                            message = '<span>Расстояние: ' + distance + 'км.</span><br/>' +
-                                '<span style="font-weight: bold; font-style: italic">Стоимость доставки: %sр.</span>';
+            ymaps.geocode(start, { results: 1 })
+                .then(function (geocode) {
+                    var address = geocode.geoObjects.get(0) &&
+                        geocode.geoObjects.get(0).properties.get('balloonContentBody') || '';
 
-                        self._route = router.getPaths();
-                        self._route.options.set({ strokeWidth: 5, strokeColor: '0000ffff', opacity: 0.5 });
-                        self._map.geoObjects.add(self._route);
-                        self._start.properties.set('balloonContentBody', address + message.replace('%s', self.calculate(distance)));
-                        self._start.balloon.open();
-                    });
-            });
+                    ymaps.route([start, finish])
+                        .then(function (router) {
+                            var distance = Math.round(router.getLength() / 1000),
+                                message = '<span>Расстояние: ' + distance + 'км.</span><br/>' +
+                                    '<span style="font-weight: bold; font-style: italic">Стоимость доставки: %sр.</span>';
+
+                            self._route = router.getPaths();
+
+                            self._route.options.set({ strokeWidth: 5, strokeColor: '0000ffff', opacity: 0.5 });
+                            self._map.geoObjects.add(self._route);
+                            self._start.properties.set('balloonContentBody', address + message.replace('%s', self.calculate(distance)));
+
+                        });
+                });
+            self._map.setBounds(self._map.geoObjects.getBounds())
+        }
     };
 
     ptp.setStartPoint = function (position) {
@@ -1963,7 +2276,23 @@ function CalculateCostCtrl($scope){
             this._start.events.add('dragend', this._onDragEnd, this);
             this._map.geoObjects.add(this._start);
         }
-        this.getDirections();
+        if (this._finish) {
+            this.getDirection();
+        }
+    };
+
+    ptp.setFinishPoint = function (position) {
+        if(this._finish) {
+            this._finish.geometry.setCoordinates(position);
+        }
+        else {
+            this._finish = new ymaps.Placemark(position, { iconContent: 'Б' }, { draggable: true });
+            this._finish.events.add('dragend', this._onDragEnd, this);
+            this._map.geoObjects.add(this._finish);
+        }
+        if (this._start) {
+            this.getDirection();
+        }
     };
 
     ptp.calculate = function (len) {
@@ -1978,13 +2307,31 @@ function CalculateCostCtrl($scope){
     $scope.afterInit = function(map){
         calculator = new DeliveryCalculator(map, map.getCenter());
     };
-    $scope.resultSelect = function(e){
+    $scope.resultSelectOne = function(e){
         var results = e.get('target').getResultsArray(),
-            selected = e.get('resultIndex'),
+            selected = e.get('index'),
             point = results[selected].geometry.getCoordinates();
+
         calculator.setStartPoint(point);
     };
+    $scope.resultSelectTwo = function(e){
+        var results = e.get('target').getResultsArray(),
+            selected = e.get('index'),
+            point = results[selected].geometry.getCoordinates();
 
+        calculator.setFinishPoint(point);
+    };
+
+    $scope.loadOne=function(event){
+        if (!event.get('skip') && event.get('target').getResultsCount()) {
+            event.get('target').showResult(0);
+        }
+    };
+    $scope.loadTwo=function(event){
+        if (!event.get('skip') && event.get('target').getResultsCount()) {
+            event.get('target').showResult(0);
+        }
+    };
 }
 
 function PerformanceTestCtrl($scope){

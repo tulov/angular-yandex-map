@@ -1,0 +1,45 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="11" ya-center="[37.601,55.674]"&gt;
+    &lt;ya-geo-object ya-source="geoObjects[0]" ya-options="{draggable: true,fillColor: '#ffff0022',strokeColor: '#3caa3c88',strokeWidth: 7}"&gt;&lt;/ya-geo-object&gt;
+    &lt;ya-geo-object ya-source="geoObjects[1]" ya-options="{fillColor: '#7df9ff33',fillOpacity: 0.5,strokeColor: '#0000FF',strokeOpacity: 0.5,strokeWidth: 2,borderRadius: 6}"&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.geoObjects=[
+    {
+        geometry: {
+            type: 'Rectangle',
+            coordinates: [
+                [37.66,55.665],
+                [37.53,55.64]
+            ]
+        },
+        properties: {
+            hintContent: 'Перетащи меня!',
+            balloonContent: 'Прямоугольник 2'
+        }
+    },
+    {
+        geometry: {
+            type: 'Rectangle',
+            coordinates: [
+                [37.60,55.66],
+                [37.69,55.71]
+            ]
+        },
+        properties: {
+            hintContent: 'Меня перетаскивать нельзя!',
+            balloonContent: 'Прямоугольник 1'
+        }
+    }
+];</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="11" ya-center="[37.601,55.674]">
+        <ya-geo-object ya-source="geoObjects[0]" ya-options="{draggable: true,fillColor: '#ffff0022',strokeColor: '#3caa3c88',strokeWidth: 7}"></ya-geo-object>
+        <ya-geo-object ya-source="geoObjects[1]" ya-options="{fillColor: '#7df9ff33',fillOpacity: 0.5,strokeColor: '#0000FF',strokeOpacity: 0.5,strokeWidth: 2,borderRadius: 6}"></ya-geo-object>
+    </ya-map>
+</div>

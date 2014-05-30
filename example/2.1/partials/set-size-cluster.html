@@ -1,0 +1,94 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;div&gt;
+    Количество меток: &lt;input ng-model="params.pointCount" type="number"&gt;&lt;br&gt;
+    &lt;input type="checkbox" ng-model="params.useCluster"&gt; Использовать кластеризатор&lt;br&gt;
+    &lt;button ng-click="add()"&gt;Добавить на карту&lt;/button&gt;
+    &lt;button ng-click="remove()"&gt;Удалить все метки&lt;/button&gt;
+    &lt;div ng-show="params.useCluster"&gt;
+        Размер ячейки кластера в пикселях: &lt;input type="number" ng-model="params.size"&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+&lt;ya-map ya-zoom="9" ya-center="[37.573856,55.751574]" ya-after-init="init($target)"&gt;
+    &lt;ya-cluster ya-after-init="initCluster($target)"
+                ya-options="{preset:'islands#redClusterIcons'}"&gt;
+        &lt;ya-geo-object ng-repeat="o in cluster" ya-source="o"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-cluster&gt;
+    &lt;ya-collection&gt;
+        &lt;ya-geo-object ng-repeat="o in collection" ya-source="o"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-collection&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.params={
+    pointCount:100,
+    useCluster:false,
+    size:64
+};
+$scope.cluster=[];
+$scope.collection=[];
+function getRandomCoordinates (bounds) {
+    var size = [bounds[1][0] - bounds[0][0], bounds[1][1] - bounds[0][1]];
+    return [Math.random() * size[0] + bounds[0][0], Math.random() * size[1] + bounds[0][1]];
+}
+$scope.add = function(){
+    var placemarksNumber = $scope.params.pointCount,
+        bounds = _map.getBounds(),
+    // Флаг, показывающий, нужно ли кластеризовать объекты.
+        useClusterer = $scope.params.useCluster,
+    // Размер ячейки кластеризатора, заданный пользователем.
+        gridSize = $scope.params.size;
+
+    if (gridSize > 0 && useClusterer) {
+        _cluster.options.set({
+            gridSize: gridSize
+        });
+    }
+    for (var i = 0; i < placemarksNumber; i++) {
+        var point = {
+            geometry:{
+                type:'Point',
+                coordinates:getRandomCoordinates(bounds)
+            }
+        };
+        if(useClusterer){
+            $scope.cluster.push(point);
+        }else{
+            $scope.collection.push(point);
+        }
+    }
+};
+$scope.remove = function(){
+    $scope.cluster.length=0;
+    $scope.collection.length=0;
+};
+var _map, _cluster;
+$scope.init=function(map){
+    _map=map;
+};
+$scope.initCluster=function(cluster){
+    _cluster=cluster;
+}</pre>
+</div>
+<div class="right">
+    <div>
+        Количество меток: <input ng-model="params.pointCount" type="number"><br>
+        <input type="checkbox" ng-model="params.useCluster"> Использовать кластеризатор<br>
+        <button ng-click="add()">Добавить на карту</button>
+        <button ng-click="remove()">Удалить все метки</button>
+        <div ng-show="params.useCluster">
+            Размер ячейки кластера в пикселях: <input type="number" ng-model="params.size">
+        </div>
+    </div>
+    <ya-map ya-zoom="9" ya-center="[37.573856,55.751574]" ya-after-init="init($target)">
+        <ya-cluster ya-after-init="initCluster($target)"
+                ya-options="{preset:'islands#redClusterIcons'}">
+            <ya-geo-object ng-repeat="o in cluster" ya-source="o"></ya-geo-object>
+        </ya-cluster>
+        <ya-collection>
+            <ya-geo-object ng-repeat="o in collection" ya-source="o"></ya-geo-object>
+        </ya-collection>
+    </ya-map>
+</div>

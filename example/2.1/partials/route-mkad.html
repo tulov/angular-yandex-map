@@ -1,0 +1,113 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="9" ya-center="[37.75,55.73]" ya-before-init="beforeInit()"&gt;
+    &lt;ya-geo-object ya-source="moscow" ya-options="{visible:false}" ya-after-init="added($target)"&gt;&lt;/ya-geo-object&gt;
+    &lt;ya-collection ya-options="{strokeWidth:3}" ya-after-init="initCollection($target)"&gt;
+        &lt;ya-geo-object ng-repeat="o in edges" ya-source="o" ya-after-init="afterInit($target, $last)"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-collection&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$http.get('/json/moscow.json').success(
+    function(moscow){
+        $scope.moscow= {geometry:moscow};
+    }
+);
+
+var hasChange=false;
+var changeColor = function(){
+    hasChange=true;
+    if(!moscow){
+        return;
+    }
+    var routeObjects = ymaps.geoQuery(collection);
+    var objectsInMoscow = routeObjects.searchInside(moscow);
+    objectsInMoscow.setOptions(
+        {
+            strokeColor: '#ff0005',
+            preset: 'islands#redIcon'
+        }
+    );
+    routeObjects.remove(objectsInMoscow).setOptions({
+        strokeColor: '#0010ff',
+        preset: 'islands#blueIcon'
+    });
+};
+$scope.beforeInit = function(){
+    ymaps.route([[37.527034,55.654884], [37.976100,55.767305]]).then(
+        function (res) {
+            // Объединим в выборку все сегменты маршрута.
+            var pathsObjects = ymaps.geoQuery(res.getPaths()),
+                edges = [];
+
+            // Переберем все сегменты и разобьем их на отрезки.
+            pathsObjects.each(function (path) {
+                var coordinates = path.geometry.getCoordinates();
+                for (var i = 1, l = coordinates.length; i < l; i++) {
+                    edges.push({geometry:{
+                        type: 'LineString',
+                        coordinates: [coordinates[i], coordinates[i - 1]]
+                    }});
+                }
+            });
+            res.getWayPoints().each(function(obj){
+                var g = obj.geometry;
+                edges.push({
+                    geometry:{
+                        type: g.getType(),
+                        coordinates: g.getCoordinates()
+                    },
+                    properties:{
+                        iconContent:obj.properties.get('iconContent')
+                    }
+                });
+            });
+            res.getViaPoints().each(function(obj){
+                var g = obj.geometry;
+                edges.push({
+                    geometry:{
+                        type: g.getType(),
+                        coordinates: g.getCoordinates()
+                    },
+                    properties:{
+                        iconContent:obj.properties.get('iconContent')
+                    }
+                });
+            });
+            $scope.$apply(function(){
+                $scope.edges = edges;
+            });
+        }
+    );
+};
+
+$scope.afterInit = function(geoObject, last){
+    if(!last){
+        return;
+    }
+    changeColor();
+};
+var moscow;
+$scope.added = function(obj){
+    moscow = obj;
+    if(hasChange){
+        changeColor();
+    }
+};
+
+var collection;
+$scope.initCollection = function(col){
+    collection = col;
+};</pre>
+</div>
+<div class="right">
+    <p>Маршрут внутри МКАД помечен красным, снаружи - синим</p>
+    <ya-map ya-zoom="9" ya-center="[37.75,55.73]" ya-before-init="beforeInit()">
+        <ya-geo-object ya-source="moscow" ya-options="{visible:false}" ya-after-init="added($target)"></ya-geo-object>
+        <ya-collection ya-options="{strokeWidth:3}" ya-after-init="initCollection($target)">
+            <ya-geo-object ng-repeat="o in edges" ya-source="o" ya-after-init="afterInit($target, $last)"></ya-geo-object>
+        </ya-collection>
+    </ya-map>
+</div>

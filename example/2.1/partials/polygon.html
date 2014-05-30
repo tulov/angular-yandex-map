@@ -1,0 +1,66 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="10" ya-center="[37.75,55.73]"&gt;
+    &lt;ya-geo-object ya-source="geoObjects[0]" ya-options="{fillColor: '#00FF00',strokeColor: '#0000FF',opacity: 0.5,strokeWidth: 5,strokeStyle: 'shortdash'}"&gt;&lt;/ya-geo-object&gt;
+    &lt;ya-geo-object ya-source="geoObjects[1]" ya-options="{fillColor: '#00FF0088',strokeWidth: 5}"&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.geoObjects=[
+    {
+        geometry: {
+            type: 'Polygon',
+            coordinates: [
+                [
+                    [37.80,55.75],
+                    [37.90,55.80],
+                    [38.00,55.75],
+                    [38.00,55.70],
+                    [37.80,55.70]
+                ],
+                // Координаты вершин внутреннего контура.
+                [
+                    [37.82,55.75],
+                    [37.98,55.75],
+                    [37.90,55.65]
+                ]
+            ],
+            fillRule: "nonZero"
+        },
+        properties: {
+            balloonContent: "Многоугольник"
+        }
+    },
+    {
+        geometry: {
+            type: 'Polygon',
+            coordinates: [
+                [
+                    [37.50,55.75],
+                    [37.60,55.80],
+                    [37.70,55.75],
+                    [37.70,55.70],
+                    [37.50,55.70]
+                ],
+                // Координаты вершин внутреннего контура.
+                [
+                    [37.52,55.75],
+                    [37.68,55.75],
+                    [37.60,55.65]
+                ]
+            ]
+        },
+        properties: {
+            hintContent: "Многоугольник"
+        }
+    }
+];</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="10" ya-center="[37.75,55.73]">
+        <ya-geo-object ya-source="geoObjects[0]" ya-options="{fillColor: '#00FF00',strokeColor: '#0000FF',opacity: 0.5,strokeWidth: 5,strokeStyle: 'shortdash'}"></ya-geo-object>
+        <ya-geo-object ya-source="geoObjects[1]" ya-options="{fillColor: '#00FF0088',strokeWidth: 5}"></ya-geo-object>
+    </ya-map>
+</div>

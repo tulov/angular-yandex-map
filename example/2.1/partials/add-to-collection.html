@@ -1,0 +1,53 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="10" ya-center="[37.75,55.73]"&gt;
+    &lt;ya-collection ya-options="{preset: 'islands#yellowIcon'}"&gt;
+        &lt;ya-geo-object ng-repeat="o in oneObjects" ya-source="o"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-collection&gt;
+    &lt;ya-collection ya-options="{preset: 'islands#blueIcon'}"&gt;
+        &lt;ya-geo-object ng-repeat="o in twoObjects" ya-source="o"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-collection&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.oneObjects = [
+        {
+            geometry: {
+                type: 'Point',
+                coordinates: [37.75, 55.73]
+            }
+        },
+        {
+            geometry: {
+                type: 'Point',
+                coordinates: [37.75, 55.81]
+            }
+        }
+    ];
+    $scope.twoObjects=[
+        {
+            geometry: {
+                type: 'Point',
+                coordinates: [37.65, 55.73]
+            }
+        },
+        {
+            geometry: {
+                type: 'Point',
+                coordinates: [37.65,55.81]
+            }
+        }
+    ];</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="10" ya-center="[37.75,55.73]">
+        <ya-collection ya-options="{preset: 'islands#yellowIcon'}">
+            <ya-geo-object ng-repeat="o in oneObjects" ya-source="o"></ya-geo-object>
+        </ya-collection>
+        <ya-collection ya-options="{preset: 'islands#blueIcon'}">
+            <ya-geo-object ng-repeat="o in twoObjects" ya-source="o"></ya-geo-object>
+        </ya-collection>
+    </ya-map>
+</div>
