@@ -314,7 +314,7 @@ angular.module('yaMap',[]).
                             element.append(childNodes);
                             setTimeout(function(){
                                 scope.$apply(function() {
-                                    $compile(childNodes)(scope.$parent);
+                                    $compile(element.children())(scope.$parent);
                                 });
                             });
                         });
@@ -474,7 +474,7 @@ angular.module('yaMap',[]).
                         }
                     });
                     element.append(childNodes);
-                    $compile(childNodes)(scope.$parent);
+                    $compile(element.children())(scope.$parent);
                 };
             },
             controller:'CollectionCtrl'
@@ -519,7 +519,7 @@ angular.module('yaMap',[]).
                         }
                     });
                     element.append(childNodes);
-                    $compile(childNodes)(scope.$parent);
+                    $compile(element.children())(scope.$parent);
                 };
             },
             controller:'CollectionCtrl'

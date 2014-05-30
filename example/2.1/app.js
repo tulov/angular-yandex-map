@@ -354,7 +354,16 @@ function MapChangeCtrl($scope) {
     };
 }
 
-function EmptyCtrl($scope){}
+function EmptyCtrl($scope){
+    $scope.geoObjects=[
+        {
+            geometry:{
+                type:'Point',
+                coordinates:[37.64,55.76]
+            }
+        }
+    ]
+}
 
 function ChangeParametersCtrl($scope){
     $scope.point = {

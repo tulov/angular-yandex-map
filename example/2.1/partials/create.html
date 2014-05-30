@@ -9,7 +9,9 @@
 </div>
 <div class="right">
     <div  ng-switch on="created">
-        <ya-map ng-switch-when="true" ya-zoom="8" ya-center="[37.64,55.76]"></ya-map>
+        <ya-map ng-switch-when="true" ya-zoom="8" ya-center="[37.64,55.76]">
+            <ya-geo-object ng-repeat="o in geoObjects" ya-source="o"></ya-geo-object>
+        </ya-map>
     </div>
     <button ng-click="created=!created">Создать/Удалить</button>
 </div>
