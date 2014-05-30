@@ -146,10 +146,6 @@ angular.module('myApp', ['ui.bootstrap','yaMap'], function($routeProvider, $loca
             templateUrl:'2.1/partials/click-coordinate.html',
             controller:ClickCoordinateCtrl
         })
-        /*.when('/2.1/events/edit-geoobject',{
-            templateUrl:'2.1/partials/edit-geoobject.html',
-            controller:EditGeoobjectCtrl
-        })*/
         .when('/2.1/geoobjects/change-color',{
             templateUrl:'2.1/partials/change-color.html',
             controller:ChangeColorCtrl
@@ -182,18 +178,6 @@ angular.module('myApp', ['ui.bootstrap','yaMap'], function($routeProvider, $loca
             templateUrl:'2.1/partials/list-box-template.html',
             controller:ListBoxTemplateCtrl
         })
-        /*.when('/2.1/template/cluster-balloon',{
-            templateUrl:'2.1/partials/cluster-balloon-template.html',
-            controller:ClusterBalloonTemplateCtrl
-        })
-        .when('/2.1/template/cluster-balloon-carousel',{
-            templateUrl:'2.1/partials/cluster-balloon-carousel-template.html',
-            controller:ClusterBalloonCarouselTemplateCtrl
-        })
-        .when('/2.1/template/cluster-balloon-accordion',{
-            templateUrl:'2.1/partials/cluster-balloon-accordion-template.html',
-            controller:ClusterBalloonAccordionTemplateCtrl
-        })*/
         .when('/2.1/geocode/one',{
             templateUrl:'2.1/partials/geocode.html',
             controller:GeocodeCtrl
