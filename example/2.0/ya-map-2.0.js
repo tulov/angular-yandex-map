@@ -296,7 +296,7 @@ angular.module('yaMap',[]).
                             element.append(childNodes);
                             setTimeout(function(){
                                 scope.$apply(function() {
-                                    $compile(childNodes)(scope.$parent);
+                                    $compile(element.children())(scope.$parent);
                                 });
                             });
                         });
@@ -380,7 +380,7 @@ angular.module('yaMap',[]).
                     yaMap.addControl(scope.toolbar,options);
                     scope.yaAfterInit({$target:scope.toolbar});
                     element.append(childNodes);
-                    $compile(childNodes)(scope.$parent);
+                    $compile(element.children())(scope.$parent);
                 };
             },
             controller:'MapToolbarCtrl'
@@ -497,7 +497,7 @@ angular.module('yaMap',[]).
                         }
                     });
                     element.append(childNodes);
-                    $compile(childNodes)(scope.$parent);
+                    $compile(element.children())(scope.$parent);
                 };
             },
             controller:'CollectionCtrl'
