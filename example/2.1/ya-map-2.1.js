@@ -142,7 +142,7 @@ angular.module('yaMap',[]).
     service('templateLayoutFactory',['mapApiLoad',function(mapApiLoad){
         this._cache = {};
         this.get=function(key){
-            return this._cache[key];
+            return this._cache[key] || key;
         };
         this.create = function(key, template, overadice){
             if(this._cache[key]){
