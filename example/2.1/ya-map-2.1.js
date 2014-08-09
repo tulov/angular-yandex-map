@@ -216,7 +216,7 @@ angular.module('yaMap',[]).
             compile: function(tElement) {
                 var childNodes = tElement.children(),
                     centerCoordinatesDeferred = null;
-                tElement.html('');
+                tElement.children().remove();
                 return function(scope, element,attrs) {
                     var getEvalOrValue = function(value){
                         try{
