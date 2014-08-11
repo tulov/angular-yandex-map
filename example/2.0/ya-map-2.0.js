@@ -150,7 +150,7 @@ angular.module('yaMap',[]).
             },
             compile: function(tElement) {
                 var html = tElement.html();
-                tElement.html('');
+                tElement.children().remove();
                 return function(scope,elm,attrs){
                     if(!attrs.yaKey){
                         throw new Error('not require attribute "key"');
@@ -205,7 +205,7 @@ angular.module('yaMap',[]).
             compile: function(tElement) {
                 var childNodes = tElement.children(),
                     centerCoordinatesDeferred = null;
-                tElement.html('');
+                tElement.children().remove();
                 return function(scope, element,attrs) {
                     var getEvalOrValue = function(value){
                         try{
@@ -364,7 +364,7 @@ angular.module('yaMap',[]).
             },
             compile:function(tElement){
                 var childNodes = tElement.contents();
-                tElement.html('');
+                tElement.children().remove();
                 return function(scope, element,attrs,yaMap) {
                     if(!attrs.yaName){
                         throw new Error('not pass attribute "name"');
@@ -461,7 +461,7 @@ angular.module('yaMap',[]).
             },
             compile:function(tElement){
                 var childNodes = tElement.contents();
-                tElement.html('');
+                tElement.children().remove();
                 return function(scope, element,attrs,yaMap) {
                     var options = attrs.yaOptions ? scope.$eval(attrs.yaOptions) : {};
 
@@ -516,7 +516,7 @@ angular.module('yaMap',[]).
             },
             compile:function(tElement){
                 var childNodes = tElement.contents();
-                tElement.html('');
+                tElement.children().remove();
                 return function(scope, element,attrs,yaMap) {
                     var collectionOptions = attrs.yaOptions ? scope.$eval(attrs.yaOptions) : {};
                     if(collectionOptions && collectionOptions.clusterBalloonMainContentLayout){
