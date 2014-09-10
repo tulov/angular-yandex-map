@@ -22,6 +22,10 @@ angular.module('yaMap',[]).
             options.order = order;
             return this;
         };
+        this.setVersion=function(version){
+            options.version=version;
+            return this;
+        };
         this.$get=[function(){
             return options;
         }];
