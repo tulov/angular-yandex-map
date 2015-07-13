@@ -1,0 +1,48 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="9" ya-center="[41.8,47.6]"&gt;
+    &lt;ya-geo-object ya-source="point" ya-options="{preset: 'islands#redStretchyIcon'}" ya-event-contextmenu="contextmenu($event)"&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+&lt;div id="menu" ng-show="params.show" ng-style="params.position"&gt;
+    &lt;ul id="menu_list"&gt;
+        &lt;li&gt;Название: &lt;br /&gt; &lt;input ng-model="point.properties.iconContent" type="text" name="icon_text" /&gt;&lt;/li&gt;
+        &lt;li&gt;Подсказка: &lt;br /&gt; &lt;input ng-model="point.properties.hintContent" type="text" name="hint_text" /&gt;&lt;/li&gt;
+        &lt;li&gt;Балун: &lt;br /&gt; &lt;input ng-model="point.properties.balloonContent" type="text" name="balloon_text" /&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;div align="center"&gt;&lt;input ng-click="params.show=false" type="button" value="Закрыть" /&gt;&lt;/div&gt;
+&lt;/div&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.point = {
+        geometry:{
+            type:'Point',
+            coordinates:[42.1, 47.6]
+        },
+        properties: {
+            iconContent:'Щелкни по мне правой кнопкой мыши!',
+            hintContent: "",
+            balloonContent: ""
+        }
+    };
+    $scope.params={position:{}};
+    $scope.contextmenu=function(e){
+        $scope.params.position.left = e.get('pagePixels')[0]+'px';
+        $scope.params.position.top = e.get('pagePixels')[1]+'px';
+        $scope.params.show=!$scope.params.show;
+    };</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="9" ya-center="[41.8,47.6]">
+        <ya-geo-object ya-source="point" ya-options="{preset: 'islands#redStretchyIcon'}" ya-event-contextmenu="contextmenu($event)"></ya-geo-object>
+    </ya-map>
+    <div id="menu" ng-show="params.show" ng-style="params.position">
+        <ul id="menu_list">
+            <li>Название: <br /> <input ng-model="point.properties.iconContent" type="text" name="icon_text" /></li>
+            <li>Подсказка: <br /> <input ng-model="point.properties.hintContent" type="text" name="hint_text" /></li>
+            <li>Балун: <br /> <input ng-model="point.properties.balloonContent" type="text" name="balloon_text" /></li>
+        </ul>
+        <div align="center"><input ng-click="params.show=false" type="button" value="Закрыть" /></div>
+    </div>
+</div>

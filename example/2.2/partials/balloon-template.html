@@ -1,0 +1,70 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-template-layout ya-key="templateOne" ya-overrides="overrides"&gt;
+    &lt;div style="margin: 10px;"&gt;
+        &lt;b&gt;$[properties.name]&lt;/b&gt;&lt;br /&gt;
+        &lt;i id="count"&gt;&lt;/i&gt;
+        &lt;button id="counter-button"&gt; +1 &lt;/button&gt;
+    &lt;/div&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="10" ya-center="[37.62708,55.650625]"&gt;
+    &lt;ya-geo-object ya-source="point" ya-options="{balloonContentLayout:'templateOne',balloonPanelMaxMapArea: 0}"&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+var counter=0;
+$scope.overrides={
+    build: function () {
+        // Сначала вызываем метод build родительского класса.
+        console.log('build');
+        var BalloonContentLayout = templateLayoutFactory.get('templateOne');
+        BalloonContentLayout.superclass.build.call(this);
+        // А затем выполняем дополнительные действия.
+        angular.element(document.getElementById('counter-button')).bind('click', this.onCounterClick);
+        angular.element(document.getElementById('count')).html(counter);
+    },
+
+    // Аналогично переопределяем функцию clear, чтобы снять
+    // прослушивание клика при удалении макета с карты.
+    clear: function () {
+        // Выполняем действия в обратном порядке - сначала снимаем слушателя,
+        // а потом вызываем метод clear родительского класса.
+        angular.element(document.getElementById('counter-button')).unbind('click', this.onCounterClick);
+        var BalloonContentLayout = templateLayoutFactory.get('templateOne');
+        BalloonContentLayout.superclass.clear.call(this);
+    },
+
+    onCounterClick: function () {
+        angular.element(document.getElementById('count')).html(++counter);
+        if (counter == 5) {
+            alert('Вы славно потрудились.');
+            counter = 0;
+            angular.element(document.getElementById('count')).html(counter);
+        }
+    }
+};
+$scope.point = {
+    geometry:{
+        type:'Point',
+        coordinates:[37.62708,55.650625]
+    },
+    properties: {
+        name: 'Считаем'
+    }
+};
+</pre>
+</div>
+<div class="right">
+    <ya-template-layout ya-key="templateOne" ya-overrides="overrides">
+        <div style="margin: 10px;">
+            <b>$[properties.name]</b><br />
+            <i id="count"></i>
+            <button id="counter-button"> +1 </button>
+        </div>
+    </ya-template-layout>
+    <ya-map ya-zoom="10" ya-center="[37.62708,55.650625]">
+        <ya-geo-object ya-source="point" ya-options="{balloonContentLayout:'templateOne',balloonPanelMaxMapArea: 0}"></ya-geo-object>
+    </ya-map>
+</div>

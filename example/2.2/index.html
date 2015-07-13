@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="utf-8">
+    <title>Directive yaMap</title>
+    <base href="/">
+    <link href="../bootstrap.css" rel="stylesheet">
+    <link href="../app.css" rel="stylesheet">
+    <script>
+        document.createElement('ya-template-layout');
+        document.createElement('ya-map');
+        document.createElement('ya-control');
+        document.createElement('ya-collection');
+        document.createElement('ya-cluster');
+        document.createElement('ya-geo-object');
+        document.createElement('ya-hotspot-layer');
+        document.createElement('ya-image-layer');
+        document.createElement('ya-dragger');
+    </script>
+</head>
+<body ng-controller="MainCtrl">
+<div class="container">
+    <h3>Примеры использования Яндекс карт через директивы модуля yaMap</h3>
+    <div class="left">
+        <accordion close-others="true">
+            <accordion-group heading="Карта">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/">Создание и удаление</a></li>
+                    <li active-class><a href="/2.2/map/change">Основные параметры</a></li>
+                    <li active-class><a href="/2.2/map/create">Создание карты по требованию</a></li>
+                    <li active-class><a href="/2.2/map/own-map">Собственная карта</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="Геообъекты">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/geoobjects/points">Метки</a></li>
+                    <li active-class><a href="/2.2/geoobjects/linestring">Ломаные</a></li>
+                    <li active-class><a href="/2.2/geoobjects/rectangle">Прямоугольники</a></li>
+                    <li active-class><a href="/2.2/geoobjects/polygon">Многоугольники</a></li>
+                    <li active-class><a href="/2.2/geoobjects/circle">Круги</a></li>
+                    <li active-class><a href="/2.2/geoobjects/add-to-collection">Добавление геообъектов в коллекции</a></li>
+                    <li active-class><a href="/2.2/geoobjects/linestring-edit">Редактор ломаной</a></li>
+                    <li active-class><a href="/2.2/geoobjects/polygon-draw">Редактор многоугольника</a></li>
+                    <li active-class><a href="/2.2/geoobjects/list-objects">Список объектов карты</a></li>
+                    <li active-class><a href="/2.2/geoobjects/events">События геообъектов</a></li>
+                    <li active-class><a href="/2.2/geoobjects/change-parameters">Изменение параметров метки</a></li>
+                    <li active-class><a href="/2.2/geoobjects/change-color">Смена значка метки при наведении</a></li>
+                    <li active-class><a href="/2.2/geoobjects/active-area">Задание фигуры активной области HTML макету метки</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="Баллун и хинт">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/balloon-and-hint">Балун и хинт</a></li>
+                    <li active-class><a href="/2.2/balloon-and-hint/dynamic-balloon">Динамическая загрузка содержимого балуна</a></li>
+                    <li active-class><a href="/2.2/balloon-and-hint/balloon-panel">Метка и балун-панель</a></li>
+                    <li active-class><a href="/2.2/balloon-and-hint/template">Макет балуна метки</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="Элементы управления">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/toolbar/standart">Стандартный набор элементов управления</a></li>
+                    <li active-class><a href="/2.2/toolbar/add">Добавление отдельных элементов управления</a></li>
+                    <li active-class><a href="/2.2/toolbar/add-batton">Добавление кнопки на карту</a></li>
+                    <li active-class><a href="/2.2/toolbar/button">Произвольный макет кнопки</a></li>
+                    <li active-class><a href="/2.2/toolbar/zoom">Произвольный макет элемента изменения масштаба</a></li>
+                    <li active-class><a href="/2.2/toolbar/list-box">Произвольный макет выпадающего списка</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="Активные области">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/active-area">Слой активных областей</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="Кластеризация">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/cluster/create">Создание кластеризатора</a></li>
+                    <li active-class><a href="/2.2/cluster/own-icon">Создание кластеризатора с произовльными иконками</a></li>
+                    <li active-class><a href="/2.2/cluster/color">Изменение цвета кластера и меток при наведении</a></li>
+                    <li active-class><a href="/2.2/cluster/set-size">Изменение размера ячейки кластеризатора</a></li>
+                    <li active-class><a href="/2.2/cluster/two-column">Макет балуна кластера "Две колонки"</a></li>
+                    <li active-class><a href="/2.2/cluster/accordion">Макет балуна кластера "Аккордион"</a></li>
+                    <li active-class><a href="/2.2/cluster/carousel">Макет балуна кластера "Карусель"</a></li>
+                    <li active-class><a href="/2.2/cluster/self">Собственный макет балуна кластера</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="GeoQuery">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/geoquery/point-inside-circle">Попадание точек в окружность</a></li>
+                    <li active-class><a href="/2.2/geoquery/find-objects">Поиск ближайшего объекта</a></li>
+                    <li active-class><a href="/2.2/geoquery/add-bounds-objects">Добавить объекты из области видимости</a></li>
+                    <li active-class><a href="/2.2/geoquery/route-mkad">Пересечение маршрута с многоугольником на примере МКАД</a></li>
+                    <li active-class><a href="/2.2/geoquery/geocode-result-view">Позиционирование карты для показа результатов геокодирования и их кластеризация</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="Поведения и события">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/behaviors/map">Поведения карты</a></li>
+                    <li active-class><a href="/2.2/behaviors/coordinate-click">Координаты щелчка</a></li>
+                    <li active-class><a href="/2.2/behaviors/dragger">Использование драггера</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="Геокодирование">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/geocode/one">Прямое и обратное геокодирование</a></li>
+                    <li active-class><a href="/2.2/geocode/multi">Множественное геокодирование</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="Пробки">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/traffic/element">Элемент управления "Пробки"</a></li>
+                    <li active-class><a href="/2.2/traffic/without-button">Слой пробок на карте без кнопки</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="Местоположение">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/geolocation/api">Определение местоположения пользователя</a></li>
+                    <li active-class><a href="/2.2/geolocation/place">Создание карты с местоположением пользователя</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="Маршрутизация">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/route/create">Построение маршрута</a></li>
+                    <li active-class><a href="/2.2/route/edit">Редактирование маршрута</a></li>
+                    <li active-class><a href="/2.2/route/calculate-cost">Стоимость доставки</a></li>
+                </ul>
+            </accordion-group>
+            <accordion-group heading="Производительность">
+                <ul class="nav nav-pills nav-stacked">
+                    <li active-class><a href="/2.2/performance/test">Много объектов</a></li>
+                </ul>
+            </accordion-group>
+        </accordion>
+    </div>
+    <div ng-view class="content"></div>
+</div>
+<script src="https://code.angularjs.org/1.4.2/angular.js"></script>
+<script src="https://code.angularjs.org/1.4.2/angular-route.js"></script>
+<script src="../ui-bootstrap-tpls-0.6.min.js"></script>
+<script src="2.2/app.js"></script>
+<script src="2.2/ya-map-2.2.js"></script>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function (d, w, c) {
+        (w[c] = w[c] || []).push(function() {
+            try {
+                w.yaCounter23401189 = new Ya.Metrika({id:23401189,
+                    clickmap:true,
+                    accurateTrackBounce:true});
+            } catch(e) { }
+        });
+
+        var n = d.getElementsByTagName("script")[0],
+                s = d.createElement("script"),
+                f = function () { n.parentNode.insertBefore(s, n); };
+        s.type = "text/javascript";
+        s.async = true;
+        s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+        if (w.opera == "[object Opera]") {
+            d.addEventListener("DOMContentLoaded", f, false);
+        } else { f(); }
+    })(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="//mc.yandex.ru/watch/23401189" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+</body>
+</html>

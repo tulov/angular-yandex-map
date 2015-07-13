@@ -1,0 +1,145 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="9" ya-center="[30.067233,60.906882]" ya-behaviors="scrollZoom drag" ya-after-init="afterInit($target)" ya-controls=""&gt;
+    &lt;ya-control ya-type="searchControl" ya-params="{options: {useMapBounds: true,noPlacemark: true,noPopup: true,placeholderContent: 'Адрес начальной точки',size: 'large'}}"
+                ya-event-resultselect="resultSelectOne($event)"
+                ya-event-load="loadOne($event)"&gt;&lt;/ya-control&gt;
+    &lt;ya-control ya-type="searchControl" ya-params="{options: {useMapBounds: true,noCentering: true,noPopup: true,noPlacemark: true,placeholderContent: 'Адрес конечной точки',size: 'large',float: 'none',position: { left: 10, top: 44 }}}"
+                ya-event-load="loadTwo($event)"
+                ya-event-resultselect="resultSelectTwo($event)"&gt;&lt;/ya-control&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+function DeliveryCalculator(map, finish) {
+    this._map = map;
+    this._start = null;
+    this._route = null;
+    map.events.add('click', this._onClick, this);
+}
+
+var ptp = DeliveryCalculator.prototype;
+
+ptp._onClick= function (e) {
+    if (this._start) {
+        this.setFinishPoint(e.get('coords'));
+    } else {
+        this.setStartPoint(e.get('coords'));
+    }
+};
+
+ptp._onDragEnd = function (e) {
+    this.getDirection();
+};
+
+ptp.getDirection = function () {
+    if(this._route) {
+        this._map.geoObjects.remove(this._route);
+    }
+
+    if (this._start && this._finish) {
+        var self = this,
+            start = this._start.geometry.getCoordinates(),
+            finish = this._finish.geometry.getCoordinates();
+
+        ymaps.geocode(start, { results: 1 })
+            .then(function (geocode) {
+                var address = geocode.geoObjects.get(0) &&
+                    geocode.geoObjects.get(0).properties.get('balloonContentBody') || '';
+
+                ymaps.route([start, finish])
+                    .then(function (router) {
+                        var distance = Math.round(router.getLength() / 1000),
+                            message = '<span>Расстояние: ' + distance + 'км.</span><br/>' +
+                                '<span style="font-weight: bold; font-style: italic">Стоимость доставки: %sр.</span>';
+
+                        self._route = router.getPaths();
+
+                        self._route.options.set({ strokeWidth: 5, strokeColor: '0000ffff', opacity: 0.5 });
+                        self._map.geoObjects.add(self._route);
+                        self._start.properties.set('balloonContentBody', address + message.replace('%s', self.calculate(distance)));
+
+                    });
+            });
+        self._map.setBounds(self._map.geoObjects.getBounds())
+    }
+};
+
+ptp.setStartPoint = function (position) {
+    if(this._start) {
+        this._start.geometry.setCoordinates(position);
+    }
+    else {
+        this._start = new ymaps.Placemark(position, { iconContent: 'А' }, { draggable: true });
+        this._start.events.add('dragend', this._onDragEnd, this);
+        this._map.geoObjects.add(this._start);
+    }
+    if (this._finish) {
+        this.getDirection();
+    }
+};
+
+ptp.setFinishPoint = function (position) {
+    if(this._finish) {
+        this._finish.geometry.setCoordinates(position);
+    }
+    else {
+        this._finish = new ymaps.Placemark(position, { iconContent: 'Б' }, { draggable: true });
+        this._finish.events.add('dragend', this._onDragEnd, this);
+        this._map.geoObjects.add(this._finish);
+    }
+    if (this._start) {
+        this.getDirection();
+    }
+};
+
+ptp.calculate = function (len) {
+    // Константы.
+    var DELIVERY_TARIF = 20,
+        MINIMUM_COST = 500;
+
+    return Math.max(len * DELIVERY_TARIF, MINIMUM_COST);
+};
+
+var calculator;
+$scope.afterInit = function(map){
+    calculator = new DeliveryCalculator(map, map.getCenter());
+};
+$scope.resultSelectOne = function(e){
+    var results = e.get('target').getResultsArray(),
+        selected = e.get('index'),
+        point = results[selected].geometry.getCoordinates();
+
+    calculator.setStartPoint(point);
+};
+$scope.resultSelectTwo = function(e){
+    var results = e.get('target').getResultsArray(),
+        selected = e.get('index'),
+        point = results[selected].geometry.getCoordinates();
+
+    calculator.setFinishPoint(point);
+};
+
+$scope.loadOne=function(event){
+    if (!event.get('skip') && event.get('target').getResultsCount()) {
+        event.get('target').showResult(0);
+    }
+};
+$scope.loadTwo=function(event){
+    if (!event.get('skip') && event.get('target').getResultsCount()) {
+        event.get('target').showResult(0);
+    }
+};
+</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="9" ya-center="[30.067233,60.906882]" ya-behaviors="scrollZoom drag" ya-after-init="afterInit($target)" ya-controls="">
+        <ya-control ya-type="searchControl" ya-params="{options: {useMapBounds: true,noPlacemark: true,noPopup: true,placeholderContent: 'Адрес начальной точки',size: 'large'}}"
+                     ya-event-resultselect="resultSelectOne($event)"
+                ya-event-load="loadOne($event)"></ya-control>
+        <ya-control ya-type="searchControl" ya-params="{options: {useMapBounds: true,noCentering: true,noPopup: true,noPlacemark: true,placeholderContent: 'Адрес конечной точки',size: 'large',float: 'none',position: { left: 10, top: 44 }}}"
+                    ya-event-load="loadTwo($event)"
+                     ya-event-resultselect="resultSelectTwo($event)"></ya-control>
+    </ya-map>
+</div>

@@ -1,0 +1,56 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-template-layout ya-key="selfItemContentLayout"&gt;
+    &lt;ul class=list&gt;
+        {% for geoObject in properties.geoObjects %}
+        &lt;li&gt;&lt;a href="#" data-placemarkid="$[geoObject.properties.placemarkId]" class="list_item"&gt;$[geoObject.properties.balloonContentHeader|raw]&lt;/a&gt;&lt;/li&gt;
+        {% endfor %}
+    &lt;/ul&gt;
+&lt;/ya-template-layout&gt;
+&lt;ya-map ya-zoom="9" ya-center="{{mapCenter}}" ya-controls=""&gt;
+    &lt;ya-cluster ya-options="{clusterDisableClickZoom: true,clusterOpenBalloonOnClick: true,clusterBalloonPanelMaxMapArea: 0,clusterBalloonMaxHeight: 200,clusterBalloonContentLayout: 'selfItemContentLayout'}"&gt;
+        &lt;ya-geo-object ng-repeat="o in geoObjects" ya-source="o"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-cluster&gt;
+&lt;/ya-map&gt;    
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+var objs=[];
+$scope.mapCenter=[37.619044,55.755381];
+for(var i= 0;i<100;i++){
+    objs.push({
+        geometry:{
+            type:'Point',
+            coordinates:getRandomCoordinates()
+        },
+        properties:{
+            // Устаналиваем данные, которые будут отображаться в балуне.
+            balloonContentHeader: 'Метка №' + (i + 1),
+            balloonContentBody: 'Информация о метке №'+i,
+            placemarkId: i
+        }
+    });
+}
+$scope.geoObjects=objs;
+function getRandomCoordinates () {
+    return [
+        $scope.mapCenter[0] + (Math.random() * 0.3 - 0.15),
+        $scope.mapCenter[1] + (Math.random() * 0.5 - 0.25)
+    ];
+}</pre>
+</div>
+<div class="right">
+    <ya-template-layout ya-key="selfItemContentLayout">
+        <ul class=list>
+        {% for geoObject in properties.geoObjects %}
+        <li><a href="#" data-placemarkid="$[geoObject.properties.placemarkId]" class="list_item">$[geoObject.properties.balloonContentHeader|raw]</a></li>
+        {% endfor %}
+        </ul>
+    </ya-template-layout>
+    <ya-map ya-zoom="9" ya-center="{{mapCenter}}" ya-controls="">
+        <ya-cluster ya-options="{clusterDisableClickZoom: true,clusterOpenBalloonOnClick: true,clusterBalloonPanelMaxMapArea: 0,clusterBalloonMaxHeight: 200,clusterBalloonContentLayout: 'selfItemContentLayout'}">
+            <ya-geo-object ng-repeat="o in geoObjects" ya-source="o"></ya-geo-object>
+        </ya-cluster>
+    </ya-map>
+</div>

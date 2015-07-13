@@ -1,0 +1,58 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="12" ya-center="[37.75,55.73]" ya-event-click="mapClick($event)"&gt;
+    &lt;ya-collection ya-after-init="afterInit($target)"&gt;
+        &lt;ya-geo-object ng-repeat="cafe in cafes" ya-source="cafe"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-collection&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+var cafe, collection;
+$scope.cafes = [
+    {
+        properties: {
+            balloonContent: 'Кофейня "Дарт Вейдер" - у нас есть печеньки!'
+        },
+        geometry: {
+            type: 'Point',
+            coordinates: [37.545849,55.724166]
+        }
+    }, {
+        properties: {
+            balloonContent: 'Кафе "Горлум" - пирожные прелесть.'
+        },
+        geometry: {
+            type: 'Point',
+            coordinates: [37.567886,55.717495]
+        }
+    }, {
+        properties: {
+            balloonContent: 'Кафе "Кирпич" - крепкий кофе для крепких парней.'
+        },
+        geometry: {
+            type: 'Point',
+            coordinates: [37.631057,55.7210180]
+        }
+    }
+];
+$scope.afterInit = function(col){
+    collection=col;
+};
+$scope.mapClick=function(event){
+    if(!cafe){
+        cafe = ymaps.geoQuery(collection);
+    }
+    cafe.getClosestTo(event.get('coords')).balloon.open();
+};
+</pre>
+</div>
+<div class="right">
+    <p>При клике на карту будет открываться балун ближайшей к месту клика метки</p>
+    <ya-map ya-zoom="12" ya-center="[37.75,55.73]" ya-event-click="mapClick($event)">
+        <ya-collection ya-after-init="afterInit($target)">
+            <ya-geo-object ng-repeat="cafe in cafes" ya-source="cafe"></ya-geo-object>
+        </ya-collection>
+    </ya-map>
+</div>

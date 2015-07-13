@@ -1,0 +1,51 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="8" ya-center="[37.75,55.73]" ya-after-init="afterInit($target)" ya-event-boundschange="mapBoundschange($event)"&gt;
+    &lt;ya-geo-object ng-repeat="o in onMap" ya-source="o"&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+var searchInside = function(geoObjects, bounds){
+    var coord, results = [];
+    for (var i = 0, ii = geoObjects.length; i < ii; i++) {
+        coord = geoObjects[i].geometry.coordinates;
+        if(coord[0]&gt;bounds[0][0]
+            && coord[0]&lt;bounds[1][0]
+            && coord[1]&gt;bounds[0][1]
+            && coord[1]&lt;bounds[1][1]){
+            results.push(geoObjects[i]);
+        }
+    }
+    return results;
+};
+var points = [
+    {geometry:{
+        type: 'Point',
+        coordinates: [37.75,55.73]
+    }},{geometry:{
+        type: 'Point',
+        coordinates: [37.45,55.10]
+    }},{geometry:{
+        type: 'Point',
+        coordinates: [37.35,55.25]
+    }},{geometry:{
+        type: 'Point',
+        coordinates: [67.35,55.25]
+    }}];
+$scope.afterInit=function(map){
+    $scope.onMap = searchInside(points, map.getBounds());
+};
+$scope.mapBoundschange=function(event){
+    var myMap = event.get('target');
+    $scope.onMap = searchInside(points, myMap.getBounds());
+};
+</pre>
+</div>
+<div class="right">
+    <p>На карту добавляются только метки, попадающие в видимую область</p>
+    <ya-map ya-zoom="8" ya-center="[37.75,55.73]" ya-after-init="afterInit($target)" ya-event-boundschange="mapBoundschange($event)">
+        <ya-geo-object ng-repeat="o in onMap" ya-source="o"></ya-geo-object>
+    </ya-map>
+</div>

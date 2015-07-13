@@ -1,0 +1,43 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="10" ya-center="[37.64,55.72]"&gt;
+    &lt;ya-geo-object ya-source="geoObjects[0]" ya-options="{strokeColor: '#00000088',strokeWidth: 4,editorMaxPoints: 6}" editor-menu-manager="editor" ya-edit&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.geoObjects=[
+    {
+        geometry: {
+            type: 'LineString',
+            coordinates: [
+                [37.50,55.80],
+                [37.40,55.80],
+                [37.50,55.70],
+                [37.40,55.70]
+            ]
+        },
+        properties: {
+            balloonContent: "Ломаная линия"
+        }
+    }
+];
+$scope.editor = function (items) {
+    items.push({
+        title: "Удалить линию",
+        onClick: function () {
+            $scope.$apply(function(){
+                $scope.geoObjects.length=0;
+            });
+        }
+    });
+    return items;
+};
+</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="10" ya-center="[37.64,55.72]">
+        <ya-geo-object ya-source="geoObjects[0]" ya-options="{strokeColor: '#00000088',strokeWidth: 4,editorMaxPoints: 6}" editor-menu-manager="editor" ya-edit></ya-geo-object>
+    </ya-map>
+</div>

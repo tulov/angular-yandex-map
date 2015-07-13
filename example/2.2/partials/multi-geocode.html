@@ -1,0 +1,47 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="9" ya-center="[37.588628,55.734046]" ya-before-init="beforeInit()" ya-behaviors="default scrollZoom"&gt;
+    &lt;ya-geo-object ng-repeat="o in geoObjects" ya-source="o"&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+var geocodes = [
+    'Москва, Слесарный переулок, д.3',
+    'Люберцы, Октябрьский проспект д.143',
+    [37.588628,55.734046],
+    'Мытищи, ул. Олимпийский проспект, владение 13, корпус А',
+    'Москва, 3-я Хорошевская улица д.2, стр.1',
+    'Москва, Нижний Сусальный переулок, д.5, стр.4'
+];
+$scope.beforeInit = function(){
+    var geocodeQuery;
+    for (var i = 0, ii = geocodes.length; i < ii; i++) {
+        geocodeQuery = geocodes[i];
+        ymaps.geocode(geocodeQuery).then(function (res) {
+            res.geoObjects.each(function(geoObject){
+                $scope.$apply(function(){
+                    $scope.geoObjects.push({
+                        geometry:{
+                            type:'Point',
+                            coordinates:geoObject.geometry.getCoordinates()
+                        },
+                        properties:{
+                            // А в качестве контента балуна - подробности:
+                            // имена всех остальных найденных объектов.
+                            balloonContent:geoObject.properties.get('name')
+                        }
+                    });
+                });
+            });
+        });
+    }
+};
+$scope.geoObjects = [];</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="9" ya-center="[37.588628,55.734046]" ya-before-init="beforeInit()" ya-behaviors="default scrollZoom">
+        <ya-geo-object ng-repeat="o in geoObjects" ya-source="o"></ya-geo-object>
+    </ya-map>
+</div>

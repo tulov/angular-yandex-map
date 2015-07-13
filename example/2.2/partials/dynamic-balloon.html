@@ -1,0 +1,54 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="5" ya-center="[37.11,54.83]"&gt;
+    &lt;ya-geo-object ya-source="geoObjects[0]" ya-options="{draggable:true,balloonPanelMaxMapArea: 0,preset:'islands#blueStretchyIcon',openEmptyBalloon: true}" ya-event-balloonopen="balloonOpen($event)"&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+</pre>
+    <p>javascript</p>
+    <pre class="js" ng-non-bindable>
+$scope.geoObjects=[
+    {
+        // Геометрия = тип объекта + географические координаты объекта
+        geometry: {
+            // Тип геометрии - точка
+            type: 'Point',
+            // Координаты точки.
+            coordinates: [37.72,55.8]
+        },
+        // Свойства
+        properties: {
+            iconContent: "Узнать адрес",
+            hintContent: "Перетащите метку и кликните, чтобы узнать адрес"
+        }
+    }
+];
+$scope.balloonOpen = function($event){
+    var obj = $event.get('target');
+    obj.properties.set('balloonContent', "Идет загрузка данных...");
+
+    // Имитация задержки при загрузке данных (для демонстрации примера).
+    $timeout(function () {
+            ymaps.geocode(obj.geometry.getCoordinates(), {
+                results: 1
+            }).then(
+                function (res) {
+                     var newContent = res.geoObjects.get(0) ?
+                     res.geoObjects.get(0).properties.get('name') :
+                     'Не удалось определить адрес.';
+
+                     // Задаем новое содержимое балуна в соответствующее свойство метки.
+                     obj.properties.set('balloonContent', newContent);
+                }, function(err){
+                    console.log(err);
+                });
+        }, 1500
+    );
+};
+    </pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="5" ya-center="[37.11,54.83]">
+        <ya-geo-object ya-source="geoObjects[0]" ya-options="{draggable:true,balloonPanelMaxMapArea: 0,preset:'islands#blueStretchyIcon',openEmptyBalloon: true}" ya-event-balloonopen="balloonOpen($event)"></ya-geo-object>
+    </ya-map>
+</div>

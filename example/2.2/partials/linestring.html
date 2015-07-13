@@ -1,0 +1,46 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="10" ya-center="[37.44,55.72]"&gt;
+    &lt;ya-geo-object ya-source="geoObjects[0]" ya-options="{draggable:true,strokeColor:'#FFFF00',strokeWidth: 5}"&gt;&lt;/ya-geo-object&gt;
+    &lt;ya-geo-object ya-source="geoObjects[1]" ya-options="{balloonHasCloseButton:false,strokeColor:'#000000',strokeWidth:4,strokeOpacity:0.5}"&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.geoObjects=[
+    {
+        geometry: {
+            type: 'LineString',
+            coordinates: [
+                [37.50,55.80],
+                [37.40,55.70]
+            ]
+        },
+        properties: {
+            hintContent: "Я геообъект",
+            balloonContent: "Меня можно перетащить"
+        }
+    },
+    {
+        geometry: {
+            type: 'LineString',
+            coordinates: [
+                [37.50,55.80],
+                [37.40,55.80],
+                [37.50,55.70],
+                [37.40,55.70]
+            ]
+        },
+        properties: {
+            balloonContent: "Ломаная линия"
+        }
+    }
+];</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="10" ya-center="[37.44,55.72]">
+        <ya-geo-object ya-source="geoObjects[0]" ya-options="{draggable:true,strokeColor:'#FFFF00',strokeWidth: 5}"></ya-geo-object>
+        <ya-geo-object ya-source="geoObjects[1]" ya-options="{balloonHasCloseButton:false,strokeColor:'#000000',strokeWidth:4,strokeOpacity:0.5}"></ya-geo-object>
+    </ya-map>
+</div>

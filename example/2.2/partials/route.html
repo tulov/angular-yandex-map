@@ -1,0 +1,75 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="13" ya-center="[37.435225,55.745508]" ya-after-init="route($target)"&gt;&lt;/ya-map&gt;
+&lt;ol&gt;
+    &lt;li ng-repeat="p in path"&gt;{{ p }}&lt;/li&gt;
+&lt;/ol&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+var routePoints = [
+    'Москва, улица Крылатские холмы',
+    {
+        point: 'Москва, метро Молодежная',
+        // метро "Молодежная" - транзитная точка
+        // (проезжать через эту точку, но не останавливаться в ней).
+        type: 'viaPoint'
+    },
+    [55.731272, 37.447198], // метро "Кунцевская".
+    'Москва, метро Пионерская'
+];
+$scope.route = function(map){
+    ymaps.route(routePoints).then(function (route) {
+        map.geoObjects.add(route);
+        // Зададим содержание иконок начальной и конечной точкам маршрута.
+        // С помощью метода getWayPoints() получаем массив точек маршрута.
+        // Массив транзитных точек маршрута можно получить с помощью метода getViaPoints.
+        var points = route.getWayPoints(),
+            lastPoint = points.getLength() - 1;
+        // Задаем стиль метки - иконки будут красного цвета, и
+        // их изображения будут растягиваться под контент.
+        points.options.set('preset', 'twirl#redStretchyIcon');
+        // Задаем контент меток в начальной и конечной точках.
+        points.get(0).properties.set('iconContent', 'Точка отправления');
+        points.get(lastPoint).properties.set('iconContent', 'Точка прибытия');
+
+        // Проанализируем маршрут по сегментам.
+        // Сегмент - участок маршрута, который нужно проехать до следующего
+        // изменения направления движения.
+        // Для того, чтобы получить сегменты маршрута, сначала необходимо получить
+        // отдельно каждый путь маршрута.
+        // Весь маршрут делится на два пути:
+        // 1) от улицы Крылатские холмы до станции "Кунцевская";
+        // 2) от станции "Кунцевская" до "Пионерская".
+
+        var way,
+            segments,
+            path=['Трогаемся'];
+        // Получаем массив путей.
+        for (var i = 0; i < route.getPaths().getLength(); i++) {
+            way = route.getPaths().get(i);
+            segments = way.getSegments();
+            for (var j = 0; j < segments.length; j++) {
+                var street = segments[j].getStreet();
+                path.push('Едем ' + segments[j].getHumanAction() +
+                    (street ? ' на ' + street : '') +
+                    ', проезжаем ' + segments[j].getLength() + ' м.,'
+                );
+            }
+        }
+        path.push('Останавливаемся');
+        $scope.$apply(function(){
+            $scope.path = path;
+        });
+    }, function (error) {
+        alert('Возникла ошибка: ' + error.message);
+    });
+};</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="13" ya-center="[37.435225,55.745508]" ya-after-init="route($target)"></ya-map>
+    <ol>
+        <li ng-repeat="p in path">{{ p }}</li>
+    </ol>
+</div>

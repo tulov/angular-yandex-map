@@ -1,0 +1,53 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="10" ya-center="{{ center }}" ya-before-init="beforeInit()"&gt;
+    &lt;ya-geo-object ng-repeat="o in geoObjects" ya-source="o"&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+</pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.beforeInit = function(){
+    var geolocation = ymaps.geolocation;
+    geolocation.get({
+        provider: 'yandex',
+        mapStateAutoApply: true
+    }).then(function (result) {
+        $scope.geoObjects.push({
+            geometry:{
+                type:'Point',
+                coordinates:result.geoObjects.position
+            },
+            properties:{
+                balloonContent:'Определено по IP'
+            }
+        });
+        $scope.center = result.geoObjects.position;
+        $scope.$digest();
+    });
+
+    geolocation.get({
+        provider: 'browser',
+        mapStateAutoApply: true
+    }).then(function (result) {
+        // Синим цветом пометим положение, полученное через браузер.
+        // Если браузер не поддерживает эту функциональность, метка не будет добавлена на карту.
+        $scope.geoObjects.push({
+            geometry:{
+                type:'Point',
+                coordinates:result.geoObjects.position
+            },
+            properties:{
+                balloonContent:'Определено по данным браузера'
+            }
+        });
+        $scope.$digest();
+    });
+};
+$scope.geoObjects=[];</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="10" ya-center="{{ center }}" ya-before-init="beforeInit()">
+        <ya-geo-object ng-repeat="o in geoObjects" ya-source="o"></ya-geo-object>
+    </ya-map>
+</div>

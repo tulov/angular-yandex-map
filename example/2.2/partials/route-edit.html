@@ -1,0 +1,49 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="5" ya-center="[34.576128,57.131311]" ya-after-init="route($target)"&gt;&lt;/ya-map&gt;
+&lt;button ng-click="routeEdit()"&gt;{{ btnLabel }}&lt;/button&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+var routePoints = [
+    'Москва, метро Смоленская',
+    {
+        // Метро Арбатская - транзитная точка (проезжать через эту точку,
+        // но не останавливаться в ней).
+        type: 'viaPoint',
+        point: 'Москва, метро Арбатская'
+    },
+    [37.62561,55.74062]
+];
+var startEditing=false;
+$scope.btnLabel = 'Включить редактор маршрута';
+$scope.route = function(map){
+    ymaps.route(routePoints, {
+        // Автоматически позиционировать карту.
+        mapStateAutoApply: true
+    }).then(function (route) {
+            map.geoObjects.add(route);
+            $scope.routeEdit = function(){
+                if (!startEditing) {
+                    // Включаем редактор.
+                    startEditing=!startEditing;
+                    route.editor.start({ addWayPoints: true });
+                    $scope.btnLabel = 'Отключить редактор маршрута';
+                } else {
+                    // Выключаем редактор.
+                    startEditing=!startEditing;
+                    route.editor.stop();
+                    $scope.btnLabel='Включить редактор маршрута';
+                }
+            };
+        }, function (error) {
+            alert('Возникла ошибка: ' + error.message);
+        });
+};
+</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="5" ya-center="[34.576128,57.131311]" ya-after-init="route($target)"></ya-map>
+    <button ng-click="routeEdit()">{{ btnLabel }}</button>
+</div>

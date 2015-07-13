@@ -1,0 +1,16 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="10" ya-center="[30.313622,59.93772]" ya-controls=""&gt;
+    &lt;ya-control ya-type="button" ya-params="Кнопка" ya-options="{float:'right'}"&gt;&lt;/ya-control&gt;
+    &lt;ya-control ya-type="button" ya-params="{data: {content: 'Адаптивная кнопка',image: 'img/error.png'},options: {maxWidth: [28, 150, 178]}}"&gt;&lt;/ya-control&gt;
+&lt;/ya-map&gt;
+    </pre>
+</div>
+<div class="right">
+    <div>Измените размеры окна, чтобы увидеть адаптивную кнопку в действии.</div>
+    <ya-map ya-zoom="10" ya-center="[30.313622,59.93772]" ya-controls="">
+        <ya-control ya-type="button" ya-params="Кнопка" ya-options="{float:'right'}"></ya-control>
+        <ya-control ya-type="button" ya-params="{data: {content: 'Адаптивная кнопка',image: 'img/error.png'},options: {maxWidth: [28, 150, 178]}}"></ya-control>
+    </ya-map>
+</div>

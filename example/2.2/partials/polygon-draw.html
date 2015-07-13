@@ -1,0 +1,25 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="10" ya-center="[37.75,55.73]"&gt;
+    &lt;ya-geo-object ya-source="geoObjects[0]" ya-options="{editorDrawingCursor: 'crosshair',editorMaxPoints: 5,fillColor: '#00FF00',strokeColor: '#0000FF',strokeWidth: 5}" ya-draw&gt;&lt;/ya-geo-object&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+$scope.geoObjects=[
+    {
+        geometry: {
+            type: 'Polygon',
+            coordinates: []
+        }
+    }
+];
+</pre>
+</div>
+<div class="right">
+    <div>Кликните на карту, чтобы начать создание многоугольника</div>
+    <ya-map ya-zoom="10" ya-center="[37.75,55.73]">
+        <ya-geo-object ya-source="geoObjects[0]" ya-options="{editorDrawingCursor: 'crosshair',editorMaxPoints: 5,fillColor: '#00FF00',strokeColor: '#0000FF',strokeWidth: 5}" ya-draw></ya-geo-object>
+    </ya-map>
+</div>

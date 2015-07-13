@@ -1,0 +1,40 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="2" ya-center="[0,0]" ya-type="my#type" ya-before-init="mapInit()"
+        ya-options="{maxZoom:4,minZoom:2,projection:{type:'Cartesian', bounds:[[-1, -1],[1, 1]]}}"
+        ya-controls="zoomControl"&gt;
+&lt;/ya-map&gt;
+</pre>
+    <p>javascript</p>
+    <pre class="js" ng-non-bindable>
+$scope.mapInit = function() {
+    // Создадим собственный слой карты:
+    var MyLayer = function () {
+        return yaLayer.create(function (tile, zoom) {
+            return "http://mt.gmapuploader.com/tiles/FVSH1JsvdT/tile-" + zoom + "-" +
+                (tile[1] * Math.pow(2, zoom) + tile[0]) + ".jpg";
+        });
+    };
+
+    // Добавим конструктор слоя в хранилище слоёв под ключом my#layer.
+    layerStorage.get(function(storage){
+        storage.add('my#layer', MyLayer);
+    });
+    // Создадим новый тип карты, состоящий только из нашего слоя тайлов,
+    // и добавим его в хранилище типов карты под ключом my#type.
+    mapTypeStorage.get(function(storage){
+        storage.add('my#type', new ymaps.MapType(
+            'Схема',
+            ['my#layer']
+        ));
+    });
+};
+    </pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="2" ya-center="[0,0]" ya-type="my#type" ya-before-init="mapInit()"
+            ya-options="{maxZoom:4,minZoom:2,projection:{type:'Cartesian', bounds:[[-1, -1],[1, 1]]}}"
+            ya-controls="zoomControl">
+    </ya-map>
+</div>

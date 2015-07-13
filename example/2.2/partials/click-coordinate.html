@@ -1,0 +1,55 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="11"
+        ya-center="[38.3061,57.5262]"
+        ya-options="{balloonMaxWidth: 200}"
+        ya-after-init="afterInit($target)"
+        ya-event-click="mapClick($event)"
+        ya-event-balloonopen="balloonOpen()"
+        ya-event-contextmenu="handleContext($event)"
+        &gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+var map;
+$scope.afterInit = function($map){
+    map = $map;
+};
+$scope.mapClick = function(e){
+    if (!map.balloon.isOpen()) {
+        var coords = e.get('coords');
+        map.balloon.open(coords, {
+            contentHeader:'Событие!',
+            contentBody:'<p>Кто-то щелкнул по карте.</p>' +
+                '<p>Координаты щелчка: ' + [
+    coords[0].toPrecision(6),
+    coords[1].toPrecision(6)
+    ].join(', ') + '</p>',
+            contentFooter:'<sup>Щелкните еще раз</sup>'
+        });
+    }
+    else {
+        map.balloon.close();
+    }
+};
+$scope.handleContext = function(e){
+    map.hint.open(e.get('coords'), 'Кто-то щелкнул правой кнопкой');
+};
+$scope.balloonOpen=function(){
+    map.hint.close();
+}
+</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="11"
+            ya-center="[38.3061,57.5262]"
+            ya-options="{balloonMaxWidth: 200}"
+            ya-after-init="afterInit($target)"
+            ya-event-click="mapClick($event)"
+            ya-event-balloonopen="balloonOpen()"
+            ya-event-contextmenu="handleContext($event)"
+            >
+    </ya-map>
+</div>

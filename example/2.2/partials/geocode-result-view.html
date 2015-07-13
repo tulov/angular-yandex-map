@@ -1,0 +1,54 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="8" ya-center="[37.721587,55.30954]" ya-after-init="afterInit($target)"&gt;
+    &lt;ya-cluster&gt;
+        &lt;ya-geo-object ya-source="o" ng-repeat="o in res" ya-after-init="ifLast($target)"&gt;&lt;/ya-geo-object&gt;
+    &lt;/ya-cluster&gt;
+&lt;/ya-map&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre class="js" ng-non-bindable>
+var _map;
+$scope.ifLast = function(last){
+    if(!last){
+        return;
+    }
+    _map.geoObjects.each(function(obj){
+        _map.setBounds(obj.getBounds());
+        return false;
+    });
+};
+$scope.afterInit = function(map){
+    _map=map;
+    ymaps.geocode('Арбат').then(
+        function(res){
+            var geos = [];
+            res.geoObjects.each(function(obj){
+                //console.log(obj);
+                geos.push({
+                    geometry:{
+                        type:obj.geometry.getType(),
+                        coordinates:obj.geometry.getCoordinates()
+                    },
+                    properties:{
+                        balloonContentBody:obj.properties.get('balloonContentBody')
+                    }
+                });
+            });
+            $scope.$apply(function(){
+                $scope.res = geos;
+            });
+        }
+    );
+}
+}</pre>
+</div>
+<div class="right">
+    <div>Показаны кластеризированные результаты по запросу "Арбат"</div>
+    <ya-map ya-zoom="8" ya-center="[37.721587,55.30954]" ya-after-init="afterInit($target)">
+        <ya-cluster>
+            <ya-geo-object ya-source="o" ng-repeat="o in res" ya-after-init="ifLast($target)"></ya-geo-object>
+        </ya-cluster>
+    </ya-map>
+</div>

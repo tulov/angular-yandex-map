@@ -90,7 +90,7 @@ StaticServlet.prototype.handleRequest = function(req, res) {
   var path = ('./' + req.url.pathname).replace('//','/').replace(/%(..)/g, function(match, hex){
     return String.fromCharCode(parseInt(hex, 16));
   });
-  if(path==='./2\.0/' || path==='./2\.1/'){
+  if(path==='./2\.0/' || path==='./2\.1/' || path==='./2\.2/'){
       path+='index.html';
   }
     var parts = path.split('/');

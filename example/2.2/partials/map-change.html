@@ -1,0 +1,36 @@
+<div class="center">
+    <p>HTML:</p>
+    <pre class="html" ng-non-bindable>
+&lt;ya-map ya-zoom="10" ya-center="{{ center }}" ya-type="{{ type }}" ya-after-init="afterMapInit($map)"&gt;&lt;/ya-map&gt;
+&lt;button ng-click="changeCenter()"&gt;Изменить центр&lt;/button&gt;
+&lt;button ng-click="changeBounds()"&gt;Изменить границы&lt;/button&gt;
+&lt;button ng-click="replace()"&gt;Изменить тип и плавно переместиться&lt;/button&gt;
+    </pre>
+    <p>javascript:</p>
+    <pre ng-non-bindable>
+$scope.center=[40.925358,57.767265];
+$scope.type='yandex#satellite';
+$scope.changeCenter = function(){
+    $scope.center = [37.64,55.76];
+};
+var map;
+$scope.afterMapInit=function(nMap){
+    map = nMap;
+};
+$scope.changeBounds=function(){
+    map.setBounds([[38, 37], [40, 39]]);
+};
+$scope.replace=function(){
+    $scope.type='yandex#publicMapHybrid';
+    map.panTo([34.461,62.915], {
+        // Задержка перед началом перемещения.
+        delay: 1500
+    });
+};</pre>
+</div>
+<div class="right">
+    <ya-map ya-zoom="10" ya-center="{{ center }}" ya-type="{{ type }}" ya-after-init="afterMapInit($target)"></ya-map>
+    <button ng-click="changeCenter()">Изменить центр</button>
+    <button ng-click="changeBounds()">Изменить границы</button>
+    <button ng-click="replace()">Изменить тип и плавно переместиться</button>
+</div>
