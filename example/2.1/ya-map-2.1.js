@@ -180,10 +180,22 @@ angular.module('yaMap',[]).
         var self = this;
         mapApiLoad(function(){
             self.addGeoObjects = function(obj){
-                $scope.map.geoObjects.add(obj);
+                if (angular.isArray(obj)) {
+                    for (var i = 0, length = obj.length; i < length; i++) {
+                        $scope.map.geoObjects.add(obj[i]);
+                    }
+                } else {
+                    $scope.map.geoObjects.add(obj);
+                }
             };
             self.removeGeoObjects = function(obj){
-                $scope.map.geoObjects.remove(obj);
+                if (angular.isArray(obj)) {
+                    for (var i = 0, length = obj.length; i < length; i++) {
+                        $scope.map.geoObjects.remove(obj[i]);
+                    }
+                } else {
+                    $scope.map.geoObjects.remove(obj);
+                }
             };
 
             self.addControl = function(name, options){
