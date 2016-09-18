@@ -1,5 +1,8 @@
 {
     "name": "ya-map",
     "version": "1.0.4",
+    "main": [
+        "./ya-map-2.1.min.js",
+    ],
     "dependencies": { "angular": "~1.0.3" }
 }
