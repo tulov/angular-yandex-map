@@ -9,7 +9,8 @@ module.exports = function(grunt) {
             dist: {
                 files: {
                     'ya-map-2.0.min.js': ['example/2.0/ya-map-2.0.js'],
-                    'ya-map-2.1.min.js': ['example/2.1/ya-map-2.2.js']
+                    'ya-map-2.1.min.js': ['example/2.1/ya-map-2.1.js'],
+                    'ya-map-2.2.min.js': ['example/2.2/ya-map-2.2.js']
                 }
             }
         }
