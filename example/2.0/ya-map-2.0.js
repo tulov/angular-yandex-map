@@ -216,7 +216,7 @@ angular.module('yaMap',[]).
                     };
                     var getCenterCoordinates = function(center){
                         if(centerCoordinatesDeferred)
-                            centerCoordinatesDeferred.reject();
+                            centerCoordinatesDeferred.reject('CANCEL_GET_CENTER_COORDINATES');
                         centerCoordinatesDeferred = $q.defer();
                         var result;
                         if(!center){
@@ -321,6 +321,11 @@ angular.module('yaMap',[]).
                                         }
                                     }
                                 );
+                            },
+                            function(err){
+                                if(!err || err != 'CANCEL_GET_CENTER_COORDINATES'){
+                                    $q.reject(err);
+                                }
                             }
                         );
                         /*if(_center){
