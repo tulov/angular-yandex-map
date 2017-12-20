@@ -550,7 +550,7 @@ angular.module('yaMap',[]).
                 if(options && options.balloonContentLayout){
                     options.balloonContentLayout = templateLayoutFactory.get(options.balloonContentLayout);
                 }
-                if (options.balloonLayout) {
+                if (options && options.balloonLayout) {
                     options.balloonLayout = templateLayoutFactory.get(options.balloonLayout);
                 }
                 if(options && options.iconLayout){
