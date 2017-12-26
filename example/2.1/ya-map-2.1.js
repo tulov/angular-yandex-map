@@ -227,7 +227,7 @@ angular.module('yaMap',[]).
                     };
                     var getCenterCoordinates = function(center){
                         if(centerCoordinatesDeferred)
-                            centerCoordinatesDeferred.reject();
+                            centerCoordinatesDeferred.reject('CANCEL_GET_CENTER_COORDINATES');
                         centerCoordinatesDeferred = $q.defer();
                         if(!center){
                             //устанавливаем в качестве центра местоположение пользователя
@@ -339,6 +339,11 @@ angular.module('yaMap',[]).
                                         }
                                     }
                                 );
+                            },
+                            function(err){
+                                if(!err || err != 'CANCEL_GET_CENTER_COORDINATES'){
+                                    $q.reject(err);
+                                }
                             }
                         );
                         /*if(_center){
@@ -545,7 +550,7 @@ angular.module('yaMap',[]).
                 if(options && options.balloonContentLayout){
                     options.balloonContentLayout = templateLayoutFactory.get(options.balloonContentLayout);
                 }
-                if (options.balloonLayout) {
+                if (options && options.balloonLayout) {
                     options.balloonLayout = templateLayoutFactory.get(options.balloonLayout);
                 }
                 if(options && options.iconLayout){
